@@ -266,7 +266,7 @@ module.exports = (bot) => {
                         await ctx.group().kick([senderJid]);
                         // Kirim pesan peringatan ke pesan pribadi
                         await ctx._client.sendMessage(senderJid, {
-                            text: quote(`⚠️ Kamu dikick dari grup ${groupId} karena mengirim tautan.`)
+                            text: quote(`⚠️ Kamu dikick dari grup karena mengirim tautan.`)
                         });
                     }
                 }
@@ -299,7 +299,7 @@ module.exports = (bot) => {
                             await ctx.group().kick([senderJid]);
                             // Kirim pesan peringatan ke pesan pribadi
                             await ctx._client.sendMessage(senderJid, {
-                                text: quote(`⚠️ Kamu dikick dari grup ${groupId} karena mengirim NFSW.`)
+                                text: quote(`⚠️ Kamu dikick dari grup karena mengirim NFSW.`)
                             });
                         }
                     }
@@ -318,7 +318,7 @@ module.exports = (bot) => {
                         await ctx.group().kick([senderJid]);
                         // Kirim pesan peringatan ke pesan pribadi
                         await ctx._client.sendMessage(senderJid, {
-                            text: quote(`⚠️ Kamu dikick dari grup ${groupId} karena mengirim sticker.`)
+                            text: quote(`⚠️ Kamu dikick dari grup karena mengirim sticker.`)
                         });
                     }
                 }
@@ -334,7 +334,7 @@ module.exports = (bot) => {
                         await ctx.group().kick([senderJid]);
                         // Kirim pesan peringatan ke pesan pribadi
                         await ctx._client.sendMessage(senderJid, {
-                            text: quote(`⚠️ Kamu dikick dari grup ${groupId} karena mengirim toxic.`)
+                            text: quote(`⚠️ Kamu dikick dari grup karena mengirim toxic.`)
                         });
                     }
                 }

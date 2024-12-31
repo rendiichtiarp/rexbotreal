@@ -8,14 +8,18 @@ async function handler(ctx, options) {
     const isPrivate = !isGroup;
     const senderJid = ctx.sender.jid;
     const senderId = senderJid.split(/[:@]/)[0];
+    const userDb = await db.get(`user.${senderId}`) || {};
+    const isOwner = await tools.general.isOwner(ctx, senderId, config.system.selfOwner);
 
     const botMode = await db.get("bot.mode") || "public";
-    if (isPrivate && botMode === "group") return true;
+    if (isPrivate && botMode === "group") {
+        if (!userDb?.premium && !isOwner) {
+            await ctx.reply(config.msg.groupMode);
+            return true;
+        }
+    }
     if (isGroup && botMode === "private") return true;
     if (!tools.general.isOwner(ctx, senderId, true) && botMode === "self") return true;
-
-    const isOwner = await tools.general.isOwner(ctx, senderId, config.system.selfOwner);
-    const userDb = await db.get(`user.${senderId}`) || {};
 
     if (config.system.requireBotGroupMembership && !isOwner && !userDb?.premium) {
         const botGroupMembersId = (await ctx.group(config.bot.groupJid).members()).map(member => member.id.split("@")[0]);
