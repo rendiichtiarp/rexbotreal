@@ -6,6 +6,9 @@ const APIs = {
     btch: {
         baseURL: "https://btch.us.kg"
     },
+    devo: {
+        baseURL: "https://devo.apibotwa.biz.id"
+    },
     fasturl: {
         baseURL: "https://fastrestapis.fasturl.link",
         APIKey: "7849084a-64fc-4265-9450-b4eb2c25b6a8" // APIKey tidak disediakan, Anda dapat menggunakan APIKey Anda sendiri
@@ -55,27 +58,21 @@ const APIs = {
 function createUrl(apiNameOrURL, endpoint, params = {}, apiKeyParamName, noEncodeParams = []) {
     try {
         const api = APIs[apiNameOrURL];
+
         if (!api) {
             const url = new URL(apiNameOrURL);
             apiNameOrURL = url;
         }
 
-        const queryParams = [];
-        for (const [key, value] of Object.entries(params)) {
-            if (noEncodeParams.includes(key)) {
-                queryParams.push(`${key}=${value}`);
-            } else {
-                queryParams.push(`${encodeURIComponent(key)}=${encodeURIComponent(value)}`);
-            }
-        }
+        const queryParams = new URLSearchParams(params);
 
         if (apiKeyParamName && api && "APIKey" in api) {
-            queryParams.push(`${encodeURIComponent(apiKeyParamName)}=${encodeURIComponent(api.APIKey)}`);
+            queryParams.set(apiKeyParamName, api.APIKey);
         }
 
         const baseURL = api ? api.baseURL : apiNameOrURL.origin;
         const apiUrl = new URL(endpoint, baseURL);
-        apiUrl.search = queryParams.join('&');
+        apiUrl.search = queryParams.toString();
 
         return apiUrl.toString();
     } catch (error) {
