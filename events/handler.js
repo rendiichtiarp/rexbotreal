@@ -117,10 +117,13 @@ module.exports = (bot) => {
         if (!tools.general.isOwner(ctx, senderId, true) && botMode === "self") return;
 
         // Log pesan masuk
+        const currentTime = new Date();
+        const timeString = `${currentTime.getHours()}:${currentTime.getMinutes()}:${currentTime.getSeconds()}`;
+        
         if (isGroup) {
-            console.log(`[${config.pkg.name}] Pesan masuk dari grup: ${groupId}, oleh: ${senderId}`);
+            console.log(`[${config.pkg.name}] [${timeString}] Pesan masuk dari grup: ${groupId}, oleh: ${senderId}`);
         } else {
-            console.log(`[${config.pkg.name}] Pesan masuk dari: ${senderId}`);
+            console.log(`[${config.pkg.name}] [${timeString}] Pesan masuk dari: ${senderId}`);
         }
 
         // Basis data untuk pengguna
@@ -149,7 +152,7 @@ module.exports = (bot) => {
                 const prefix = isCmd.prefix;
                 const input = isCmd.input;
 
-                if (mean) await ctx.reply(quote(`❎ Anda salah ketik, sepertinya ${monospace(prefix + mean)}.`));
+                if (mean) await ctx.reply(quote(`❎ Kamu salah ketik, sepertinya ${monospace(prefix + mean)}.`));
 
                 // Penanganan XP & Level untuk pengguna
                 const xpGain = 10;
@@ -266,7 +269,7 @@ module.exports = (bot) => {
                         await ctx.group().kick([senderJid]);
                         // Kirim pesan peringatan ke pesan pribadi
                         await ctx._client.sendMessage(senderJid, {
-                            text: quote(`⚠️ Kamu dikick dari grup karena mengirim tautan.`)
+                            text: quote(`⚠️ Kamu dikick dari grup karena mengirim tautan.\n\n> Jika ini adalah kesalahan segera hubungi owner/admin.`)
                         });
                     }
                 }
@@ -299,7 +302,7 @@ module.exports = (bot) => {
                             await ctx.group().kick([senderJid]);
                             // Kirim pesan peringatan ke pesan pribadi
                             await ctx._client.sendMessage(senderJid, {
-                                text: quote(`⚠️ Kamu dikick dari grup karena mengirim NFSW.`)
+                                text: quote(`⚠️ Kamu dikick dari grup karena mengirim NFSW.\n\n> Jika ini adalah kesalahan segera hubungi owner/admin.`)
                             });
                         }
                     }
@@ -318,14 +321,14 @@ module.exports = (bot) => {
                         await ctx.group().kick([senderJid]);
                         // Kirim pesan peringatan ke pesan pribadi
                         await ctx._client.sendMessage(senderJid, {
-                            text: quote(`⚠️ Kamu dikick dari grup karena mengirim sticker.`)
+                            text: quote(`⚠️ Kamu dikick dari grup karena mengirim sticker.\n\n> Jika ini adalah kesalahan segera hubungi owner/admin.`)
                         });
                     }
                 }
             }
 
             // Penanganan antitoxic
-            const toxicRegex = /anj(k|g)|ajn?(g|k)|a?njin(g|k)|bajingan|b(a?n)?gsa?t|ko?nto?l|me?me?(k|q)|pe?pe?(k|q)|meki|titi(t|d)|pe?ler|tetek|toket|ngewe|go?blo?k|to?lo?l|idiot|(k|ng)e?nto?(t|d)|jembut|bego|dajj?al|janc(u|o)k|pantek|puki ?(mak)?|kimak|kampang|lonte|col(i|mek?)|pelacur|henceu?t|nigga|fuck|dick|bitch|tits|bastard|asshole|dontol|kontoi|ontol/i;
+            const toxicRegex = /anj(k|g)|ajn?(g|k)|a?njin(g|k)|bajingan|b(a?n)?gsa?t|ko?nto?l|me?me?(k|q)|pe?pe?(k|q)|meki|titi(t|d)|pe?ler|tetek|toket|ngewe|go?blo?k|to?lo?l|idiot|(k|ng)e?nto?(t|d)|jembut|bego|dajj?al|janc(u|o)k|pantek|puki ?(mak)?|kimak|kampang|lonte|col(i|mek?)|pelacur|henceu?t|nigga|fuck|dick|bitch|tits|bastard|asshole|dontol|kontoi|tempek|tempik|ontol/i;
             if (groupDb?.option?.antitoxic) {
                 if (m.content && toxicRegex.test(m.content) && !await tools.general.isAdmin(ctx, senderJid)) {
                     await ctx.reply(quote(`⛔ Jangan toxic!`));
@@ -334,7 +337,7 @@ module.exports = (bot) => {
                         await ctx.group().kick([senderJid]);
                         // Kirim pesan peringatan ke pesan pribadi
                         await ctx._client.sendMessage(senderJid, {
-                            text: quote(`⚠️ Kamu dikick dari grup karena mengirim toxic.`)
+                            text: quote(`⚠️ Kamu dikick dari grup karena mengirim toxic.\n\n> Jika ini adalah kesalahan segera hubungi owner/admin.`)
                         });
                     }
                 }

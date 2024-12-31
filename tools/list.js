@@ -1,3 +1,7 @@
+const {
+    quote
+} = require("@mengkodingan/ckptw");
+
 async function get(type, ctx) {
     try {
         let text = "";

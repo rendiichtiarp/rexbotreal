@@ -31,7 +31,7 @@ module.exports = {
             for (const groupId of groupIds) {
                 await delay(500);
                 try {
-                    const fakeText = {
+                    /*const fakeText = {
                         key: {
                             fromMe: false,
                             participant: "13135550002@s.whatsapp.net",
@@ -44,11 +44,11 @@ module.exports = {
                                 thumbnailUrl: config.bot.thumbnail
                             }
                         }
-                    };
+                    };*/
                     await ctx.sendMessage(groupId, {
                         text: input
                     }, {
-                        quoted: fakeText
+                        /*quoted: fakeText*/
                     });
                 } catch (error) {
                     console.error(`[${config.pkg.name}] Error:`, error);

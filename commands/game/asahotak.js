@@ -82,7 +82,6 @@ module.exports = {
             collector.on("end", async () => {
                 if (session.has(ctx.id)) {
                     session.delete(ctx.id);
-
                     return await ctx.reply(
                         `${quote("⏱ Waktu habis!")}\n` +
                         quote(`Jawabannya adalah ${game.answer}.`)
