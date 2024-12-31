@@ -118,13 +118,13 @@ module.exports = {
                     config.msg.footer
                 );
 
-                const downloadApiUrl = tools.api.createUrl("rintohsaka", "/download/ytmp3", {
+                const downloadApiUrl = tools.api.createUrl("devo", "/api/downloader/ytmp3", {
                     url: data.url
                 });
 
                 return await ctx.reply({
                     audio: {
-                        url: downloadApiUrl
+                        url: downloadData.result.download
                     },
                     mimetype: mime.lookup("mp3")
                 });
