@@ -121,10 +121,11 @@ module.exports = {
                 const downloadApiUrl = tools.api.createUrl("devo", "/api/downloader/ytmp3", {
                     url: data.url
                 });
+                const downloadData = (await axios.get(downloadApiUrl)).data;
 
                 return await ctx.reply({
                     audio: {
-                        url: downloadApiUrl.result.download
+                        url: downloadData.result.download
                     },
                     mimetype: mime.lookup("mp3")
                 });
