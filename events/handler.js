@@ -82,7 +82,8 @@ module.exports = (bot) => {
         if (botRestart && botRestart.jid && botRestart.timestamp) {
             const timeago = tools.general.convertMsToDuration(Date.now() - botRestart.timestamp);
             await bot.core.sendMessage(botRestart.jid, {
-                text: quote(`✅ Berhasil dimulai ulang! Membutuhkan waktu ${timeago}.`)
+                text: quote(`✅ Berhasil dimulai ulang! Membutuhkan waktu ${timeago}.`),
+                edit: botRestart.key
             });
             db.delete("bot.restart");
         }
