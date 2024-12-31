@@ -6,7 +6,7 @@ const axios = require("axios");
 module.exports = {
     name: "jadwalsholat",
     aliases: ["sholat"],
-    category: "tools",
+    category: "tool",
     handler: {},
     code: async (ctx) => {
         if (await handler(ctx, module.exports.handler)) return;

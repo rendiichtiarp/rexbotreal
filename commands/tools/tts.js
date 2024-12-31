@@ -8,7 +8,7 @@ const mime = require("mime-types");
 module.exports = {
     name: "tts",
     aliases: ["texttospeechgoogle", "ttsgoogle"],
-    category: "tools",
+    category: "tool",
     handler: {
         coin: [10, "text", 1]
     },

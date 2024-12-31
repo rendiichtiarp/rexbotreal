@@ -6,7 +6,8 @@ const axios = require("axios");
 
 module.exports = {
     name: "jadwaltv",
-    category: "tools",
+    aliases: ["tv"],
+    category: "tool",
     handler: {
         coin: [10, "text", 1]
     },

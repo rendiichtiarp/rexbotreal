@@ -7,7 +7,7 @@ const mime = require("mime-types");
 module.exports = {
     name: "upload",
     aliases: ["tourl"],
-    category: "tools",
+    category: "tool",
     handler: {
         coin: [10, ["audio", "document", "image", "video", "sticker"], 3]
     },

@@ -8,7 +8,7 @@ const mime = require("mime-types");
 module.exports = {
     name: "pinterest",
     aliases: ["pin", "pint"],
-    category: "tools",
+    category: "tool",
     handler: {
         coin: [10, "text", 1]
     },

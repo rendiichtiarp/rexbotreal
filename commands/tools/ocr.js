@@ -5,7 +5,7 @@ const axios = require("axios");
 
 module.exports = {
     name: "ocr",
-    category: "tools",
+    category: "tool",
     handler: {
         coin: [10, "image", 3]
     },

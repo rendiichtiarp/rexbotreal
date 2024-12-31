@@ -7,7 +7,7 @@ const mime = require("mime-types");
 module.exports = {
     name: "removebg",
     aliases: ["rbg"],
-    category: "tools",
+    category: "tool",
     handler: {
         coin: [10, "image", 3]
     },

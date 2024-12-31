@@ -8,7 +8,7 @@ const mime = require("mime-types");
 module.exports = {
     name: "googleimage",
     aliases: ["gimage"],
-    category: "tools",
+    category: "tool",
     handler: {
         coin: [10, "text", 1]
     },
