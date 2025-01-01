@@ -55,7 +55,7 @@ const APIs = {
     }
 };
 
-function createUrl(apiNameOrURL, endpoint, params = {}, apiKeyParamName, noEncodeParams = []) {
+function createUrl(apiNameOrURL, endpoint, params = {}, apiKeyParamName) {
     try {
         const api = APIs[apiNameOrURL];
 
