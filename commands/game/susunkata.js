@@ -11,7 +11,7 @@ module.exports = {
     if (await handler(ctx, module.exports.handler)) return;
 
     if (session.has(ctx.id))
-      return await ctx.reply(quote(`🎮 Sesi permainan sedang berjalan!`));
+      return await ctx.reply(quote(`🎯 Sesi permainan ini sedang berlangsung! Tunggu hingga selesai.`));
 
     try {
       const apiUrl = tools.api.createUrl("siputzx", "/api/games/susunkata");
@@ -29,10 +29,10 @@ module.exports = {
       await ctx.reply(
         `${quote(`Soal: ${data.soal}`)}\n` +
           `${quote(`Tipe: ${data.tipe}`)}\n` +
+          `${quote(`Waktu: ${game.timeout / 1000} detik`)}\n` +
           `${quote(`Bonus: ${game.coin} Koin`)}\n` +
-          `${quote(`Batas waktu: ${game.timeout / 1000} detik`)}\n` +
-          `${quote("Ketik 'hint' untuk bantuan.")}\n` +
-          `${quote("Ketik 'surrender' untuk menyerah.")}\n` +
+          `${quote("Ketik 'h' untuk petunjuk.")}\n` +
+          `${quote("Ketik 's' untuk menyerah.")}\n` +
           "\n" +
           config.msg.footer
       );
@@ -53,14 +53,14 @@ module.exports = {
           await ctx.sendMessage(
             ctx.id,
             {
-              text: `${quote("💯 Benar!")}\n` + quote(`+${game.coin} Koin`),
+              text: `${quote("💯 Kamu benar!")}\n` + quote(`+${game.coin} Koin`),
             },
             {
               quoted: m,
             }
           );
           return collector.stop();
-        } else if (userAnswer === "HINT") {
+        } else if (userAnswer === "H") {
           const clue = game.answer.replace(/[AIUEO]/g, "_");
           await ctx.sendMessage(
             ctx.id,
@@ -71,11 +71,11 @@ module.exports = {
               quoted: m,
             }
           );
-        } else if (userAnswer === "SURRENDER") {
+        } else if (userAnswer === "S") {
           session.delete(ctx.id);
           await ctx.reply(
-            `${quote("🏳️ Anda menyerah!")}\n` +
-              quote(`Jawabannya adalah ${game.answer}.`)
+            `${quote("💭 Kamu menyerah!")}\n` +
+              quote(`Jawaban: ${game.answer}.`)
           );
           return collector.stop();
         }
@@ -85,8 +85,8 @@ module.exports = {
         if (session.has(ctx.id)) {
           session.delete(ctx.id);
           return await ctx.reply(
-            `${quote("⏱ Waktu habis!")}\n` +
-              quote(`Jawabannya adalah ${game.answer}.`)
+            `${quote("⏰ Waktu kamu habis!")}\n` +
+              quote(`Jawaban: ${game.answer}.`)
           );
         }
       });

@@ -13,7 +13,7 @@ module.exports = {
     if (await handler(ctx, module.exports.handler)) return;
 
     if (session.has(ctx.id))
-      return await ctx.reply(quote(`🎮 Sesi permainan sedang berjalan!`));
+      return await ctx.reply(quote(`🎯 Sesi permainan ini sedang berlangsung! Tunggu hingga selesai.`));
 
     try {
       const apiUrl = tools.api.createUrl("siputzx", "/api/games/family100");
@@ -35,8 +35,8 @@ module.exports = {
       await ctx.reply(
         `${quote(`Soal: ${data.soal}`)}\n` +
           `${quote(`Jumlah jawaban: ${game.answers.size}`)}\n` +
-          `${quote(`Batas waktu ${game.timeout / 1000} detik`)}\n` +
-          `${quote("Ketik 'surrender' untuk menyerah.")}\n` +
+          `${quote(`Waktu ${game.timeout / 1000} detik`)}\n` +
+          `${quote("Ketik 's' untuk menyerah.")}\n` +
           "\n" +
           config.msg.footer
       );
@@ -59,9 +59,9 @@ module.exports = {
             ctx.id,
             {
               text: quote(
-                `✅ ${tools.general.ucword(
+                `💯 ${tools.general.ucword(
                   userAnswer
-                )} benar! Jawaban tersisa: ${game.answers.size}`
+                )} Kamu benar! Jawaban tersisa: ${game.answers.size}`
               ),
             },
             {
@@ -82,11 +82,11 @@ module.exports = {
             );
             return collector.stop();
           }
-        } else if (userAnswer === "SURRENDER") {
+        } else if (userAnswer === "S") {
           session.delete(ctx.id);
           await ctx.reply(
-            `${quote("🏳️ Anda menyerah!")}\n` +
-              quote(`Jawabannya adalah ${game.answer}.`)
+            `${quote("💭 Kamu menyerah!")}\n` +
+              quote(`Jawaban: ${game.answer}.`)
           );
           return collector.stop();
         }
@@ -101,7 +101,7 @@ module.exports = {
         if (session.has(ctx.id)) {
           session.delete(ctx.id);
           return await ctx.reply(
-            `${quote("⏱ Waktu habis!")}\n` +
+            `${quote("⏰ Waktu kamu habis!")}\n` +
               quote(`Jawaban yang belum terjawab adalah: ${remaining}`)
           );
         }
