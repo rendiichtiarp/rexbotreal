@@ -1,5 +1,6 @@
 const {
-    Cooldown
+    Cooldown,
+    quote
 } = require("@mengkodingan/ckptw");
 
 // Penanganan opsi khusus
@@ -50,7 +51,7 @@ async function handler(ctx, options) {
 
     const cooldown = new Cooldown(ctx, config.system.cooldown);
     if (cooldown.onCooldown && !isOwner && !userDb?.premium) {
-        await ctx.reply(config.msg.cooldown);
+        await ctx.reply(quote('🔃 Perintah bisa digunakan dalam ' + Math.floor(cooldown.timeleft / 1000) + ' detik lagi, sabar...'));
         return true;
     }
 
