@@ -54,7 +54,9 @@ module.exports = {
           game.answers.delete(userAnswer);
           game.participants.add(participantId);
 
-          await db.add(`user.${participantId}.coin`, game.coin.answered);
+          const userDb = await db.get(`user.${participantId}`) || {};
+          
+          await db.set(`user.${participantId}.coin`, (userDb?.coin || 0) + game.coin.answered);
           await ctx.sendMessage(
             ctx.id,
             {
@@ -72,7 +74,8 @@ module.exports = {
           if (game.answers.size === 0) {
             session.delete(ctx.id);
             for (const participant of game.participants) {
-              await db.add(`user.${participant}.coin`, game.coin.allAnswered);
+              const participantDb = await db.get(`user.${participant}`) || {};
+              await db.set(`user.${participant}.coin`, (participantDb?.coin || 0) + game.coin.allAnswered);
               await db.add(`user.${participant}.winGame`, 1);
             }
             await ctx.reply(

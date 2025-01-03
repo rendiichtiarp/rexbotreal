@@ -45,7 +45,10 @@ module.exports = {
 
         if (userAnswer === game.answer) {
           session.delete(ctx.id);
-          await db.add(`user.${game.senderId}.coin`, game.coin);
+
+          const updatedUserDb = await db.get(`user.${game.senderId}`) || {};
+          
+          db.set(`user.${game.senderId}.coin`, (updatedUserDb?.coin || 0) + game.coin);
           await ctx.sendMessage(
             ctx.id,
             {

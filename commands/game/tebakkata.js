@@ -26,6 +26,8 @@ module.exports = {
 
       session.set(ctx.id, true);
 
+      const userDb = await db.get(`user.${game.senderId}`) || {};
+
       await ctx.reply(
         `${quote(`Soal: ${data.soal}`)}\n` +
           `${quote(`Waktu: ${game.timeout / 1000} detik`)}\n` +
@@ -45,8 +47,11 @@ module.exports = {
 
         if (userAnswer === game.answer) {
           session.delete(ctx.id);
+          
+          const updatedUserDb = await db.get(`user.${game.senderId}`) || {};
+          
           await Promise.all([
-            await db.add(`user.${game.senderId}.coin`, game.coin),
+            db.set(`user.${game.senderId}.coin`, (updatedUserDb?.coin || 0) + game.coin),
             await db.add(`user.${game.senderId}.winGame`, 1),
           ]);
           await ctx.sendMessage(

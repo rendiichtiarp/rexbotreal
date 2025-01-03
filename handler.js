@@ -51,7 +51,9 @@ async function handler(ctx, options) {
 
     const cooldown = new Cooldown(ctx, config.system.cooldown);
     if (cooldown.onCooldown && !isOwner && !userDb?.premium) {
-        await ctx.reply(quote('🔃 Perintah bisa digunakan dalam ' + Math.floor(cooldown.timeleft / 1000) + ' detik lagi, sabar...'));
+        const timeLeftInSeconds = cooldown.timeleft / 1000;
+        const formattedTimeLeft = timeLeftInSeconds.toFixed(2);
+        await ctx.reply(quote('🔃 Perintah bisa digunakan dalam ' + formattedTimeLeft + ' detik lagi, sabar...'));
         return true;
     }
 
