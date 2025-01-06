@@ -11,7 +11,7 @@ console.log(`[${config.pkg.name}] Connecting...`);
 
 // Buat instance bot baru
 const bot = new Client({
-    WAVersion: [2, 3000, 1015901307],
+    WAVersion: [2, 3000, 1019160093],
     autoMention: config.system.autoMention,
     markOnlineOnConnect: config.system.alwaysOnline,
     phoneNumber: config.bot.phoneNumber,
