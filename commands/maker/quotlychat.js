@@ -1,7 +1,7 @@
 const {
     quote
 } = require("@mengkodingan/ckptw");
-const { on } = require("form-data");
+const axios = require("axios");
 const {
     Sticker,
     StickerTypes
@@ -30,18 +30,41 @@ module.exports = {
         try {
             const profilePictureUrl = await ctx._client.profilePictureUrl(ctx.sender.jid, "image").catch(() => "https://i.pinimg.com/736x/70/dd/61/70dd612c65034b88ebf474a52ccc70c4.jpg");
 
-            const apiUrl = tools.api.createUrl("nervapi", "/api/maker/quotlychat", {
-                text: input,
-                username: ctx.sender.pushName || "-",
-                avatar: profilePictureUrl,
-                bgColor: "#444444"
-            }, "apikey");
+            const json = {
+                "type": "quote",
+                "format": "png",
+                "backgroundColor": "#FFFFFF",
+                "width": 512,
+                "height": 768,
+                "scale": 2,
+                "messages": [
+                    {
+                        "entities": [],
+                        "avatar": true,
+                        "from": {
+                            "id": 1,
+                            "name": ctx.sender.pushName || "-",
+                            "photo": {
+                                "url": profilePictureUrl
+                            }
+                        },
+                        "text": input,
+                        "replyMessage": {}
+                    }
+                ]
+            };
 
-            const {
-                data
-            } = await axios.get(apiUrl);
+            const res = await axios.post('https://bot.lyo.su/quote/generate', json, {
+                headers: {'Content-Type': 'application/json'}
+            });
+            const buffer = Buffer.from(res.data.result.image, 'base64');
+            const rest = { 
+                status: "200", 
+                creator: "AdrianTzy",
+                result: buffer
+            };
 
-            const sticker = new Sticker(data.result, {
+            const sticker = new Sticker(rest.result, {
                 pack: config.sticker.packname,
                 author: config.sticker.author,
                 type: StickerTypes.FULL,
