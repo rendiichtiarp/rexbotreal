@@ -33,7 +33,7 @@ module.exports = {
                 if (res.status === "403") {
                     const code = await ctx.group().inviteCode();
                     await ctx.sendMessage(res.jid, {
-                        text: quote(`👋 Hai, saya diminta untuk menambahkan Anda ke grup tetapi terjadi kesalahan. Bisakah kamu bergabung sendiri? https://chat.whatsapp.com/${code}`)
+                        text: quote(`👋 Hai, saya diminta untuk menambahkan Kamu ke grup tetapi terjadi kesalahan. Bisakah kamu bergabung sendiri? https://chat.whatsapp.com/${code}`)
                     });
                 }
             });

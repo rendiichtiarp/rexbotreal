@@ -1,5 +1,6 @@
 const {
-    quote
+    quote,
+    monospace
 } = require("@mengkodingan/ckptw");
 
 module.exports = {
@@ -32,13 +33,14 @@ module.exports = {
             const profilePictureUrl = await ctx._client.profilePictureUrl(senderJid, "image").catch(() => "https://i.pinimg.com/736x/70/dd/61/70dd612c65034b88ebf474a52ccc70c4.jpg");
 
             return await ctx.reply({
-                text: `${quote(`Nama: ${senderName || "-"}`)}\n` +
-                    `${quote(`Status: ${isOwner ? "Owner" : userDb?.premium ? "Premium" : "Free" || "-"}`)}\n` +
-                    `${quote(`Level: ${userDb?.level || "-"}`)}\n` +
-                    `${quote(`XP: ${userDb?.xp || "-"}`)}\n` +
-                    `${quote(`Koin: ${isOwner || userDb?.premium ? "Tak terbatas" : userDb?.coin || "-"}`)}\n` +
-                    `${quote(`Peringkat: ${userRank || "-"}`)}\n` +
-                    `${quote(`Menang: ${userDb?.winGame || "-"}`)}\n` +
+                text: `${(`🤩 Berikut adalah informasi tentang kamu:`)}\n\n` +
+                    `${(`👤 Nama pengguna: ${senderName || "-"}`)}\n` +
+                    `${(`✨ Jenis akun: ${isOwner ? "⭐ Owner" : userDb?.premium ? "👍 Premium" : "👎 Free" || "-"}`)}\n` +
+                    `${(`🪙 Koin: ${isOwner || userDb?.premium ? "Tak terbatas" : userDb?.coin || "-"}`)}\n` +
+                    `${(`🏅 Ranking: ${userRank || "-"}`)}\n` +
+                    `${(`🎊 Level: ${userDb?.level || "-"}`)}\n` +
+                    `${(`🎉 XP: ${userDb?.xp || "-"}`)}\n` +
+                    `${(`🏆 Game dimenangi: ${userDb?.winGame || "-"}`)}\n` +
                     "\n" +
                     config.msg.footer,
                 contextInfo: {

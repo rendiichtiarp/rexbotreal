@@ -33,7 +33,7 @@ module.exports = {
             await db.add(`user.${user.split("@")[0]}.coin`, coinAmount);
 
             await ctx.sendMessage(user, {
-                text: quote(`🎉 Anda telah menerima ${coinAmount} koin dari Owner!`)
+                text: quote(`🎉 Kamu telah menerima ${coinAmount} koin dari Owner!`)
             });
             return await ctx.reply(quote(`✅ Berhasil menambahkan ${coinAmount} koin kepada pengguna!`));
         } catch (error) {

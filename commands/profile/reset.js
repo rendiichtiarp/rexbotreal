@@ -12,7 +12,7 @@ module.exports = {
         if (await handler(ctx, module.exports.handler)) return;
 
         try {
-            await ctx.reply(quote("🤖 Apakah Anda yakin ingin mereset data Anda? Langkah ini akan menghapus seluruh data yang tersimpan dan tidak dapat dikembalikan. Ketik 'y' untuk melanjutkan atau 'n' untuk membatalkan."));
+            await ctx.reply(quote("🤖 Apakah Kamu yakin ingin mereset data Kamu? Langkah ini akan menghapus seluruh data yang tersimpan dan tidak dapat dikembalikan. Ketik 'y' untuk melanjutkan atau 'n' untuk membatalkan."));
 
             const collector = ctx.MessageCollector({
                 time: 60000
@@ -24,7 +24,7 @@ module.exports = {
 
                 if (userAnswer === "Y") {
                     db.delete(`user.${senderId}`);
-                    await ctx.reply(quote("✅ Data Anda berhasil direset. Semua data telah dihapus!"));
+                    await ctx.reply(quote("✅ Data Kamu berhasil direset. Semua data telah dihapus!"));
                     collector.stop();
                 } else if (userAnswer === "N") {
                     await ctx.reply(quote("❌ Proses reset data telah dibatalkan."));

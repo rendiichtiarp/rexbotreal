@@ -6,9 +6,6 @@ const APIs = {
     btch: {
         baseURL: "https://btch.us.kg"
     },
-    devo: {
-        baseURL: "https://devo.apibotwa.biz.id"
-    },
     fasturl: {
         baseURL: "https://fastrestapis.fasturl.link",
         APIKey: "7849084a-64fc-4265-9450-b4eb2c25b6a8" // APIKey tidak disediakan, Anda dapat menggunakan APIKey Anda sendiri

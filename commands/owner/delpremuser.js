@@ -32,7 +32,7 @@ module.exports = {
             await db.set(`user.${user.split("@")[0]}.premium`, false);
 
             await ctx.sendMessage(user, {
-                text: quote(`🎉 Anda telah dihapus sebagai pengguna Premium oleh Owner!`)
+                text: quote(`🎉 Kamu telah dihapus sebagai pengguna Premium oleh Owner!`)
             });
             return await ctx.reply(quote(`✅ Berhasil dihapus sebagai pengguna Premium!`));
         } catch (error) {

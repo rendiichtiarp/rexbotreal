@@ -1,5 +1,7 @@
 const {
-    quote
+    quote,
+    monospace,
+    bold
 } = require("@mengkodingan/ckptw");
 
 module.exports = {
@@ -28,18 +30,19 @@ module.exports = {
             let resultText = "";
 
             topUsers.forEach((user, index) => {
-                resultText += quote(`${index + 1}. @${user.id} - Menang: ${user.winGame}, Level: ${user.level}\n`);
+                resultText += (`${index + 1}. @${user.id}\n Menang: ${user.winGame}, Level: ${user.level}\n`);
                 userMentions.push(`${user.id}@s.whatsapp.net`);
             });
 
             if (userRank > 10) {
                 const userStats = leaderboardData[userRank - 1];
-                resultText += quote(`${userRank}. @${senderJid} - Menang: ${userStats.winGame}, Level: ${userStats.level}\n`);
+                resultText += (`${userRank}. @${senderJid}\n Menang: ${userStats.winGame}, Level: ${userStats.level}\n`);
                 userMentions.push(`${senderJid}@s.whatsapp.net`);
             }
 
             return await ctx.reply({
-                text: `${resultText.trim()}\n` +
+                text: `${bold(`LEADERBOARD TOP RANKING 10`)}\n\n` +
+                    `${resultText.trim()}\n` +
                     "\n" +
                     config.msg.footer,
                 mentions: userMentions

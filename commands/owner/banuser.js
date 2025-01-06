@@ -32,7 +32,7 @@ module.exports = {
             await db.set(`user.${user.split("@")[0]}.banned`, true);
 
             await ctx.sendMessage(user, {
-                text: quote(`🎉 Anda telah dibanned oleh Owner!`)
+                text: quote(`🎉 Kamu telah dibanned oleh Owner!`)
             });
             return await ctx.reply(quote(`✅ Berhasil dibanned!`));
         } catch (error) {
