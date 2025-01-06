@@ -29,9 +29,13 @@ module.exports = {
                 url: uploadUrl
             }, "apikey");
 
+            const {
+                data
+            } = await axios.get(apiUrl);
+
             return await ctx.reply({
                 image: {
-                    url: apiUrl
+                    url: data.result
                 },
                 mimetype: mime.lookup("png")
             });
