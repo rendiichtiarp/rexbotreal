@@ -104,9 +104,9 @@ module.exports = {
     } catch (error) {
       if (session.has(ctx.id)) {
         session.delete(ctx.id);
-        console.error(`[${config.pkg.name}] Error:`, error);
-        return await ctx.reply(quote(`⚠️ Terjadi kesalahan: ${error.message}`));
       }
+      console.error(`[${config.pkg.name}] Error:`, error);
+      return await ctx.reply(quote(`⚠️ Terjadi kesalahan: ${error.message}`));
     }
   },
 };
