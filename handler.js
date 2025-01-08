@@ -53,7 +53,16 @@ async function handler(ctx, options) {
     if (cooldown.onCooldown && !isOwner && !userDb?.premium) {
         const timeLeftInSeconds = cooldown.timeleft / 1000;
         const formattedTimeLeft = timeLeftInSeconds.toFixed(2);
-        await ctx.reply(quote('🔃 Perintah bisa digunakan dalam ' + formattedTimeLeft + ' detik lagi, sabar...'));
+        
+        // Mengirim pesan awal
+        const message = await ctx.reply(quote('🔃 Perintah bisa digunakan dalam ' + formattedTimeLeft + ' detik lagi, sabar...'));
+        
+        // Menunggu hingga cooldown habis
+        setTimeout(async () => {
+            // Mengedit pesan setelah cooldown habis
+            await ctx.editMessage(message.key, quote('✅ Perintah sudah bisa digunakan kembali!'));
+        }, cooldown.timeleft); // Menggunakan waktu cooldown yang tersisa
+
         return true;
     }
 
