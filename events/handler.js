@@ -175,6 +175,134 @@ module.exports = (bot) => {
 
         // Mulai penghitung waktu untuk reset limit harian
         resetDailyLimit();
+
+        // Fungsi untuk mendapatkan jadwal shalat untuk multiple zona
+        async function getPrayerSchedules() {
+            try {
+                // Definisi kota perwakilan untuk setiap zona
+                const cities = {
+                    WIB: { kota: "jakarta", nama: "Jakarta dan sekitarnya" },
+                    WITA: { kota: "makassar", nama: "Makassar dan sekitarnya" },
+                    WIT: { kota: "jayapura", nama: "Jayapura dan sekitarnya" }
+                };
+
+                const schedules = {};
+                
+                // Ambil jadwal untuk setiap kota
+                for (const [zone, city] of Object.entries(cities)) {
+                    const apiUrl = tools.api.createUrl("agatz", "/api/jadwalsholat", {
+                        kota: city.kota
+                    });
+                    
+                    const { data } = await axios.get(apiUrl, {
+                        headers: {
+                            "x-api-key": tools.api.listUrl().agatz.APIKey
+                        }
+                    });
+                    
+                    // Sesuaikan dengan struktur response API
+                    schedules[zone] = {
+                        subuh: data.data.subuh,
+                        dzuhur: data.data.dhuhur,    // perhatikan spelling 'dhuhur' di API
+                        ashar: data.data.ashar,
+                        maghrib: data.data.maghrib,
+                        isya: data.data.isya,
+                        cityName: city.nama
+                    };
+                }
+                
+                return schedules;
+            } catch (error) {
+                console.error(`[${config.pkg.name}] Error mengambil jadwal shalat:`, error);
+                return null;
+            }
+        }
+
+        // Fungsi untuk mengecek waktu shalat
+        async function checkPrayerTime() {
+            try {
+                const schedules = await getPrayerSchedules();
+                if (!schedules) return;
+
+                const now = new Date();
+                
+                // Fungsi helper untuk mendapatkan waktu berdasarkan zona
+                const getZoneTime = (zone) => {
+                    const offset = {
+                        WIB: 7,
+                        WITA: 8,
+                        WIT: 9
+                    }[zone];
+                    
+                    const zoneTime = new Date(now.getTime() + (offset - 7) * 60 * 60 * 1000);
+                    return `${String(zoneTime.getHours()).padStart(2, '0')}:${String(zoneTime.getMinutes()).padStart(2, '0')}`;
+                };
+
+                // Tambahkan fungsi untuk format tanggal
+                const formatDate = (date) => {
+                    const days = ['Minggu', 'Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu'];
+                    const months = ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'];
+                    
+                    return `${days[date.getDay()]}, ${date.getDate()} ${months[date.getMonth()]} ${date.getFullYear()}`;
+                };
+
+                // Cek untuk setiap zona waktu
+                for (const [zone, schedule] of Object.entries(schedules)) {
+                    const currentTime = getZoneTime(zone);
+                    
+                    const prayerTimes = {
+                        subuh: schedule.subuh,
+                        dzuhur: schedule.dzuhur,
+                        ashar: schedule.ashar,
+                        maghrib: schedule.maghrib,
+                        isya: schedule.isya
+                    };
+
+                    for (const [prayer, time] of Object.entries(prayerTimes)) {
+                        if (currentTime === time) {
+                            const prayerName = prayer.charAt(0).toUpperCase() + prayer.slice(1);
+                            const message = quote(
+                                `🕌 Waktu Shalat ${prayerName}\n` +
+                                `Untuk Wilayah ${schedule.cityName}\n\n` +
+                                `📅 ${formatDate(now)}\n` +
+                                `⏰ Pukul ${time} ${zone}\n\n` +
+                                `"Shalat adalah tiang agama. Barangsiapa yang mendirikannya, maka ia telah mendirikan agamanya. Dan barangsiapa yang meninggalkannya, maka ia telah meruntuhkan agamanya."\n\n` +
+                                `Mari kita tunaikan shalat tepat waktu 🤲`
+                            );
+
+                            // Kirim pesan ke semua grup
+                            const groups = await bot.core.groupFetchAllParticipating();
+                            for (const groupId of Object.keys(groups)) {
+                                await bot.core.sendMessage(groupId, {
+                                    text: message,
+                                    contextInfo: {
+                                        externalAdReply: {
+                                            mediaType: 1,
+                                            previewType: 0,
+                                            title: `Pengingat Waktu Shalat (${zone})`,
+                                            body: config.msg.watermark,
+                                            thumbnailUrl: "https://i.ibb.co/vQx8fvZ/mosque.png",
+                                            sourceUrl: config.bot.website
+                                        }
+                                    }
+                                });
+                            }
+
+                            // Log ke console
+                            console.log(`[${config.pkg.name}] Mengirim pengingat shalat ${prayerName} (${zone}) ke semua grup`);
+                        }
+                    }
+                }
+            } catch (error) {
+                console.error(`[${config.pkg.name}] Error dalam pengecekan waktu shalat:`, error);
+            }
+        }
+
+        // Mulai interval pengecekan waktu shalat (setiap menit)
+        setInterval(checkPrayerTime, 60000);
+
+        // Jalankan pengecekan pertama kali
+        checkPrayerTime();
     });
 
     // Penanganan event ketika pesan muncul

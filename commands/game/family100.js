@@ -7,7 +7,6 @@ module.exports = {
   name: "family100",
   category: "game",
   handler: {
-    group: true,
   },
   code: async (ctx) => {
     if (await handler(ctx, module.exports.handler)) return;
@@ -27,6 +26,7 @@ module.exports = {
         timeout: 90000,
         senderId: ctx.sender.jid.split(/[:@]/)[0],
         answers: new Set(data.jawaban.map((d) => d.toUpperCase())),
+        allAnswers: data.jawaban,
         participants: new Set(),
       };
 
@@ -89,7 +89,7 @@ module.exports = {
           session.delete(ctx.id);
           await ctx.reply(
             `${quote("💭 Kamu menyerah!")}\n` +
-              quote(`Jawaban: ${game.answer}.`)
+            quote(`Jawaban: ${game.allAnswers.join(", ")}.`)
           );
           return collector.stop();
         }
