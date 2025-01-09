@@ -79,6 +79,10 @@ async function handler(ctx, options) {
             check: async () => await checkCoin(ctx, options.coin, senderId) && config.system.useCoin,
             msg: config.msg.coin
         },
+        limit: {
+            check: async () => await checkLimit(ctx, options.limit, senderId) && config.system.useLimit,
+            msg: config.msg.limit
+        },
         group: {
             check: async () => !await ctx.isGroup(),
             msg: config.msg.group
@@ -141,6 +145,35 @@ async function checkCoin(ctx, coinOptions, senderId) {
     if (userCoin < requiredCoin) return true;
 
     await db.subtract(`user.${senderId}.coin`, requiredCoin);
+    return false;
+}
+
+// Cek limit
+async function checkLimit(ctx, limitOptions, senderId) {
+    const isOwner = await tools.general.isOwner(ctx, senderId, config.system.selfOwner);
+    const userDb = await db.get(`user.${senderId}`) || {};
+    const isGroup = ctx.isGroup();
+
+    // Jika dalam grup, limit tidak akan berkurang
+    if (isGroup ||isOwner || userDb?.premium) return false;
+
+    const userLimit = userDb?.limit || 0;
+    const [requiredLimit = 0, requiredMedia = null, mediaSourceOption = null] = Array.isArray(limitOptions) ? limitOptions : [limitOptions];
+
+    if (requiredMedia) {
+        const msgType = ctx.getMessageType();
+        let hasMedia = false;
+
+        if (mediaSourceOption === 1 || mediaSourceOption === 3) hasMedia = await tools.general.checkMedia(msgType, requiredMedia, ctx);
+        if ((mediaSourceOption === 2 || mediaSourceOption === 3) && ctx.quoted) hasMedia = await tools.general.checkQuotedMedia(ctx.quoted, requiredMedia);
+
+        if (!hasMedia) return false;
+    }
+
+    if (userLimit < requiredLimit) return true;
+
+    // Limit hanya berkurang jika bukan dalam grup
+    await db.subtract(`user.${senderId}.limit`, requiredLimit);
     return false;
 }
 

@@ -12,7 +12,7 @@ module.exports = {
     aliases: ["qc", "quotly"],
     category: "maker",
     handler: {
-        onlyGroup: true,
+        limit: [1, "text", 1],
         coin: [10, "text", 1]
     },
     code: async (ctx) => {

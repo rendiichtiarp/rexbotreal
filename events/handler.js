@@ -100,6 +100,81 @@ module.exports = (bot) => {
             const code = await bot.core.groupInviteCode(config.bot.groupJid);
             config.bot.groupLink = `https://chat.whatsapp.com/${code}`;
         }
+
+        // Tambahkan fungsi untuk reset limit harian
+        async function resetDailyLimit() {
+            const now = new Date();
+            const nextMidnight = new Date(now);
+            nextMidnight.setHours(24, 0, 0, 0);
+            
+            const timeUntilMidnight = nextMidnight.getTime() - now.getTime();
+
+            setTimeout(async () => {
+                try {
+                    // Ambil semua data user
+                    const allUsers = await db.get("user") || {};
+                    let successCount = 0;
+                    let failedCount = 0;
+                    
+                    // Reset limit untuk setiap user non-premium
+                    for (const [userId, userData] of Object.entries(allUsers)) {
+                        try {
+                            if (!userData.premium && !tools.general.isOwner({ sender: { jid: userId } }, userId.split(/[:@]/)[0], config.system.selfOwner)) {
+                                await db.set(`user.${userId}.limit`, 10);
+                                successCount++;
+                            }
+                        } catch (err) {
+                            console.error(`Gagal reset limit untuk user ${userId}:`, err);
+                            failedCount++;
+                        }
+                    }
+                    
+                    // Siapkan pesan status reset
+                    const statusMessage = quote(
+                        `📊 Laporan Reset Limit Harian\n\n` +
+                        `📅 Waktu: ${new Date().toLocaleString()}\n` +
+                        `✅ Berhasil: ${successCount} user\n` +
+                        `❌ Gagal: ${failedCount} user\n\n` +
+                        `⏰ Reset selanjutnya: ${nextMidnight.toLocaleString()}`
+                    );
+
+                    // Kirim pesan ke grup log
+                    await bot.core.sendMessage(config.bot.logGroupJid, {
+                        text: statusMessage
+                    });
+                    
+                    console.log(`[${config.pkg.name}] Berhasil reset limit harian ${new Date().toLocaleString()}`);
+                    
+                    // Jalankan lagi untuk hari berikutnya
+                    resetDailyLimit();
+                } catch (error) {
+                    console.error(`[${config.pkg.name}] Error reset limit harian:`, error);
+                    
+                    // Kirim pesan error ke grup dengan JID manual
+                    const errorMessage = quote(
+                        `⚠️ Error Reset Limit Harian\n\n` +
+                        `📅 Waktu: ${new Date().toLocaleString()}\n` +
+                        `❌ Error: ${error.message}\n\n` +
+                        `🔄 Mencoba lagi dalam 1 menit...`
+                    );
+                    
+                    // Kirim pesan error ke grup log
+                    await bot.core.sendMessage(config.bot.logGroupJid, {
+                        text: errorMessage
+                    });
+                    
+                    // Coba lagi dalam 1 menit jika terjadi error
+                    setTimeout(resetDailyLimit, 60000);
+                }
+            }, timeUntilMidnight);
+
+            // Log informasi waktu reset berikutnya
+            const nextResetTime = new Date(now.getTime() + timeUntilMidnight);
+            console.log(`[${config.pkg.name}] Reset limit harian selanjutnya pada: ${nextResetTime.toLocaleString()}`);
+        }
+
+        // Mulai penghitung waktu untuk reset limit harian
+        resetDailyLimit();
     });
 
     // Penanganan event ketika pesan muncul
@@ -138,13 +213,15 @@ module.exports = (bot) => {
             // Penanganan basis data pengguna
             const {
                 coin,
+                limit,
                 level,
                 ...otherUserDb
             } = userDb || {};
 
             const newUserDb = {
-                coin: (isOwner || isPremium) ? 0 : tools.general.clamp(coin || 1000, 0, 10000),
-                level: tools.general.clamp(level || 0, 0, 100),
+                coin: (isOwner || isPremium) ? 0 : (userDb?.coin ?? 1000),
+                limit: (isOwner || isPremium) ? 0 : (userDb?.limit ?? 10),
+                level: userDb?.level || 0,
                 uid: userDb?.uid || tools.general.generateUID(senderId),
                 xp: userDb?.xp || 0,
                 ...otherUserDb
