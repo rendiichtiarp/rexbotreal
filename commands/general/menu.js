@@ -6,10 +6,19 @@ const {
 } = require("@mengkodingan/ckptw");
 const moment = require("moment-timezone");
 
+// Tambahkan fungsi untuk menentukan emoji berdasarkan waktu
+function getTimeEmoji() {
+    const hour = moment.tz(config.system.timeZone).hour();
+    if (hour < 6) return "🌙"; // Malam
+    if (hour < 12) return "🌅"; // Pagi
+    if (hour < 18) return "☀️"; // Siang
+    return "🌇"; // Sore
+}
+
 module.exports = {
     name: "menu",
     aliases: ["allmenu", "help", "list", "listmenu"],
-    category: "tools.general",
+    category: "general",
     handler: {},
     code: async (ctx) => {
         if (await handler(ctx, module.exports.handler)) return;
@@ -38,11 +47,11 @@ module.exports = {
             // Kirim pesan pembuka di awal
             const openingText = `Halo @${ctx.sender.jid.split(/[:@]/)[0]}! Berikut adalah daftar perintah yang tersedia untuk Kamu:\n` +
                 "\n" +
-                `${quote(`Tanggal: ${moment.tz(config.system.timeZone).format("DD/MM/YY")}`)}\n` +
-                `${quote(`Waktu: ${moment.tz(config.system.timeZone).format("HH:mm:ss")}`)}\n` +
-                `${quote(`Uptime: ${tools.general.convertMsToDuration(Date.now() - config.bot.readyAt)}`)}\n` +
+                `${(`📅 Tanggal: ${moment.tz(config.system.timeZone).locale("id").format("dddd, DD MMMM YYYY")}`)}\n` +
+                `${(`${getTimeEmoji()} Waktu: ${moment.tz(config.system.timeZone).format("HH.mm.ss")}`)}\n` +
+                `${(` 🚀 Uptime: ${tools.general.convertMsToDuration(Date.now() - config.bot.readyAt)}`)}\n` +
                 "\n" +
-                `${italic("Dukung kami dengan berdonasi agar bot tetap online!")}\n`;
+                `${italic("Donasi bot ini agar bisa tetap online!")}`;
 
             await ctx.sendMessage(ctx.id, {
                 text: openingText,

@@ -6,6 +6,7 @@ const mime = require("mime-types");
 module.exports = {
     name: "text2img",
     category: "ai-image",
+    aliases: ["text2image", "texttoimage", "texttoimg"],
     handler: {
         coin: [10, "text", 1]
     },

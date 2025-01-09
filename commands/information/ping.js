@@ -11,6 +11,6 @@ module.exports = {
         if (await handler(ctx, module.exports.handler)) return;
 
         const responseTime = (performance.now() - startTime).toFixed(2);
-        return await ctx.reply(quote(`🚀 Pong! Merespon dalam ${responseTime} ms.`));
+        return await ctx.reply(quote(`🚀 Pong! Merespon dalam ${responseTime}ms.`));
     }
 };
