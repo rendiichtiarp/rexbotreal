@@ -3,9 +3,6 @@ const APIs = {
     agatz: {
         baseURL: "https://api.agatz.xyz"
     },
-    btch: {
-        baseURL: "https://api.tioo.eu.org"
-    },
     fasturl: {
         baseURL: "https://fastrestapis.fasturl.link",
         APIKey: "7849084a-64fc-4265-9450-b4eb2c25b6a8" // APIKey tidak disediakan, Anda dapat menggunakan APIKey Anda sendiri
@@ -40,9 +37,6 @@ const APIs = {
     vapis: {
         baseURL: "https://vapis.my.id"
     },
-    vreden: {
-        baseURL: "https://api.vreden.my.id"
-    }
 };
 
 function createUrl(apiNameOrURL, endpoint, params = {}, apiKeyParamName) {
