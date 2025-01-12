@@ -61,7 +61,7 @@ async function get(type, ctx) {
                 break;
             }
             case "setoption": {
-                const data = ["antilink", "antinsfw", "antisticker", "antitoxic", "autokick", "welcome"];
+                const data = ["antilink", "antinsfw", "antisticker", "antitoxic", "autokick", "welcome", "shalat"];
                 text = createList(data, d => `${quote(d)}`);
                 break;
             }

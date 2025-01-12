@@ -39,6 +39,7 @@ module.exports = {
                 `${quote(`Antitoxic: ${groupOption.antitoxic ? "Aktif" : "Nonaktif"}`)}\n` +
                 `${quote(`Autokick: ${groupOption.autokick ? "Aktif" : "Nonaktif"}`)}\n` +
                 `${quote(`Welcome: ${groupOption.welcome ? "Aktif" : "Nonaktif"}`)}\n` +
+                `${quote(`Shalat: ${groupOption.shalat ? "Aktif" : "Nonaktif"}`)}\n` +
                 "\n" +
                 config.msg.footer
             );
@@ -66,6 +67,9 @@ module.exports = {
                     break;
                 case "welcome":
                     setKey = `group.${groupId}.option.welcome`;
+                    break;
+                case "shalat":
+                    setKey = `group.${groupId}.option.shalat`;
                     break;
                 default:
                     return await ctx.reply(quote(`❎ Key '${input}' tidak valid!`));

@@ -270,26 +270,29 @@ module.exports = (bot) => {
                                 `Mari kita tunaikan shalat tepat waktu 🤲`
                             );
 
-                            // Kirim pesan ke semua grup
+                            // Kirim pesan ke grup yang mengaktifkan fitur shalat
                             const groups = await bot.core.groupFetchAllParticipating();
                             for (const groupId of Object.keys(groups)) {
-                                await bot.core.sendMessage(groupId, {
-                                    text: message,
-                                    contextInfo: {
-                                        externalAdReply: {
-                                            mediaType: 1,
-                                            previewType: 0,
-                                            title: `Pengingat Waktu Shalat (${zone})`,
-                                            body: config.msg.watermark,
-                                            thumbnailUrl: "https://i.ibb.co/vQx8fvZ/mosque.png",
-                                            sourceUrl: config.bot.website
+                                const groupDb = await db.get(`group.${groupId.split('@')[0]}.option`) || {};
+                                if (groupDb.shalat) {
+                                    await bot.core.sendMessage(groupId, {
+                                        text: message,
+                                        contextInfo: {
+                                            externalAdReply: {
+                                                mediaType: 1,
+                                                previewType: 0,
+                                                title: `Pengingat Waktu Shalat (${zone})`,
+                                                body: config.msg.watermark,
+                                                thumbnailUrl: "https://i.ibb.co/vQx8fvZ/mosque.png",
+                                                sourceUrl: config.bot.website
+                                            }
                                         }
-                                    }
-                                });
+                                    });
+                                }
                             }
 
                             // Log ke console
-                            console.log(`[${config.pkg.name}] Mengirim pengingat shalat ${prayerName} (${zone}) ke semua grup`);
+                            console.log(`[${config.pkg.name}] Mengirim pengingat shalat ${prayerName} (${zone}) ke grup yang mengaktifkan fitur shalat`);
                         }
                     }
                 }
@@ -334,6 +337,69 @@ module.exports = (bot) => {
             console.log(`[${config.pkg.name}] [${timeString}] Pesan masuk dari grup: ${groupId}, oleh: ${senderId}`);
         } else {
             console.log(`[${config.pkg.name}] [${timeString}] Pesan masuk dari: ${senderId}`);
+        }
+
+        // Penanganan pesan sapaan
+        if (m.content) {
+            const autoMessageHeader = quote("*[🤖 Pesan Otomatis]*") + "\n";
+            
+            // Penanganan pesan "P"
+            if (/^[pP]$/i.test(m.content.trim())) {
+                const randomResponses = [
+                    "🙄 P P P... Salam yang benar dong kak\n\nKetik .menu ya kak untuk lihat fitur bot~",
+                    "😤 Ih ga sopan! Salam dulu dong kakak...\n\nOh iya, ketik .menu untuk lihat fitur bot ya!",
+                    "🤨 P doang? Minimal 'Permisi' gitu...\n\nBtw, ketik .menu untuk lihat semua fitur bot kak",
+                    "😑 Kakak kalau ketuk pintu juga gak cuma 'tok' doang kan?\n\nKalau mau lihat fitur bot, ketik .menu ya~",
+                    "🧐 Hmm... kurang sopan nih. Assalamualaikum dulu dong~\n\nKetik .menu untuk melihat fitur-fitur bot kak"
+                ];
+                const response = autoMessageHeader + randomResponses[Math.floor(Math.random() * randomResponses.length)];
+                await ctx.reply(response);
+                return;
+            }
+            
+            // Penanganan salam
+            if (/^(as+a?la+m|as+a?la+mu+a?la+i+ku+m|as+a?la+mu+a?la+i+ku+m\s+wr\.?\s*wb?\.?)/i.test(m.content.trim())) {
+                const randomResponses = [
+                    "Waalaikumussalam Warahmatullahi Wabarakatuh ✨\n\nKetik .menu untuk melihat fitur-fitur bot ya kak~",
+                    "Waalaikumussalam wr.wb. 🌟 Semoga hari kakak menyenangkan!\n\nOh iya, lihat fitur bot dengan ketik .menu",
+                    "Waalaikumussalam Warahmatullahi Wabarakatuh 🤗\n\nAda yang bisa dibantu kak? Ketik .menu untuk lihat fitur bot",
+                    "Waalaikumussalam wr.wb. 💫 Alhamdulillah ada yang salam~\n\nKetik .menu untuk lihat fitur bot kak",
+                    "Waalaikumussalam Warahmatullahi Wabarakatuh 🌺 MasyaAllah sopan sekali~\n\nCek .menu ya kak untuk lihat fitur bot"
+                ];
+                const response = autoMessageHeader + randomResponses[Math.floor(Math.random() * randomResponses.length)];
+                await ctx.reply(response);
+                return;
+            }
+
+            // Penanganan permisi
+            if (/^(per?misi|per?mis|numpang|permici)/i.test(m.content.trim())) {
+                const randomResponses = [
+                    "👋 Iya kak, silahkan... Ketik .menu untuk lihat fitur bot ya~",
+                    "🌸 Ya, monggo kak~ Cek .menu untuk lihat fitur-fitur bot",
+                    "✨ Iya, silahkan kak. Ketik .menu untuk lihat apa saja yang bisa bot bantu",
+                    "🤗 Hai kak! Sopan banget... Coba ketik .menu untuk lihat fitur bot",
+                    "💫 Iya kak, silahkan masuk~ Ketik .menu ya untuk lihat fitur bot"
+                ];
+                const response = autoMessageHeader + randomResponses[Math.floor(Math.random() * randomResponses.length)];
+                await ctx.reply(response);
+                return;
+            }
+
+            // Penanganan halo/hai
+            if (/^(h[ae][ll]?[ou]+|ha+i+|he+y+|hi+)(?![a-zA-Z])/i.test(m.content.trim())) {
+                const randomResponses = [
+                    "👋 Hai juga kak! Ketik .menu untuk lihat fitur bot ya~",
+                    "🌟 Halo kak~ Cek .menu untuk lihat fitur-fitur bot",
+                    "✨ Hey hey~ Ketik .menu untuk lihat apa yang bisa bot bantu",
+                    "🤗 Haiii! Ketik .menu ya kak untuk lihat fitur bot",
+                    "💫 Halo kak! Coba ketik .menu untuk lihat fitur bot~",
+                    "🌸 Hi! Ketik .menu untuk lihat fitur-fitur bot ya",
+                    "😊 Heyy! Cek .menu untuk lihat fitur bot kak"
+                ];
+                const response = autoMessageHeader + randomResponses[Math.floor(Math.random() * randomResponses.length)];
+                await ctx.reply(response);
+                return;
+            }
         }
 
         // Grup atau Pribadi

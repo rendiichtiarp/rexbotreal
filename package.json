@@ -1,6 +1,6 @@
 {
   "name": "rexbotassistan",
-  "version": "2.29.7",
+  "version": "2.29.9",
   "description": "Rexbot Sourcecode",
   "main": "index.js",
   "directories": {
