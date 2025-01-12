@@ -341,6 +341,9 @@ module.exports = (bot) => {
 
         // Penanganan pesan sapaan
         if (m.content) {
+            // Mengabaikan pesan dari diri sendiri
+            if (senderJid === config.bot.jid) return;
+            
             const autoMessageHeader = quote("*[🤖 Pesan Otomatis]*") + "\n";
             
             // Penanganan pesan "P"
@@ -357,7 +360,7 @@ module.exports = (bot) => {
                 return;
             }
             
-            // Penanganan salam
+            // Penanganan salam Islam
             if (/^(as+a?la+m|as+a?la+mu+a?la+i+ku+m|as+a?la+mu+a?la+i+ku+m\s+wr\.?\s*wb?\.?)/i.test(m.content.trim())) {
                 const randomResponses = [
                     "Waalaikumussalam Warahmatullahi Wabarakatuh ✨\n\nKetik .menu untuk melihat fitur-fitur bot ya kak~",
@@ -365,6 +368,48 @@ module.exports = (bot) => {
                     "Waalaikumussalam Warahmatullahi Wabarakatuh 🤗\n\nAda yang bisa dibantu kak? Ketik .menu untuk lihat fitur bot",
                     "Waalaikumussalam wr.wb. 💫 Alhamdulillah ada yang salam~\n\nKetik .menu untuk lihat fitur bot kak",
                     "Waalaikumussalam Warahmatullahi Wabarakatuh 🌺 MasyaAllah sopan sekali~\n\nCek .menu ya kak untuk lihat fitur bot"
+                ];
+                const response = autoMessageHeader + randomResponses[Math.floor(Math.random() * randomResponses.length)];
+                await ctx.reply(response);
+                return;
+            }
+
+            // Penanganan salam Kristen/Katolik
+            if (/^(shalom|shal+om|tuhan memberkati|puji tuhan|haleluya|praise the lord|god bless)/i.test(m.content.trim())) {
+                const randomResponses = [
+                    "✝️ Shalom! Tuhan Yesus memberkati\n\nKetik .menu untuk melihat fitur-fitur bot ya kak~",
+                    "✝️ Amin, Tuhan memberkati! Semoga hari kakak penuh berkat\n\nCek .menu untuk lihat fitur bot",
+                    "✝️ Shalom! Damai Kristus menyertai kakak\n\nKetik .menu untuk lihat apa yang bisa bot bantu",
+                    "✝️ Puji Tuhan! Selamat datang kak\n\nCoba ketik .menu untuk lihat fitur bot ya",
+                    "✝️ God bless you! Tuhan memberkati kakak\n\nKetik .menu untuk lihat fitur-fitur bot"
+                ];
+                const response = autoMessageHeader + randomResponses[Math.floor(Math.random() * randomResponses.length)];
+                await ctx.reply(response);
+                return;
+            }
+
+            // Penanganan salam Buddha
+            if (/^(namo buddhaya|namo budaya|sadhu|namaste)/i.test(m.content.trim())) {
+                const randomResponses = [
+                    "🙏 Namo Buddhaya kak\n\nKetik .menu untuk melihat fitur-fitur bot ya~",
+                    "🙏 Sadhu! Semoga kakak selalu dalam lindungan Triratna\n\nCek .menu untuk lihat fitur bot",
+                    "🙏 Namo Buddhaya! Semoga damai menyertai kakak\n\nKetik .menu untuk lihat fitur bot",
+                    "🙏 Namaste! Selamat datang kak\n\nCoba ketik .menu untuk lihat fitur-fitur bot",
+                    "🙏 Namo Buddhaya! Semoga berkah menyertai kakak\n\nKetik .menu untuk lihat fitur bot ya"
+                ];
+                const response = autoMessageHeader + randomResponses[Math.floor(Math.random() * randomResponses.length)];
+                await ctx.reply(response);
+                return;
+            }
+
+            // Penanganan salam Hindu
+            if (/^(om swastiastu|om santi|namaste)/i.test(m.content.trim())) {
+                const randomResponses = [
+                    "🕉️ Om Swastiastu kak\n\nKetik .menu untuk melihat fitur-fitur bot ya~",
+                    "🕉️ Om Santi Santi Santi Om\n\nCek .menu untuk lihat fitur bot",
+                    "🕉️ Namaste! Semoga Hyang Widhi memberkati\n\nKetik .menu untuk lihat fitur bot",
+                    "🕉️ Om Swastiastu! Selamat datang kak\n\nCoba ketik .menu untuk lihat fitur-fitur bot",
+                    "🕉️ Om Santi! Semoga damai menyertai kakak\n\nKetik .menu untuk lihat fitur bot ya"
                 ];
                 const response = autoMessageHeader + randomResponses[Math.floor(Math.random() * randomResponses.length)];
                 await ctx.reply(response);
