@@ -25,7 +25,7 @@ module.exports = {
         try {
             const buffer = await ctx.msg.media.toBuffer() || await ctx.quoted?.media.toBuffer();
             const uploadUrl = await tools.general.upload(buffer);
-            const apiUrl = tools.api.createUrl("nyxs", "/tools/removebg", {
+            const apiUrl = tools.api.createUrl("btch", "/removebg", {
                 url: uploadUrl
             });
             const {
@@ -34,7 +34,7 @@ module.exports = {
 
             return await ctx.reply({
                 image: {
-                    url: data.result
+                    url: data.result.urls
                 },
                 mimetype: mime.lookup("png")
             });
