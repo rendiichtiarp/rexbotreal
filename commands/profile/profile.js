@@ -18,7 +18,7 @@ module.exports = {
 
             const userDb = await db.get(`user.${senderId}`) || {};
 
-            const isOwner = await tools.general.isOwner(ctx, senderId, true);
+            const isOwner = tools.general.isOwner(senderId);
 
             const leaderboardData = Object.entries((await db.toJSON()).user)
                 .map(([id, data]) => ({

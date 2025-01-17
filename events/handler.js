@@ -13,7 +13,7 @@ const fs = require("fs");
 const util = require("util");
 
 // Utilitas
-async function handleUserEvent(bot, m) {
+async function handleUserEvent(core, m, type) {
     const {
         id,
         participants
@@ -24,13 +24,13 @@ async function handleUserEvent(bot, m) {
         const groupDb = await db.get(`group.${groupId}`) || {};
 
         if (groupDb?.option?.welcome) {
-            const metadata = await bot.core.groupMetadata(id);
+            const metadata = await core.groupMetadata(id);
 
             for (const jid of participants) {
-                const profilePictureUrl = await bot.core.profilePictureUrl(jid, "image").catch(() => "https://i.pinimg.com/736x/70/dd/61/70dd612c65034b88ebf474a52ccc70c4.jpg");
+                const profilePictureUrl = await core.profilePictureUrl(jid, "image").catch(() => "https://i.pinimg.com/736x/70/dd/61/70dd612c65034b88ebf474a52ccc70c4.jpg");
 
                 const eventType = m.eventsType;
-                const customText = eventType === "UserJoin" ? groupDb?.text?.welcome : groupDb?.text?.goodbye;
+                const customText = type === "UserJoin" ? groupDb?.text?.welcome : groupDb?.text?.goodbye;
                 const userTag = `@${jid.split("@")[0]}`;
 
                 const text = customText ?
@@ -42,7 +42,7 @@ async function handleUserEvent(bot, m) {
                         quote(`👋 Selamat datang ${userTag} di grup ${metadata.subject}!`) :
                         quote(`👋 ${userTag} keluar dari grup ${metadata.subject}.`));
 
-                await bot.core.sendMessage(id, {
+                    await core.sendMessage(id, {
                     text,
                     contextInfo: {
                         mentionedJid: [jid],
@@ -59,7 +59,7 @@ async function handleUserEvent(bot, m) {
                     }
                 });
 
-                if (eventType === "UserJoin" && groupDb?.text?.intro) await bot.core.sendMessage(id, {
+                if (eventType === "UserJoin" && groupDb?.text?.intro) await core.sendMessage(id, {
                     text: groupDb?.text?.intro,
                     mentions: [jid]
                 });
@@ -67,7 +67,7 @@ async function handleUserEvent(bot, m) {
         }
     } catch (error) {
         console.error(`[${config.pkg.name}] Error:`, error);
-        await bot.core.sendMessage(id, {
+        await core.sendMessage(id, {
             text: quote(`⚠️ Terjadi kesalahan: ${error.message}`)
         });
     }
@@ -81,7 +81,7 @@ module.exports = (bot) => {
         const botRestart = await db.get("bot.restart") || {};
         if (botRestart && botRestart.jid && botRestart.timestamp) {
             const timeago = tools.general.convertMsToDuration(Date.now() - botRestart.timestamp);
-            await bot.core.sendMessage(botRestart.jid, {
+            await core.sendMessage(botRestart.jid, {
                 text: quote(`✅ Berhasil dimulai ulang! Membutuhkan waktu ${timeago}.`),
                 edit: botRestart.key
             });
@@ -97,7 +97,7 @@ module.exports = (bot) => {
         ]);
 
         if (config.system.requireBotGroupMembership) {
-            const code = await bot.core.groupInviteCode(config.bot.groupJid);
+            const code = await core.groupInviteCode(config.bot.groupJid);
             config.bot.groupLink = `https://chat.whatsapp.com/${code}`;
         }
 
@@ -320,7 +320,7 @@ module.exports = (bot) => {
 
         // Basis data untuk pengguna
         const userDb = await db.get(`user.${senderId}`) || {};
-        const isOwner = tools.general.isOwner(ctx, senderId, config.system.selfOwner);
+        const isOwner = tools.general.isOwner(senderId);
         const isPremium = userDb?.premium;
 
         // Penanganan pada mode bot
@@ -346,14 +346,31 @@ module.exports = (bot) => {
             
             const autoMessageHeader = quote("*[🤖 Pesan Otomatis]*") + "\n";
             
+            // Penanganan variasi pesan "Woy" dan "Wai Woi"
+            if (/^(woy|woi|woyyy|woii|wai|wai woi)$/i.test(m.content.trim())) {
+                const randomResponses = [
+                    "👋 Woy! Ada yang bisa bantu? Cek .menu ya buat lihat fitur bot~",
+                    "😄 Woi! Semangat terus! Jangan lupa ketik .menu buat lihat fitur-fitur seru.",
+                    "🤔 Woyyy? Ada yang mau ditanyain? Ketik .menu biar tahu lebih banyak tentang bot ini!",
+                    "🙌 Woii! Gimana kabarnya? Jangan lupa cek .menu buat fitur-fitur bot.",
+                    "😎 Woy! Siap bantu! Ketik .menu buat lihat semua fitur yang ada.",
+                    "😠 Wai woi, sopan dikit dong! Ketik .menu ya buat lihat fitur bot~",
+                    "🎉 Woy! Lagi ngapain nih? Cek .menu buat fitur seru dari bot ini!",
+                    "😜 Woi! Gimana kabarnya? Jangan lupa ketik .menu buat lihat fitur-fitur keren!"
+                ];
+                const response = autoMessageHeader + randomResponses[Math.floor(Math.random() * randomResponses.length)];
+                await ctx.reply(response);
+                return;
+            }
+            
             // Penanganan pesan "P"
             if (/^[pP]$/i.test(m.content.trim())) {
                 const randomResponses = [
-                    "🙄 P P P... Salam yang benar dong kak\n\nKetik .menu ya kak untuk lihat fitur bot~",
-                    "😤 Ih ga sopan! Salam dulu dong kakak...\n\nOh iya, ketik .menu untuk lihat fitur bot ya!",
-                    "🤨 P doang? Minimal 'Permisi' gitu...\n\nBtw, ketik .menu untuk lihat semua fitur bot kak",
-                    "😑 Kakak kalau ketuk pintu juga gak cuma 'tok' doang kan?\n\nKalau mau lihat fitur bot, ketik .menu ya~",
-                    "🧐 Hmm... kurang sopan nih. Assalamualaikum dulu dong~\n\nKetik .menu untuk melihat fitur-fitur bot kak"
+                    "🙄 P P P... Salam yang lebih sopan dong, kak! Ketik .menu ya buat lihat fitur bot~",
+                    "😤 Ih, ga sopan! Salam dulu dong, kakak...\n\nOh iya, ketik .menu untuk lihat fitur bot ya!",
+                    "🤨 P doang? Minimal 'Permisi' gitu...\n\nBtw, ketik .menu untuk lihat semua fitur bot, ya!",
+                    "😑 Kakak kalau ketuk pintu juga ga cuma 'tok' doang kan?\n\nKalau mau lihat fitur bot, ketik .menu ya~",
+                    "🧐 Hmm... kurang sopan nih. Assalamualaikum dulu dong~\n\nKetik .menu untuk melihat fitur-fitur bot, ya!"
                 ];
                 const response = autoMessageHeader + randomResponses[Math.floor(Math.random() * randomResponses.length)];
                 await ctx.reply(response);
@@ -363,11 +380,11 @@ module.exports = (bot) => {
             // Penanganan salam Islam
             if (/^(as+a?la+m|as+a?la+mu+a?la+i+ku+m|as+a?la+mu+a?la+i+ku+m\s+wr\.?\s*wb?\.?)/i.test(m.content.trim())) {
                 const randomResponses = [
-                    "Waalaikumussalam Warahmatullahi Wabarakatuh ✨\n\nKetik .menu untuk melihat fitur-fitur bot ya kak~",
-                    "Waalaikumussalam wr.wb. 🌟 Semoga hari kakak menyenangkan!\n\nOh iya, lihat fitur bot dengan ketik .menu",
-                    "Waalaikumussalam Warahmatullahi Wabarakatuh 🤗\n\nAda yang bisa dibantu kak? Ketik .menu untuk lihat fitur bot",
-                    "Waalaikumussalam wr.wb. 💫 Alhamdulillah ada yang salam~\n\nKetik .menu untuk lihat fitur bot kak",
-                    "Waalaikumussalam Warahmatullahi Wabarakatuh 🌺 MasyaAllah sopan sekali~\n\nCek .menu ya kak untuk lihat fitur bot"
+                    "Waalaikumussalam! ✨ Semoga harimu menyenangkan! Cek .menu untuk fitur-fitur bot ya~",
+                    "Waalaikumussalam wr.wb. 🌟 Semoga hari kakak menyenangkan! Cek .menu untuk lihat fitur bot.",
+                    "Waalaikumussalam! 🤗 Ada yang bisa dibantu? Ketik .menu untuk lihat fitur bot.",
+                    "Waalaikumussalam wr.wb. 💫 Alhamdulillah ada yang salam~ Cek .menu untuk fitur bot, ya!",
+                    "Waalaikumussalam! 🌺 MasyaAllah sopan sekali~ Cek .menu ya kak untuk lihat fitur bot."
                 ];
                 const response = autoMessageHeader + randomResponses[Math.floor(Math.random() * randomResponses.length)];
                 await ctx.reply(response);
@@ -377,11 +394,11 @@ module.exports = (bot) => {
             // Penanganan salam Kristen/Katolik
             if (/^(shalom|shal+om|tuhan memberkati|puji tuhan|haleluya|praise the lord|god bless)/i.test(m.content.trim())) {
                 const randomResponses = [
-                    "✝️ Shalom! Tuhan Yesus memberkati\n\nKetik .menu untuk melihat fitur-fitur bot ya kak~",
-                    "✝️ Amin, Tuhan memberkati! Semoga hari kakak penuh berkat\n\nCek .menu untuk lihat fitur bot",
-                    "✝️ Shalom! Damai Kristus menyertai kakak\n\nKetik .menu untuk lihat apa yang bisa bot bantu",
-                    "✝️ Puji Tuhan! Selamat datang kak\n\nCoba ketik .menu untuk lihat fitur bot ya",
-                    "✝️ God bless you! Tuhan memberkati kakak\n\nKetik .menu untuk lihat fitur-fitur bot"
+                    "✝️ Shalom! Tuhan Yesus memberkati! Cek .menu untuk lihat fitur-fitur bot ya~",
+                    "✝️ Amin, Tuhan memberkati! Semoga harimu penuh berkat! Cek .menu untuk lihat fitur bot.",
+                    "✝️ Shalom! Damai Kristus menyertai! Ketik .menu untuk lihat apa yang bisa bot bantu.",
+                    "✝️ Puji Tuhan! Selamat datang! Coba ketik .menu untuk lihat fitur bot ya.",
+                    "✝️ God bless you! Tuhan memberkati! Ketik .menu untuk lihat fitur-fitur bot."
                 ];
                 const response = autoMessageHeader + randomResponses[Math.floor(Math.random() * randomResponses.length)];
                 await ctx.reply(response);
@@ -391,11 +408,11 @@ module.exports = (bot) => {
             // Penanganan salam Buddha
             if (/^(namo buddhaya|namo budaya|sadhu|namaste)/i.test(m.content.trim())) {
                 const randomResponses = [
-                    "🙏 Namo Buddhaya kak\n\nKetik .menu untuk melihat fitur-fitur bot ya~",
-                    "🙏 Sadhu! Semoga kakak selalu dalam lindungan Triratna\n\nCek .menu untuk lihat fitur bot",
-                    "🙏 Namo Buddhaya! Semoga damai menyertai kakak\n\nKetik .menu untuk lihat fitur bot",
-                    "🙏 Namaste! Selamat datang kak\n\nCoba ketik .menu untuk lihat fitur-fitur bot",
-                    "🙏 Namo Buddhaya! Semoga berkah menyertai kakak\n\nKetik .menu untuk lihat fitur bot ya"
+                    "🙏 Namo Buddhaya! Cek .menu untuk lihat fitur-fitur bot ya~",
+                    "🙏 Sadhu! Semoga kakak selalu dalam lindungan Triratna! Cek .menu untuk lihat fitur bot.",
+                    "🙏 Namo Buddhaya! Semoga damai menyertai! Ketik .menu untuk lihat fitur bot.",
+                    "🙏 Namaste! Selamat datang! Coba ketik .menu untuk lihat fitur-fitur bot.",
+                    "🙏 Namo Buddhaya! Semoga berkah menyertai! Ketik .menu untuk lihat fitur bot ya."
                 ];
                 const response = autoMessageHeader + randomResponses[Math.floor(Math.random() * randomResponses.length)];
                 await ctx.reply(response);
@@ -405,11 +422,11 @@ module.exports = (bot) => {
             // Penanganan salam Hindu
             if (/^(om swastiastu|om santi|namaste)/i.test(m.content.trim())) {
                 const randomResponses = [
-                    "🕉️ Om Swastiastu kak\n\nKetik .menu untuk melihat fitur-fitur bot ya~",
-                    "🕉️ Om Santi Santi Santi Om\n\nCek .menu untuk lihat fitur bot",
-                    "🕉️ Namaste! Semoga Hyang Widhi memberkati\n\nKetik .menu untuk lihat fitur bot",
-                    "🕉️ Om Swastiastu! Selamat datang kak\n\nCoba ketik .menu untuk lihat fitur-fitur bot",
-                    "🕉️ Om Santi! Semoga damai menyertai kakak\n\nKetik .menu untuk lihat fitur bot ya"
+                    "🕉️ Om Swastiastu! Cek .menu untuk lihat fitur-fitur bot ya~",
+                    "🕉️ Om Santi Santi Santi Om! Cek .menu untuk lihat fitur bot.",
+                    "🕉️ Namaste! Semoga Hyang Widhi memberkati! Ketik .menu untuk lihat fitur bot.",
+                    "🕉️ Om Swastiastu! Selamat datang! Coba ketik .menu untuk lihat fitur-fitur bot.",
+                    "🕉️ Om Santi! Semoga damai menyertai! Ketik .menu untuk lihat fitur bot ya."
                 ];
                 const response = autoMessageHeader + randomResponses[Math.floor(Math.random() * randomResponses.length)];
                 await ctx.reply(response);
@@ -419,11 +436,11 @@ module.exports = (bot) => {
             // Penanganan permisi
             if (/^(per?misi|per?mis|numpang|permici)/i.test(m.content.trim())) {
                 const randomResponses = [
-                    "👋 Iya kak, silahkan... Ketik .menu untuk lihat fitur bot ya~",
-                    "🌸 Ya, monggo kak~ Cek .menu untuk lihat fitur-fitur bot",
-                    "✨ Iya, silahkan kak. Ketik .menu untuk lihat apa saja yang bisa bot bantu",
-                    "🤗 Hai kak! Sopan banget... Coba ketik .menu untuk lihat fitur bot",
-                    "💫 Iya kak, silahkan masuk~ Ketik .menu ya untuk lihat fitur bot"
+                    "👋 Iya kak, silahkan... Cek .menu untuk lihat fitur bot ya~",
+                    "🌸 Ya, monggo kak~ Cek .menu untuk lihat fitur-fitur bot.",
+                    "✨ Iya, silahkan kak. Ketik .menu untuk lihat apa saja yang bisa bot bantu.",
+                    "🤗 Hai kak! Sopan banget... Coba ketik .menu untuk lihat fitur bot.",
+                    "💫 Iya kak, silahkan masuk~ Ketik .menu ya untuk lihat fitur bot."
                 ];
                 const response = autoMessageHeader + randomResponses[Math.floor(Math.random() * randomResponses.length)];
                 await ctx.reply(response);
@@ -433,13 +450,13 @@ module.exports = (bot) => {
             // Penanganan halo/hai
             if (/^(h[ae][ll]?[ou]+|ha+i+|he+y+|hi+)(?![a-zA-Z])/i.test(m.content.trim())) {
                 const randomResponses = [
-                    "👋 Hai juga kak! Ketik .menu untuk lihat fitur bot ya~",
-                    "🌟 Halo kak~ Cek .menu untuk lihat fitur-fitur bot",
-                    "✨ Hey hey~ Ketik .menu untuk lihat apa yang bisa bot bantu",
-                    "🤗 Haiii! Ketik .menu ya kak untuk lihat fitur bot",
+                    "👋 Hai juga kak! Cek .menu untuk lihat fitur bot ya~",
+                    "🌟 Halo kak~ Cek .menu untuk lihat fitur-fitur bot.",
+                    "✨ Hey hey~ Ketik .menu untuk lihat apa yang bisa bot bantu.",
+                    "🤗 Haiii! Ketik .menu ya kak untuk lihat fitur bot.",
                     "💫 Halo kak! Coba ketik .menu untuk lihat fitur bot~",
-                    "🌸 Hi! Ketik .menu untuk lihat fitur-fitur bot ya",
-                    "😊 Heyy! Cek .menu untuk lihat fitur bot kak"
+                    "🌸 Hi! Ketik .menu untuk lihat fitur-fitur bot ya.",
+                    "😊 Heyy! Cek .menu untuk lihat fitur bot kak."
                 ];
                 const response = autoMessageHeader + randomResponses[Math.floor(Math.random() * randomResponses.length)];
                 await ctx.reply(response);
@@ -468,7 +485,7 @@ module.exports = (bot) => {
             await db.set(`user.${senderId}`, newUserDb);
 
             // Penanganan untuk perintah
-            const isCmd = tools.general.isCmd(m, ctx);
+            const isCmd = tools.general.isCmd(m.content, ctx._config);
             if (isCmd) {
                 if (config.system.autoTypingOnCmd) await ctx.simulateTyping(); // Simulasi pengetikan otomatis untuk perintah
 
@@ -477,7 +494,7 @@ module.exports = (bot) => {
                 const prefix = isCmd.prefix;
                 const input = isCmd.input;
 
-                if (mean) await ctx.reply(quote(`❎ Kamu salah ketik, sepertinya ${monospace(prefix + mean)}.`));
+                if (mean) await ctx.reply(quote(`❎ Kamu salah ketik, kayaknya ${monospace(prefix + mean)} deh.`));
 
                 // Penanganan XP & Level untuk pengguna
                 const xpGain = 10;
@@ -587,7 +604,7 @@ module.exports = (bot) => {
             // Penanganan antilink
             if (groupDb?.option?.antilink) {
                 const isUrl = await tools.general.isUrl(m.content);
-                if (m.content && await tools.general.isUrl(m.content) && !await tools.general.isAdmin(ctx, senderJid)) {
+                if (m.content && await tools.general.isUrl(m.content) && !await tools.general.isAdmin(ctx.group, senderJid)) {
                     await ctx.reply(quote(`⛔ Jangan kirim tautan!`));
                     await ctx.deleteMessage(m.key);
                     if (!config.system.restrict && groupDb?.option?.autokick) {
@@ -603,9 +620,9 @@ module.exports = (bot) => {
             // Penanganan antinsfw
             if (groupDb?.option?.antinsfw) {
                 const msgType = ctx.getMessageType();
-                const checkMedia = await tools.general.checkMedia(msgType, "image", ctx)
+                const checkMedia = await tools.general.checkMedia(msgType, "image")
 
-                if (checkMedia && !await tools.general.isAdmin(ctx, senderJid)) {
+                if (checkMedia && !await tools.general.isAdmin(ctx.group, senderJid)) {
                     const buffer = await ctx.msg.media.toBuffer();
                     const uploadUrl = await tools.general.upload(buffer);
 
@@ -637,9 +654,9 @@ module.exports = (bot) => {
             // Penanganan antisticker
             if (groupDb?.option?.antisticker) {
                 const msgType = ctx.getMessageType();
-                const checkMedia = await tools.general.checkMedia(msgType, "sticker", ctx)
+                const checkMedia = await tools.general.checkMedia(msgType, "sticker")
 
-                if (checkMedia && !await tools.general.isAdmin(ctx, senderJid)) {
+                if (checkMedia && !await tools.general.isAdmin(ctx.group, senderJid)) {
                     await ctx.reply(`⛔ Jangan kirim stiker!`);
                     await ctx.deleteMessage(m.key);
                     if (!config.system.restrict && groupDb?.option?.autokick) {
@@ -655,7 +672,7 @@ module.exports = (bot) => {
             // Penanganan antitoxic
             const toxicRegex = /anj(k|g)|ajn?(g|k)|a?njin(g|k)|bajingan|b(a?n)?gsa?t|ko?nto?l|me?me?(k|q)|pe?pe?(k|q)|meki|titi(t|d)|pe?ler|tetek|toket|ngewe|go?blo?k|to?lo?l|idiot|(k|ng)e?nto?(t|d)|jembut|bego|dajj?al|janc(u|o)k|pantek|puki ?(mak)?|kimak|kampang|lonte|col(i|mek?)|pelacur|henceu?t|nigga|fuck|dick|bitch|tits|bastard|asshole|dontol|kontoi|tempek|tempik|ontol/i;
             if (groupDb?.option?.antitoxic) {
-                if (m.content && toxicRegex.test(m.content) && !await tools.general.isAdmin(ctx, senderJid)) {
+                if (m.content && toxicRegex.test(m.content) && !await tools.general.isAdmin(ctx.group, senderJid)) {
                     await ctx.reply(quote(`⛔ Jangan toxic!`));
                     await ctx.deleteMessage(m.key);
                     if (!config.system.restrict && groupDb?.option?.autokick) {
@@ -673,7 +690,7 @@ module.exports = (bot) => {
         if (isPrivate) {
             if (m.key.fromMe) return;
 
-            const isCmd = tools.general.isCmd(m, ctx);
+            const isCmd = tools.general.isCmd(m.content, ctx._config);
 
             // Penanganan menfess
             const allMenfessDb = await db.get("menfess") || {};
@@ -714,13 +731,6 @@ module.exports = (bot) => {
     });
 
     // Penanganan peristiwa ketika pengguna bergabung atau keluar dari grup
-    bot.ev.on(Events.UserJoin, async (m) => {
-        m.eventsType = "UserJoin";
-        handleUserEvent(bot, m);
-    });
-
-    bot.ev.on(Events.UserLeave, async (m) => {
-        m.eventsType = "UserLeave";
-        handleUserEvent(bot, m);
-    });
+    bot.ev.on(Events.UserJoin, async (m) => handleUserEvent(bot.core, m, "UserJoin"));
+    bot.ev.on(Events.UserLeave, async (m) => handleUserEvent(bot.core, m, "UserLeave"));
 };

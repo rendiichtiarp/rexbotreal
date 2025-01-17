@@ -12,8 +12,8 @@ module.exports = {
     aliases: ["emix"],
     category: "maker",
     handler: {
-        limit: [1, "text", 1],
-        coin: [10, "text", 1]
+        limit: 1,
+        coin: 10
     },
     code: async (ctx) => {
         if (await handler(ctx, module.exports.handler)) return;
@@ -25,7 +25,7 @@ module.exports = {
 
         if (!emoji1 && !emoji2) return await ctx.reply(
             `${quote(tools.msg.generateInstruction(["send"], ["text"]))}\n` +
-            quote(tools.msg.generateCommandExample(ctx._used.prefix + ctx._used.command, "😱 🤓"))
+            quote(tools.msg.generateCommandExample(ctx._used, "😱 🤓"))
         );
 
         try {
