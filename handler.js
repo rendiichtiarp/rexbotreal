@@ -23,7 +23,7 @@ async function handler(ctx, options) {
     if (!tools.general.isOwner(senderId, true) && botMode === "self") return true;
 
     if (config.system.requireBotGroupMembership && !isOwner && !userDb?.premium) {
-        const botGroupMembersId = (await ctx.group()(config.bot.groupJid).members()).map(member => member.id.split("@")[0]);
+        const botGroupMembersId = (await ctx.group(config.bot.groupJid).members()).map(member => member.id.split("@")[0]);
         if (!botGroupMembersId.includes(senderId)) {
             await ctx.reply({
                 text: config.msg.botGroupMembership,
@@ -68,11 +68,11 @@ async function handler(ctx, options) {
 
     const checkOptions = {
         admin: {
-            check: async () => (await ctx.isGroup() && !await tools.general.isAdmin(ctx.group(), senderJid)),
+            check: async () => (await ctx.isGroup() && !await tools.general.isAdmin(ctx.group, senderJid)),
             msg: config.msg.admin
         },
         botAdmin: {
-            check: async () => (await ctx.isGroup() && !await tools.general.isBotAdmin(ctx.group())),
+            check: async () => (await ctx.isGroup() && !await tools.general.isBotAdmin(ctx.group)),
             msg: config.msg.botAdmin
         },
         coin: {
@@ -80,7 +80,7 @@ async function handler(ctx, options) {
             msg: config.msg.coin
         },
         limit: {
-            check: async () => await checkLimit(options.limit, senderId, ctx.isGroup()) && config.system.useLimit,
+            check: async () => await checkLimit(options.limit, senderId) && config.system.useLimit,
             msg: config.msg.limit
         },
         group: {
@@ -138,17 +138,18 @@ async function checkCoin(requiredCoin, senderId) {
 }
 
 // Cek limit
-async function checkLimit(requiredLimit, senderId, isGroup = false) {
+async function checkLimit(requiredLimit, senderId) {
     const isOwner = tools.general.isOwner(senderId);
     const userDb = await db.get(`user.${senderId}`) || {};
 
-    // Jika owner, premium, atau dalam grup, limit tidak digunakan
-    if (isOwner || userDb?.premium || isGroup) return false;
+    // Jika dalam grup, limit tidak akan berkurang
+    if (isOwner || userDb?.premium) return false;
 
     const userLimit = userDb?.limit || 0;
 
     if (userLimit < requiredLimit) return true;
 
+    // Limit hanya berkurang jika bukan dalam grup
     await db.subtract(`user.${senderId}.limit`, requiredLimit);
     return false;
 }

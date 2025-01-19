@@ -11,7 +11,6 @@ module.exports = {
     aliases: ["asbrat", "stikerabrat", "stickerabrat"],
     category: "maker",
     handler: {
-        limit: 1,
         coin: 10
     },
     code: async (ctx) => {

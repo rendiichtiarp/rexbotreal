@@ -12,7 +12,6 @@ module.exports = {
     aliases: ["qc", "quotly"],
     category: "maker",
     handler: {
-        limit: 1,
         coin: 10
     },
     code: async (ctx) => {

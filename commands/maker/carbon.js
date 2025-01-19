@@ -8,7 +8,6 @@ module.exports = {
     aliases: ["carbonify"],
     category: "maker",
     handler: {
-        limit: 1,
         coin: 10
     },
     code: async (ctx) => {

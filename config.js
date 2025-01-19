@@ -75,7 +75,7 @@ global.config = {
         cooldown: 20 * 1000, // Jeda antar perintah (ms)
         port: 3000, // Port (jika pakai server)
         restrict: false, // Batasi akses perintah
-        requireBotGroupMembership: false, // Harus gabung grup bot
+        requireBotGroupMembership: true, // Harus gabung grup bot
         selfOwner: false, // Bot jadi owner sendiri
         selfReply: true, // Bot balas pesan bot sendiri
         timeZone: "Asia/Jakarta", // Zona waktu bot
