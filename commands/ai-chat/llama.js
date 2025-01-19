@@ -16,11 +16,11 @@ module.exports = {
 
         if (!input) return await ctx.reply(
             `${quote(tools.msg.generateInstruction(["send"], ["text"]))}\n` +
-            quote(tools.msg.generateCommandExample(ctx._used.prefix + ctx._used.command, "apa itu bot whatsapp?"))
+            (tools.msg.generateCommandExample(ctx._used, "jelaskan tentang WhatsApp!"))
         );
 
         try {
-            const apiUrl = tools.api.createUrl("siputzx", "/api/ai/venice", {
+            const apiUrl = tools.api.createUrl("siputzx", "/api/ai/llama", {
                 prompt: input
             });
             const {

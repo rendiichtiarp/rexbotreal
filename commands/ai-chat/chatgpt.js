@@ -15,8 +15,8 @@ module.exports = {
 
         if (!input) return await ctx.reply(
             `${quote(tools.msg.generateInstruction(["send"], [ "image","text"]))}\n` +
-            `${quote(tools.msg.generateCommandExample(ctx._used, "apa itu bot whatsapp?"))}\n` +
-            quote(tools.msg.generateNotes(["AI ini dapat melihat media dan menjawab pertanyaan tentangnya. Kirim media dan tanyakan apa saja!"]))
+            `${(tools.msg.generateCommandExample(ctx._used, "jelaskan tentang Rexbot!"))}\n` +
+            (tools.msg.generateNotes(["AI ini dapat menganalisis media dan menjawab pertanyaan terkait."]))
         );
 
         const msgType = ctx.getMessageType();

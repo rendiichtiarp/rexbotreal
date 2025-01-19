@@ -30,11 +30,11 @@ module.exports = {
             });
             const {
                 data
-            } = (await axios.get(apiUrl)).data;
+            } = await axios.get(apiUrl);
 
             return await ctx.reply({
                 video: {
-                    url: data.dl
+                    url: data.downloads.url
                 },
                 mimetype: mime.lookup("mp4")
             });

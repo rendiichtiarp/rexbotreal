@@ -1,5 +1,6 @@
 const {
-    quote
+    quote,
+    bold
 } = require("@mengkodingan/ckptw");
 const axios = require("axios");
 
@@ -16,7 +17,7 @@ module.exports = {
 
         if (!input) return await ctx.reply(
             `${quote(tools.msg.generateInstruction(["send"], ["text"]))}\n` +
-            quote(tools.msg.generateCommandExample(ctx._used, "apa itu bot whatsapp?"))
+            (tools.msg.generateCommandExample(ctx._used, "jelaskan tentang Rexbot!"))
         );
 
         try {
@@ -39,6 +40,7 @@ module.exports = {
         } catch (error) {
             console.error(`[${config.pkg.name}] Error:`, error);
             if (error.status !== 200) return await ctx.reply(config.msg.notFound);
+            const confusedEmoji = tools.msg.getRandomConfusedEmoji();
             return await ctx.reply(quote(`⚠️ Terjadi kesalahan: ${error.message}`));
         }
     }
