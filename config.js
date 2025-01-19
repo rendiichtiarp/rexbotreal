@@ -49,8 +49,8 @@ global.config = {
     // Informasi owner bot
     owner: {
         name: "Rendi Ichtiar Prasetyo", // Nama owner bot
-        number: "6281284900651", // Nomor telepon owner bot
         organization: "Rendiichtiarrr", // Nama organisasi owner bot
+        id: "6281284900651", // Nomor telepon owner bot
         co: ["6281585030507"] // Nomor co-owner bot
     },
 
