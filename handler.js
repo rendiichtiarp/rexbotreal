@@ -80,7 +80,7 @@ async function handler(ctx, options) {
             msg: config.msg.coin
         },
         limit: {
-            check: async () => await checkLimit(options.limit, senderId) && config.system.useLimit,
+            check: async () => await checkLimit(options.limit, senderId, ctx.isGroup()) && config.system.useLimit,
             msg: config.msg.limit
         },
         group: {
@@ -138,19 +138,17 @@ async function checkCoin(requiredCoin, senderId) {
 }
 
 // Cek limit
-async function checkLimit(requiredLimit, senderId) {
+async function checkLimit(requiredLimit, senderId, isGroup = false) {
     const isOwner = tools.general.isOwner(senderId);
     const userDb = await db.get(`user.${senderId}`) || {};
-    const isGroup = ctx.isGroup();
 
-    // Jika dalam grup, limit tidak akan berkurang
-    if (isGroup ||isOwner || userDb?.premium) return false;
+    // Jika owner, premium, atau dalam grup, limit tidak digunakan
+    if (isOwner || userDb?.premium || isGroup) return false;
 
     const userLimit = userDb?.limit || 0;
 
     if (userLimit < requiredLimit) return true;
 
-    // Limit hanya berkurang jika bukan dalam grup
     await db.subtract(`user.${senderId}.limit`, requiredLimit);
     return false;
 }

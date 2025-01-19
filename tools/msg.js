@@ -1,7 +1,6 @@
 const {
     monospace,
-    quote,
-    inlineCode
+    quote
 } = require("@mengkodingan/ckptw");
 
 function generateInstruction(actions, mediaTypes) {
@@ -53,8 +52,8 @@ function generateInstruction(actions, mediaTypes) {
 
     const instructions = actions.map(action => `${actionTranslations[action]}`);
     const actionList = instructions.join(actions.length > 1 ? " atau " : "");
-    
-    return `📍 ${actionList} ${mediaTypesList}!`;
+
+    return `📌 ${actionList} ${mediaTypesList}!`;
 }
 
 function generateCommandExample(used, args) {
@@ -62,7 +61,7 @@ function generateCommandExample(used, args) {
 
     if (!args) return "'args' harus diberikan!";
 
-    const commandMessage = `Contoh penggunaan:\n${monospace(`${used.prefix + used.command} ${args}`)}`;
+    const commandMessage = `Contoh: ${monospace(`${used.prefix + used.command} ${args}`)}`;
     return commandMessage;
 }
 
@@ -80,9 +79,9 @@ function generatesFlagInformation(flags) {
 function generateNotes(notes) {
     if (!Array.isArray(notes)) return "'notes' harus berupa string!";
 
-    const notesInfo = "\n" +
+    const notesInfo = "Catatan:\n" +
         notes.map(note =>
-            inlineCode(`• ${note}`)
+            quote(`• ${note}`)
         ).join("\n");
 
     return notesInfo;

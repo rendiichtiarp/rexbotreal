@@ -15,6 +15,8 @@ module.exports = {
         coin: 10
     },
     code: async (ctx) => {
+        if (await handler(ctx, module.exports.handler)) return;
+
         const input = ctx.args.join(" ") || null;
 
         if (!input) return await ctx.reply(
