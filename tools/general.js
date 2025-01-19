@@ -243,27 +243,6 @@ function parseFlag(argsString, customRules = {}) {
     return options;
 }
 
-async function simulate(rawCtx, cmd, args) {
-    try {
-        const command = require(`../commands/${cmd.join("/")}.js`);
-
-        const usedCmd = {
-            command: cmd[1],
-            prefix: "/"
-        };
-
-        const ctx = {
-            ...rawCtx,
-            args: args?.split(" ") || null,
-            _used: rawCtx._used?.upsert ? usedCmd : rawCtx._used
-        };
-        await command.code(ctx);
-    } catch (error) {
-        console.error(`[${config.pkg.name}] Error:`, error);
-        return null;
-    }
-}
-
 async function translate(text, to) {
     const apiUrl = api.createUrl("nyxs", "/tools/translate", {
         text,
@@ -326,7 +305,6 @@ module.exports = {
     isOwner,
     isUrl,
     parseFlag,
-    simulate,
     translate,
     ucword,
     upload
