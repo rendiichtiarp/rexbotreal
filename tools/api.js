@@ -5,18 +5,18 @@ const APIs = {
     },
     fasturl: {
         baseURL: "https://fastrestapis.fasturl.link",
-        APIKey: "7849084a-64fc-4265-9450-b4eb2c25b6a8" // APIKey tidak disediakan, Anda dapat menggunakan APIKey Anda sendiri
+        APIKey: config.APIKey.fasturl
     },
     gifted: {
         baseURL: "https://api.gifted.my.id",
-        APIKey: "gifted" // APIKey disediakan oleh Gifted Tech
+        APIKey: config.APIKey.gifted
     },
     itzpire: {
         baseURL: "https://itzpire.com"
     },
     nexoracle: {
         baseURL: "https://api.nexoracle.com",
-        APIKey: "free_key@maher_apis" // APIKey disediakan oleh Maher Zubair
+        APIKey: config.APIKey.nexoracle
     },
     nyxs: {
         baseURL: "https://api.nyxs.pw"
@@ -29,14 +29,14 @@ const APIs = {
     },
     ssateam: {
         baseURL: "https://api.ssateam.my.id",
-        APIKey: "root" // APIKey disediakan oleh Fainshe
+        APIKey: config.APIKey.ssateam
     },
     toxicdevil: {
         baseURL: "https://toxicdevilapi.vercel.app"
     },
     vapis: {
         baseURL: "https://vapis.my.id"
-    },
+    }
 };
 
 function createUrl(apiNameOrURL, endpoint, params = {}, apiKeyParamName) {

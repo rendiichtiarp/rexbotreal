@@ -39,6 +39,7 @@ global.config = {
         watermark: `@${pkg.name} / v${pkg.version}`, // Watermark nama dan versi pada bot
         footer: monospace("Yuk donasi agar bot ini tetap online! Ketik .donasi untuk donasi dan mendapatkan premium."), // Footer di pesan bot
         readmore: "\u200E".repeat(4001), // String read more
+        note: "“Lorem ipsum dolor sit amet, tenebris in umbra, vitae ad mortem.”", // Catatan
 
         wait: quote("🔃 Tunggu sebentar..."), // Pesan loading
         notFound: quote("❎ Gagal memproses pesan! Coba lagi nanti."), // Pesan item tidak ditemukan
@@ -53,6 +54,13 @@ global.config = {
         co: ["6281585030507"] // Nomor co-owner bot
     },
 
+    // Kunci API
+    APIKey: {
+        fasturl: "7849084a-64fc-4265-9450-b4eb2c25b6a8", // APIKey tidak disediakan, Anda dapat menggunakan APIKey Anda sendiri
+        gifted: "gifted", // APIKey disediakan oleh Gifted Tech
+        nexoracle: "free_key@maher_apis", // APIKey disediakan oleh Maher Zubair
+        ssateam: "root" // APIKey disediakan oleh Fainshe
+    },
     // Konfigurasi stiker bot
     sticker: {
         packname: "Rexbot", // Nama paket stiker

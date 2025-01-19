@@ -23,7 +23,7 @@ async function handler(ctx, options) {
     if (!tools.general.isOwner(senderId, true) && botMode === "self") return true;
 
     if (config.system.requireBotGroupMembership && !isOwner && !userDb?.premium) {
-        const botGroupMembersId = (await ctx.group(config.bot.groupJid).members()).map(member => member.id.split("@")[0]);
+        const botGroupMembersId = (await ctx.group()(config.bot.groupJid).members()).map(member => member.id.split("@")[0]);
         if (!botGroupMembersId.includes(senderId)) {
             await ctx.reply({
                 text: config.msg.botGroupMembership,
@@ -68,11 +68,11 @@ async function handler(ctx, options) {
 
     const checkOptions = {
         admin: {
-            check: async () => (await ctx.isGroup() && !await tools.general.isAdmin(ctx.group, senderJid)),
+            check: async () => (await ctx.isGroup() && !await tools.general.isAdmin(ctx.group(), senderJid)),
             msg: config.msg.admin
         },
         botAdmin: {
-            check: async () => (await ctx.isGroup() && !await tools.general.isBotAdmin(ctx.group)),
+            check: async () => (await ctx.isGroup() && !await tools.general.isBotAdmin(ctx.group())),
             msg: config.msg.botAdmin
         },
         coin: {

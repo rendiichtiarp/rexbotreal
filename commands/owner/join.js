@@ -27,7 +27,7 @@ module.exports = {
             const res = await ctx.groups.acceptInvite(urlCode);
 
             await ctx.sendMessage(res, {
-                text: quote(`👋 Halo! Aku adalah Bot WhatsApp bernama ${config.bot.name}, dimiliki oleh ${config.owner.name}. Saya bisa melakukan banyak perintah, seperti membuat stiker, menggunakan AI, dan beberapa perintah berguna lainnya.\nGunakan .menu untuk melihat perintah!`)
+                text: quote(`👋 Halo! Saya adalah Bot WhatsApp bernama ${config.bot.name}, dimiliki oleh ${config.owner.name}. Saya bisa melakukan banyak perintah, seperti membuat stiker, menggunakan AI untuk pekerjaan tertentu, dan beberapa perintah berguna lainnya. Saya di sini untuk menghibur dan menyenangkan Anda!`)
             });
 
             return await ctx.reply(quote(`✅ Berhasil bergabung dengan grup!`));

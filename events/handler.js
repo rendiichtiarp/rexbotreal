@@ -604,7 +604,7 @@ module.exports = (bot) => {
             // Penanganan antilink
             if (groupDb?.option?.antilink) {
                 const isUrl = await tools.general.isUrl(m.content);
-                if (m.content && await tools.general.isUrl(m.content) && !await tools.general.isAdmin(ctx.group, senderJid)) {
+                if (m.content && await tools.general.isUrl(m.content) && !await tools.general.isAdmin(ctx.group(), senderJid)) {
                     await ctx.reply(quote(`⛔ Jangan kirim tautan!`));
                     await ctx.deleteMessage(m.key);
                     if (!config.system.restrict && groupDb?.option?.autokick) {
@@ -622,7 +622,7 @@ module.exports = (bot) => {
                 const msgType = ctx.getMessageType();
                 const checkMedia = await tools.general.checkMedia(msgType, "image")
 
-                if (checkMedia && !await tools.general.isAdmin(ctx.group, senderJid)) {
+                if (checkMedia && !await tools.general.isAdmin(ctx.group(), senderJid)) {
                     const buffer = await ctx.msg.media.toBuffer();
                     const uploadUrl = await tools.general.upload(buffer);
 
@@ -656,7 +656,7 @@ module.exports = (bot) => {
                 const msgType = ctx.getMessageType();
                 const checkMedia = await tools.general.checkMedia(msgType, "sticker")
 
-                if (checkMedia && !await tools.general.isAdmin(ctx.group, senderJid)) {
+                if (checkMedia && !await tools.general.isAdmin(ctx.group(), senderJid)) {
                     await ctx.reply(`⛔ Jangan kirim stiker!`);
                     await ctx.deleteMessage(m.key);
                     if (!config.system.restrict && groupDb?.option?.autokick) {
@@ -672,7 +672,7 @@ module.exports = (bot) => {
             // Penanganan antitoxic
             const toxicRegex = /anj(k|g)|ajn?(g|k)|a?njin(g|k)|bajingan|b(a?n)?gsa?t|ko?nto?l|me?me?(k|q)|pe?pe?(k|q)|meki|titi(t|d)|pe?ler|tetek|toket|ngewe|go?blo?k|to?lo?l|idiot|(k|ng)e?nto?(t|d)|jembut|bego|dajj?al|janc(u|o)k|pantek|puki ?(mak)?|kimak|kampang|lonte|col(i|mek?)|pelacur|henceu?t|nigga|fuck|dick|bitch|tits|bastard|asshole|dontol|kontoi|tempek|tempik|ontol/i;
             if (groupDb?.option?.antitoxic) {
-                if (m.content && toxicRegex.test(m.content) && !await tools.general.isAdmin(ctx.group, senderJid)) {
+                if (m.content && toxicRegex.test(m.content) && !await tools.general.isAdmin(ctx.group(), senderJid)) {
                     await ctx.reply(quote(`⛔ Jangan toxic!`));
                     await ctx.deleteMessage(m.key);
                     if (!config.system.restrict && groupDb?.option?.autokick) {
