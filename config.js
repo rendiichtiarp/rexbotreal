@@ -68,9 +68,9 @@ global.config = {
     },
 
     system: {
-        alwaysOnline: true, // Bot selalu aktif
+        alwaysOnline: false, // Bot selalu aktif
         autoMention: false, // Bot otomatis mention seseorang dalam pesan yang dikirim
-        autoRead: true, // Bot baca pesan otomatis
+        autoRead: false, // Bot baca pesan otomatis
         autoTypingOnCmd: true, // Tampilkan status mengetik saat memproses
         cooldown: 20 * 1000, // Jeda antar perintah (ms)
         port: 3000, // Port (jika pakai server)
