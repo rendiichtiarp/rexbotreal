@@ -11,6 +11,7 @@ module.exports = {
     aliases: ["smeme", "stikermeme"],
     category: "maker",
     handler: {
+        limit: 1,
         coin: 10
     },
     code: async (ctx) => {

@@ -106,8 +106,25 @@ async function handler(ctx, options) {
         restrict: {
             check: () => config.system.restrict,
             msg: config.msg.restrict
+        },
+        register: {
+            check: async () => {
+                if (isOwner) return false;
+                const userData = await db.get(`user.${senderId}`) || {};
+                return !userData.name || !userData.birthDate || !userData.age;
+            },
+            msg: quote(`📝 Registrasi Diperlukan\nAnda harus mendaftar terlebih dahulu untuk menggunakan bot ini dengan mengisi nama dan tanggal lahir.\n\nContoh: ${ctx._used.prefix}daftar Nama Anda dd/mm/yyyy`)
         }
     };
+
+    // Cek registrasi terlebih dahulu sebelum opsi lainnya
+    if (options && !options.skipRegisterCheck) { // Skip untuk command register
+        const registerCheck = checkOptions.register;
+        if (typeof registerCheck.check === "function" && await registerCheck.check()) {
+            await ctx.reply(registerCheck.msg);
+            return true;
+        }
+    }
 
     for (const [option, {
             check,

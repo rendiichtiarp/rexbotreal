@@ -24,112 +24,107 @@ module.exports = {
         if (await handler(ctx, module.exports.handler)) return;
 
         try {
-            const {
-                cmd
-            } = ctx._config;
+            const { cmd } = ctx._config;
             const tag = {
-                "ai-chat": "AI (Chat)",
-                "ai-image": "AI (Image)",
-                "converter": "Converter",
-                "downloader": "Downloader",
-                "entertainment": "Entertainment",
-                "game": "Game",
-                "group": "Group",
-                "maker": "Maker",
-                "profile": "Profile",
-                "search": "Search",
-                "tool": "Tool",
-                "owner": "Owner",
-                "information": "Information",
-                "misc": "Miscellaneous"
+                "ai-chat": "🤖 AI Chat",
+                "ai-image": "🎨 AI Image",
+                "converter": "🔄 Converter",
+                "downloader": "📥 Downloader",
+                "entertainment": "🎮 Entertainment",
+                "game": "🎲 Game",
+                "group": "👥 Group",
+                "maker": "🎨 Maker",
+                "profile": "👤 Profile",
+                "search": "🔍 Search",
+                "tool": "🛠️ Tool",
+                "owner": "👑 Owner",
+                "information": "ℹ️ Information",
+                "misc": "📦 Miscellaneous"
             };
 
-            // Kirim pesan pembuka di awal
-            const openingText = `Halo @${ctx.sender.jid.split(/[:@]/)[0]}! Berikut adalah daftar perintah yang tersedia untuk Kamu:\n` +
-                "\n" +
-                `${(`📅 Tanggal: ${moment.tz(config.system.timeZone).locale("id").format("dddd, DD MMMM YYYY")}`)}\n` +
-                `${(`${getTimeEmoji()} Waktu: ${moment.tz(config.system.timeZone).format("HH.mm.ss")}`)}\n` +
-                `${(` 🚀 Uptime: ${tools.general.convertMsToDuration(Date.now() - config.bot.readyAt)}`)}\n` +
-                "\n" +
-                `${italic("Donasi bot ini agar bisa tetap online!")}`;
-
-            await ctx.sendMessage(ctx.id, {
-                text: openingText,
-                contextInfo: {
-                    mentionedJid: [ctx.sender.jid],
-                    externalAdReply: {
-                        mediaType: 1,
-                        previewType: 0,
-                        mediaUrl: config.bot.website,
-                        title: config.msg.watermark,
-                        body: null,
-                        renderLargerThumbnail: true,
-                        thumbnailUrl: config.bot.thumbnail,
-                        sourceUrl: config.bot.website
-                    },
-                    /*forwardingScore: 9999,
-                    isForwarded: true*/
-                },
-                mentions: [ctx.sender.jid]
-            });
+            const senderJid = ctx.sender.jid;
+            const senderId = senderJid.split(/[:@]/)[0];
+            const userDb = await db.get(`user.${senderId}`) || {};
             
-            let text = "Gunakan awalan perintah dengan simbol " + ctx._used.prefix + " Contoh: " + ctx._used.prefix + ctx._used.command +"\n";
+            const openingText = `Hai ${userDb?.name || "Kak"}! ${getTimeEmoji()}\n\n` +
+                `📅 ${moment.tz(config.system.timeZone).locale("id").format("dddd, DD MMMM YYYY")}\n` +
+                `⏰ ${moment.tz(config.system.timeZone).format("HH:mm")} WIB\n` +
+                `⌛ Runtime: ${tools.general.convertMsToDuration(Date.now() - config.bot.readyAt)}\n\n`;
 
-            const symbolLegend = monospace`Keterangan:\nⓒ = Menggunakan coin\nⒼ = Hanya dalam grup\nⓄ = Hanya untuk owner\nⓅ = Hanya untuk pengguna premium\nⓟ = Hanya dalam private chat\n`;
+            let text = "";
+            const args = ctx.args[0]?.toLowerCase();
 
-            for (const category of Object.keys(tag)) {
+            // Jika ada argumen kategori
+            if (args) {
+                // Ubah format input user (hilangkan tanda "-")
+                const normalizedInput = args.replace(/\s+/g, ''); // Hilangkan spasi
+                const searchKey = normalizedInput.replace(/(ai|chat|image)/gi, (match) => {
+                    // Handle kasus khusus untuk ai-chat dan ai-image
+                    if (match.toLowerCase() === 'chat') return 'ai-chat';
+                    if (match.toLowerCase() === 'image') return 'ai-image';
+                    return match;
+                });
+
+                const categoryKey = Object.keys(tag).find(key => 
+                    key === searchKey || // Exact match
+                    key.replace('-', '') === searchKey || // Match tanpa tanda "-"
+                    key.split('-')[1] === searchKey // Match dengan bagian setelah "-"
+                );
+
+                if (!categoryKey) {
+                    return await ctx.reply(`❌ Kategori *${args}* tidak ditemukan!\n\nKetik *${ctx._used.prefix}menu* untuk melihat daftar kategori.`);
+                }
+
+                text = `*${tag[categoryKey]}*\n\n`;
                 const categoryCommands = Array.from(cmd.values())
-                    .filter(command => command.category === category)
+                    .filter(command => command.category === categoryKey)
                     .map(command => ({
                         name: command.name,
                         aliases: command.aliases,
+                        usage: command.usage || `${ctx._used.prefix}${command.name}`,
                         handler: command.handler || {}
                     }));
 
-                if (categoryCommands.length > 0) {
-                    text += `\n ● ${bold(tag[category])}\n`;
+                categoryCommands.forEach(cmd => {
+                    let handlerText = "";
+                    if (cmd.handler.coin) handlerText += "💰";
+                    if (cmd.handler.group || cmd.handler.onlyGroup) handlerText += "👥";
+                    if (cmd.handler.owner) handlerText += "👑";
+                    if (cmd.handler.premium) handlerText += "⭐";
+                    if (cmd.handler.private) handlerText += "👤";
 
-                    categoryCommands.forEach(cmd => {
-                        let handlerText = "";
-                        if (cmd.handler.coin) handlerText += "ⓒ";
-                        if (cmd.handler.group) handlerText += "Ⓖ";
-                        if (cmd.handler.onlyGroup) handlerText += "Ⓖ";
-                        if (cmd.handler.owner) handlerText += "Ⓞ";
-                        if (cmd.handler.premium) handlerText += "Ⓟ";
-                        if (cmd.handler.private) handlerText += "ⓟ";
-
-                        text += monospace(`• ${ctx._used.prefix + cmd.name} ${handlerText}`);
-                        text += "\n";
-                    });
-
+                    text += `◦ \`${ctx._used.prefix}${cmd.name}\` ${handlerText}\n`;
                     
+                });
+
+                text += `\n*Keterangan:*
+💰 = Butuh koin
+👥 = Khusus grup
+👑 = Khusus owner
+⭐ = Khusus premium
+👤 = Khusus private chat\n`;
+            } 
+            // Jika tidak ada argumen (tampilkan daftar kategori)
+            else {
+                text = openingText + `*Daftar Kategori*\n` +
+                    `Ketik \`${ctx._used.prefix}menu [kategori]\` untuk melihat daftar perintah\n` +
+                    `Contoh: \`${ctx._used.prefix}menu chat\` untuk melihat menu AI Chat\n\n`;
+                
+                for (const category of Object.keys(tag)) {
+                    const commandCount = Array.from(cmd.values())
+                        .filter(command => command.category === category).length;
+                    const displayCategory = category.replace('ai-', '');
+                    
+                    text += `◦ \`${displayCategory}\` ${tag[category]} (${commandCount} perintah)\n`;
                 }
             }
 
-            text += symbolLegend;
-            text += "\n";
-            text += config.msg.footer;
+            text += "\n" + config.msg.footer;
 
-            /*const fakeText = {
-                key: {
-                    fromMe: true,
-                    participant: "13135550002@s.whatsapp.net",
-                    remoteJid: "status@broadcast"
-                },
-                message: {
-                    extendedTextMessage: {
-                        text: config.msg.note,
-                        title: config.bot.name
-                    }
-                }
-            };*/
-
-            return await ctx.sendMessage(ctx.id, {
+            return await ctx.reply({
                 text,
                 mentions: [ctx.sender.jid]
-            }/*, {
-                quoted: fakeText
-            }*/);
+            });
         } catch (error) {
             console.error(`[${config.pkg.name}] Error:`, error);
             return await ctx.reply(quote(`⚠️ Terjadi kesalahan: ${error.message}`));

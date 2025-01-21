@@ -33,23 +33,26 @@ module.exports = {
             const profilePictureUrl = await ctx._client.profilePictureUrl(senderJid, "image").catch(() => "https://i.pinimg.com/736x/70/dd/61/70dd612c65034b88ebf474a52ccc70c4.jpg");
 
             return await ctx.reply({
-                text: `${(`🤩 Berikut adalah informasi tentang kamu:`)}\n\n` +
-                    `${(`👤 Nama pengguna: ${senderName || "-"}`)}\n` +
-                    `${(`✨ Jenis akun: ${isOwner ? "⭐ Owner" : userDb?.premium ? "👍 Premium" : "👎 Free" || "-"}`)}\n` +
-                    `${(`🪙 Koin: ${isOwner || userDb?.premium ? "Tak terbatas" : userDb?.coin || "-"}`)}\n` +
-                    `${(`🏅 Ranking: ${userRank || "-"}`)}\n` +
-                    `${(`🎊 Level: ${userDb?.level || "-"}`)}\n` +
-                    `${(`🎉 XP: ${userDb?.xp || "-"}`)}\n` +
-                    `${(`🏆 Game dimenangi: ${userDb?.winGame || "-"}`)}\n` +
-                    "\n" +
+                text: `*🎭 PROFILE PENGGUNA*\n\n` +
+                    `*📝 INFO PRIBADI*\n` +
+                    `👤 *Nama*: ${userDb?.name || "-"}\n` +
+                    `🎂 *Umur*: ${userDb?.age ? userDb.age + " Tahun" : "-"}\n` +
+                    `📅 *Tanggal Lahir*: ${userDb?.birthDate || "-"}\n` +
+                    `✨ *Status*: ${isOwner ? "Pemilik" : userDb?.premium ? "Pengguna Premium" : "Pengguna Gratis" || "-"}\n\n` +
+                    `*📊 STATISTIK*\n` +
+                    `🪙 Koin: ${isOwner || userDb?.premium ? "∞" : userDb?.coin || "0"}\n` +
+                    `⭐ Level: ${userDb?.level || "0"}\n` +
+                    `🎉 XP: ${userDb?.xp || "0"}\n` +
+                    `🏆 Game Win: ${userDb?.winGame || "0"}\n` +
+                    `🏅 Ranking: #${userRank || "-"}\n\n` +
                     config.msg.footer,
                 contextInfo: {
                     externalAdReply: {
                         mediaType: 1,
                         previewType: 0,
                         mediaUrl: config.bot.website,
-                        title: config.msg.watermark,
-                        body: null,
+                        title: `${userDb?.name || senderName}'s Profile`,
+                        body: `Level ${userDb?.level || "0"} • Rank #${userRank || "-"}`,
                         renderLargerThumbnail: true,
                         thumbnailUrl: profilePictureUrl,
                         sourceUrl: config.bot.website

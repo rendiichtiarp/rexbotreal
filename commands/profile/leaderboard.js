@@ -30,20 +30,30 @@ module.exports = {
             let resultText = "";
 
             topUsers.forEach((user, index) => {
-                resultText += (`${index + 1}. @${user.id}\n Menang: ${user.winGame}, Level: ${user.level}\n`);
+                const isUser = user.id === senderJid;
+                const position = index + 1;
+                const medal = index === 0 ? '🥇' : index === 1 ? '🥈' : index === 2 ? '🥉' : '  ';
+                const userText = `${medal}${position}. @${user.id}${isUser ? ' (Anda)' : ''}`;
+                resultText += (
+                    `${index < 3 ? bold(userText) : userText}\n` +
+                    `     ⚔️ Win: ${user.winGame}  |  ⭐ Level: ${user.level}\n`
+                );
                 userMentions.push(`${user.id}@s.whatsapp.net`);
             });
 
             if (userRank > 10) {
                 const userStats = leaderboardData[userRank - 1];
-                resultText += (`${userRank}. @${senderJid}\n Menang: ${userStats.winGame}, Level: ${userStats.level}\n`);
+                resultText += (
+                    `\n\nPosisi Anda:\n` +
+                    `${userRank}. @${senderJid}\n` +
+                    `     ⚔️ Win: ${userStats.winGame}  |  ⭐ Level: ${userStats.level}\n`
+                );
                 userMentions.push(`${senderJid}@s.whatsapp.net`);
             }
 
             return await ctx.reply({
-                text: `${bold(`LEADERBOARD TOP RANKING 10`)}\n\n` +
-                    `${resultText.trim()}\n` +
-                    "\n" +
+                text: `${bold(`🏆 LEADERBOARD RANK TOP 10`)}\n\n` +
+                    `${resultText.trim()}\n\n` +
                     config.msg.footer,
                 mentions: userMentions
             });
