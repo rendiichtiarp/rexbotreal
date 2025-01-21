@@ -1,6 +1,7 @@
 const {
     Cooldown,
-    quote
+    quote,
+    monospace
 } = require("@mengkodingan/ckptw");
 
 // Penanganan opsi khusus
@@ -80,7 +81,7 @@ async function handler(ctx, options) {
             msg: config.msg.coin
         },
         limit: {
-            check: async () => await checkLimit(options.limit, senderId) && config.system.useLimit,
+            check: async () => await checkLimit(ctx, options.limit, senderId) && config.system.useLimit,
             msg: config.msg.limit
         },
         group: {
@@ -113,7 +114,7 @@ async function handler(ctx, options) {
                 const userData = await db.get(`user.${senderId}`) || {};
                 return !userData.name || !userData.birthDate || !userData.age;
             },
-            msg: quote(`📝 Registrasi Diperlukan\nAnda harus mendaftar terlebih dahulu untuk menggunakan bot ini dengan mengisi nama dan tanggal lahir.\n\nContoh: ${ctx._used.prefix}daftar Nama Anda dd/mm/yyyy`)
+            msg: quote(`📝 Registrasi Diperlukan\nAnda harus mendaftar terlebih dahulu untuk menggunakan bot ini.\n\nSilakan gunakan nama dan tanggal lahir asli Anda.\n\n*Contoh Pendaftaran:*\n\`${ctx._used.prefix}daftar Rendi Ichtiar 30/09/2000\``)
         }
     };
 
@@ -126,14 +127,17 @@ async function handler(ctx, options) {
         }
     }
 
-    for (const [option, {
-            check,
-            msg
-        }] of Object.entries(checkOptions)) {
+    for (const [option, { check, msg }] of Object.entries(checkOptions)) {
         if (options[option] && typeof check === "function" && await check()) {
             await ctx.reply(msg);
             return true;
         }
+    }
+
+    // Perbarui panggilan checkLimit
+    if (options.limit && await checkLimit(ctx, options.limit, senderId)) {
+        await ctx.reply(config.msg.limit);
+        return true;
     }
 
     return false;
@@ -155,12 +159,13 @@ async function checkCoin(requiredCoin, senderId) {
 }
 
 // Cek limit
-async function checkLimit(requiredLimit, senderId) {
+async function checkLimit(ctx, requiredLimit, senderId) {
+    const isGroup = ctx.isGroup();
     const isOwner = tools.general.isOwner(senderId);
     const userDb = await db.get(`user.${senderId}`) || {};
 
     // Jika dalam grup, limit tidak akan berkurang
-    if (isOwner || userDb?.premium) return false;
+    if (isOwner || userDb?.premium || isGroup) return false;
 
     const userLimit = userDb?.limit || 0;
 
