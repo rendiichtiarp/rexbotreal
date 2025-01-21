@@ -30,16 +30,16 @@ module.exports = {
         if (!claimRewards[input]) return await ctx.reply(quote(`❎ Hadiah tidak valid!`));
 
         const requiredLevel = claimRewards[input].level || 0;
-        if (userDb?.level < requiredLevel) return await ctx.reply(quote(`❎ Kamu perlu mencapai level ${requiredLevel} untuk mengklaim hadiah ini. Level Kamu saat ini adalah ${userDb?.level || 0}.`));
+        if (userDb?.level < requiredLevel) return await ctx.reply(quote(`❎ Anda perlu mencapai level ${requiredLevel} untuk mengklaim hadiah ini. Level Anda saat ini adalah ${userDb?.level || 0}.`));
 
         const lastClaimTime = userDb?.lastClaim?.[input] || 0;
         const currentTime = Date.now();
         const timePassed = currentTime - lastClaimTime;
         const remainingTime = claimRewards[input].cooldown - timePassed;
 
-        if (remainingTime > 0) return await ctx.reply(quote(`⏳ Kamu telah mengklaim hadiah ${input}. Tunggu ${tools.general.convertMsToDuration(remainingTime)} untuk mengklaim lagi.`));
+        if (remainingTime > 0) return await ctx.reply(quote(`⏳ Anda telah mengklaim hadiah ${input}. Tunggu ${tools.general.convertMsToDuration(remainingTime)} untuk mengklaim lagi.`));
 
-        if (tools.general.isOwner(ctx, senderId, true) && userDb?.premium) return await ctx.reply(quote("❎ Kamu sudah memiliki koin tak terbatas, tidak perlu mengklaim lagi."));
+        if (tools.general.isOwner(ctx, senderId, true) && userDb?.premium) return await ctx.reply(quote("❎ Anda sudah memiliki koin tak terbatas, tidak perlu mengklaim lagi."));
 
         try {
             const rewardCoin = (userDb?.coin || 0) + claimRewards[input].reward;
@@ -49,7 +49,7 @@ module.exports = {
                 db.set(`user.${senderId}.lastClaim.${input}`, currentTime)
             ]);
 
-            return await ctx.reply(quote(`✅ Kamu berhasil mengklaim hadiah ${input} sebesar ${claimRewards[input].reward} koin! Koin saat ini: ${rewardCoin}.`));
+            return await ctx.reply(quote(`✅ Anda berhasil mengklaim hadiah ${input} sebesar ${claimRewards[input].reward} koin! Koin saat ini: ${rewardCoin}.`));
         } catch (error) {
             console.error(`[${config.pkg.name}] Error:`, error);
             return await ctx.reply(quote(`⚠️ Terjadi kesalahan: ${error.message}`));

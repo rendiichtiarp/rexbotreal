@@ -33,13 +33,13 @@ module.exports = {
             const profilePictureUrl = await ctx._client.profilePictureUrl(senderJid, "image").catch(() => "https://i.pinimg.com/736x/70/dd/61/70dd612c65034b88ebf474a52ccc70c4.jpg");
 
             return await ctx.reply({
-                text: `*🎭 PROFILE PENGGUNA*\n\n` +
-                    `*📝 INFO PRIBADI*\n` +
+                text: `*🎭 Profil Pengguna*\n\n` +
+                    `*📝 Info Pribadi*\n` +
                     `👤 *Nama*: ${userDb?.name || "-"}\n` +
                     `🎂 *Umur*: ${userDb?.age ? userDb.age + " Tahun" : "-"}\n` +
                     `📅 *Tanggal Lahir*: ${userDb?.birthDate || "-"}\n` +
                     `✨ *Status*: ${isOwner ? "Pemilik" : userDb?.premium ? "Pengguna Premium" : "Pengguna Gratis" || "-"}\n\n` +
-                    `*📊 STATISTIK*\n` +
+                    `*📊 Statistik*\n` +
                     `🪙 Koin: ${isOwner || userDb?.premium ? "∞" : userDb?.coin || "0"}\n` +
                     `⭐ Level: ${userDb?.level || "0"}\n` +
                     `🎉 XP: ${userDb?.xp || "0"}\n` +

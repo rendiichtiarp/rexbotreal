@@ -69,11 +69,11 @@ async function handler(ctx, options) {
 
     const checkOptions = {
         admin: {
-            check: async () => (await ctx.isGroup() && !await tools.general.isAdmin(ctx.group, senderJid)),
+            check: async () => (await ctx.isGroup() && !await tools.general.isAdmin(ctx, senderJid)),
             msg: config.msg.admin
         },
         botAdmin: {
-            check: async () => (await ctx.isGroup() && !await tools.general.isBotAdmin(ctx.group)),
+            check: async () => (await ctx.isGroup() && !await tools.general.isBotAdmin(ctx)),
             msg: config.msg.botAdmin
         },
         coin: {
@@ -114,7 +114,8 @@ async function handler(ctx, options) {
                 const userData = await db.get(`user.${senderId}`) || {};
                 return !userData.name || !userData.birthDate || !userData.age;
             },
-            msg: quote(`📝 Registrasi Diperlukan\nAnda harus mendaftar terlebih dahulu untuk menggunakan bot ini.\n\nSilakan gunakan nama dan tanggal lahir asli Anda.\n\n*Contoh Pendaftaran:*\n\`${ctx._used.prefix}daftar Rendi Ichtiar 30/09/2000\``)
+            msg: quote(`🚫 Tidak dapat melanjutkan perintah ini karena Anda belum terdaftar.\n`) +
+                quote(`Silakan lakukan pendaftaran terlebih dahulu untuk menggunakan perintah.\n*Contoh pendaftaran:*\n\`${ctx._used.prefix}daftar John Doe 09/09/2009\``)
         }
     };
 
