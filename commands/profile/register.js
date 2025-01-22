@@ -25,7 +25,15 @@ module.exports = {
     // Validasi nama minimal 3 karakter
     if (name.length < 3 || name.toLowerCase() === "john doe") {
       return await ctx.reply(
-        quote(`❎ Nama terlalu pendek atau menggunakan nama contoh "John Doe". Gunakan nama lain.`)
+        quote(`❎ Nama terlalu pendek atau menggunakan nama contoh. Gunakan nama asli Anda.`)
+      );
+    }
+
+    // Pengecekan untuk karakter khusus dalam nama
+    const specialCharRegex = /[^a-zA-Z0-9\s]/; // Mengizinkan hanya huruf, angka, dan spasi
+    if (specialCharRegex.test(name)) {
+      return await ctx.reply(
+        quote(`❎ Nama tidak boleh mengandung karakter khusus.`)
       );
     }
 
@@ -50,14 +58,6 @@ module.exports = {
     // Format bulan dan hari menjadi dua digit
     const formattedDay = day.padStart(2, "0"); // Menambahkan nol di depan jika satu digit
     const formattedMonth = month.padStart(2, "0"); // Menambahkan nol di depan jika satu digit
-
-    // Pemberitahuan jika format tanggal terbalik
-    if (parseInt(month) < 1 || parseInt(month) > 12) {
-      return await ctx.reply(
-        quote(`❎ Format tanggal tidak sesuai. Gunakan Hari/Bulan/Tahun.\n`) +
-        quote(tools.msg.generateCommandExample(ctx._used, "John Doe 09/09/2009"))
-      );
-    }
 
     const birthDateTime = new Date(fullYear, month - 1, day);
     const now = new Date();
