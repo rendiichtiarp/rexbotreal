@@ -29,11 +29,11 @@ module.exports = {
         const isSenderInMenfess = Object.values(allMenfessDb).some(m => m.from === senderId || m.to === senderId);
         const isReceiverInMenfess = Object.values(allMenfessDb).some(m => m.from === formattedId || m.to === formattedId);
 
-        if (isSenderInMenfess) return await ctx.reply(quote(`❎ Kamu sudah terlibat dalam percakapan lain. Pastikan kamu sudah mengakhiri percakapan sebelumnya.`));
+        if (isSenderInMenfess) return await ctx.reply(quote(`❎ Anda sudah terlibat dalam percakapan lain. Pastikan kamu sudah mengakhiri percakapan sebelumnya.`));
         if (isReceiverInMenfess) return await ctx.reply(quote(`❎ Pengguna ini sudah terlibat dalam percakapan lain. Coba lagi nanti.`));
 
         try {
-            if (formattedId === senderId) return await ctx.reply(quote(`❎ Tidak dapat digunakan pada diri Kamu sendiri.`));
+            if (formattedId === senderId) return await ctx.reply(quote(`❎ Tidak dapat digunakan pada diri sendiri.`));
 
             /*const fakeText = {
                 key: {
@@ -52,7 +52,7 @@ module.exports = {
 
             // Kirim pesan pemberitahuan ke penerima menfess
             await ctx._client.sendMessage(`${formattedId}@s.whatsapp.net`, {
-                text: `${(`👋 Halo aku adalah ${config.bot.name}, seseorang mengirimimu pesan melaluiku.\n\n> Pesan dibawah ini adalah pesan dari seseorang yang diteruskan kepadamu.`)}`,
+                text: `${(`👋 Halo Saya adalah ${config.bot.name}, seseorang mengirimi Anda pesan melalui Saya.\n\nPesan dibawah ini adalah pesan dari seseorang yang diteruskan kepadamu.`)}`,
                 title: config.bot.name,
                 thumbnailUrl: config.bot.thumbnail,
                 contextInfo: {
@@ -72,7 +72,7 @@ module.exports = {
             await ctx.sendMessage(`${formattedId}@s.whatsapp.net`, {
                 text: `${menfessText}\n` +
                     `${config.msg.readmore}\n` +
-                    quote("Pesan yang Kamu kirim disini akan diteruskan ke orang tersebut. Jika ingin berhenti, cukup ketik ```delete``` atau ```stop``` .")
+                    quote("Pesan yang Kamu kirim disini akan diteruskan ke orang tersebut. Jika ingin berhenti, cukup ketik `delete` atau `stop` .")
             }, {
                 /*quoted: fakeText*/
             });
@@ -82,7 +82,7 @@ module.exports = {
                 to: formattedId
             });
 
-            return await ctx.reply(quote("✅ Kirim pesan kamu disini. Pesan yang Anda kirim disini akan diteruskan ke orang tersebut.\n\nJika ingin berhenti, cukup ketik ```delete``` atau ```stop``` ."));
+            return await ctx.reply(quote("✅ Kirim pesan kamu disini. Pesan yang Anda kirim disini akan diteruskan ke orang tersebut.\n\nJika ingin berhenti, cukup ketik `delete` atau `stop` ."));
         } catch (error) {
             console.error(`[${config.pkg.name}] Error:`, error);
             return await ctx.reply(quote(`⚠️ Terjadi kesalahan: ${error.message}`));
