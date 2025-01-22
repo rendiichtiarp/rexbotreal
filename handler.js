@@ -69,11 +69,11 @@ async function handler(ctx, options) {
 
     const checkOptions = {
         admin: {
-            check: async () => (await ctx.isGroup() && !await tools.general.isAdmin(ctx, senderJid)),
+            check: async () => (await ctx.isGroup() && !await tools.general.isAdmin(ctx.group(), senderJid)),
             msg: config.msg.admin
         },
         botAdmin: {
-            check: async () => (await ctx.isGroup() && !await tools.general.isBotAdmin(ctx)),
+            check: async () => (await ctx.isGroup() && !await tools.general.isBotAdmin(ctx.group())),
             msg: config.msg.botAdmin
         },
         coin: {
@@ -115,7 +115,7 @@ async function handler(ctx, options) {
                 return !userData.name || !userData.birthDate || !userData.age;
             },
             msg: quote(`🚫 Tidak dapat melanjutkan perintah ini karena Anda belum terdaftar.\n`) +
-                quote(`Silakan lakukan pendaftaran terlebih dahulu untuk menggunakan perintah.\n*Contoh pendaftaran:*\n\`${ctx._used.prefix}daftar John Doe 09/09/2009\``)
+                quote(`Silakan lakukan pendaftaran terlebih dahulu untuk menggunakan perintah.\n*Contoh pendaftaran:*\n\n\`${ctx._used.prefix}daftar John Doe 09/09/2009\``)
         }
     };
 
@@ -133,12 +133,6 @@ async function handler(ctx, options) {
             await ctx.reply(msg);
             return true;
         }
-    }
-
-    // Perbarui panggilan checkLimit
-    if (options.limit && await checkLimit(ctx, options.limit, senderId)) {
-        await ctx.reply(config.msg.limit);
-        return true;
     }
 
     return false;
