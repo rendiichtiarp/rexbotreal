@@ -27,7 +27,7 @@ async function handleUserEvent(bot, m, type) {
             const metadata = await bot.core.groupMetadata(id);
 
             for (const jid of participants) {
-                const profilePictureUrl = await bot.core.profilePictureUrl(jid, "image").catch(() => "https://i.pinimg.com/736x/70/dd/61/70dd612c65034b88ebf474a52ccc70c4.jpg");
+                // const profilePictureUrl = await bot.core.profilePictureUrl(jid, "image").catch(() => "https://i.pinimg.com/736x/70/dd/61/70dd612c65034b88ebf474a52ccc70c4.jpg");
 
                 const eventType = m.eventsType;
                 const customText = type === "UserJoin" ? groupDb?.text?.welcome : groupDb?.text?.goodbye;
@@ -53,7 +53,7 @@ async function handleUserEvent(bot, m, type) {
                             title: config.msg.watermark,
                             body: null,
                             renderLargerThumbnail: true,
-                            thumbnailUrl: profilePictureUrl || config.bot.thumbnail,
+                            thumbnailUrl: config.bot.thumbnail,
                             sourceUrl: config.bot.website
                         }
                     }
@@ -101,6 +101,39 @@ module.exports = (bot) => {
             config.bot.groupLink = `https://chat.whatsapp.com/${code}`;
         }
 
+        // Tambahkan fungsi untuk reset data menfess
+        async function resetMenfessData() {
+            try {
+                const menfess = await db.get("menfess") || {};
+                console.log(`[${config.pkg.name}] Memproses reset data menfess...`);
+
+                Object.keys(menfess).forEach(async (conversationId) => {
+                    const { from, to } = menfess[conversationId] || {};
+
+                    const filteredMenfessData = {
+                        ...(from && { from }),
+                        ...(to && { to })
+                    };
+
+                    if (!/^[0-9]$/.test(conversationId)) {
+                        await db.delete(`menfess.${conversationId}`);
+                    } else {
+                        await db.set(`menfess.${conversationId}`, filteredMenfessData);
+                    }
+                });
+
+                console.log(`[${config.pkg.name}] Berhasil mereset data menfess.`);
+                
+                // Kirim pesan ke grup log
+                const logMessage = quote(`📊 Data menfess telah direset pada ${new Date().toLocaleString()}.`);
+                await bot.core.sendMessage(config.bot.logGroupJid, {
+                    text: logMessage
+                });
+            } catch (error) {
+                console.error(`[${config.pkg.name}] Error mereset data menfess:`, error);
+            }
+        }
+
         // Tambahkan fungsi untuk reset limit harian
         async function resetDailyLimit() {
             const now = new Date();
@@ -111,6 +144,9 @@ module.exports = (bot) => {
 
             setTimeout(async () => {
                 try {
+                    // Reset data menfess setiap tengah malam
+                    await resetMenfessData();
+
                     // Ambil semua data user
                     const allUsers = await db.get("user") || {};
                     let successCount = 0;
@@ -585,7 +621,7 @@ module.exports = (bot) => {
 
                     if (m.content && /^\b(delete|stop)\b$/i.test(m.content.trim()) && senderInConversation) {
                         const targetId = senderId === from ? to : from;
-                        const message = "✅ Pesan sudah diakhiri!";
+                        const message = senderId === from ? "✅ Sesi percakapan diakhiri oleh pengirim!" : "✅ Sesi percakapan diakhiri oleh penerima!";
 
                         await ctx.reply(quote(message));
                         await ctx.sendMessage(`${targetId}@s.whatsapp.net`, {
