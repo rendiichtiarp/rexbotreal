@@ -111,11 +111,10 @@ async function handler(ctx, options) {
         register: {
             check: async () => {
                 if (isOwner) return false;
-                const userData = await db.get(`user.${senderId}`) || {};
-                return !userData.name || !userData.birthDate || !userData.age;
+                return !userDb.name || !userDb.birthDate || !userDb.age;
             },
-            msg: quote(`🚫 Tidak dapat melanjutkan perintah ini karena Anda belum terdaftar.\n`) +
-                quote(`Silakan lakukan pendaftaran terlebih dahulu untuk menggunakan perintah.\n*Contoh pendaftaran:*\n\n\`${ctx._used.prefix}daftar John Doe 09/09/2009\``)
+            msg: quote(`🚫 Tidak dapat melanjutkan perintah karena Anda belum terdaftar.\n\n`) +
+                (`*Cara daftar:*\n\`${ctx._used.prefix}daftar John Doe 31/12/2009\`\n\nGanti \`John Doe\` dengan nama Anda dan \`31/12/2009\` dengan tanggal lahir Anda.`)
         }
     };
 
