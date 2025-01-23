@@ -546,11 +546,7 @@ module.exports = (bot) => {
                     });
                     const {
                         data
-                    } = await axios.get(apiUrl, {
-                        headers: {
-                            "x-api-key": tools.api.listUrl().fasturl.APIKey
-                        }
-                    });
+                    } = await axios.get(apiUrl);
 
                     if (data.results.status === "NSFW") {
                         await ctx.reply(`⛔ Jangan kirim NSFW!`);

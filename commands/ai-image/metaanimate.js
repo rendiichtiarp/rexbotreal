@@ -5,9 +5,9 @@ const axios = require("axios");
 const mime = require("mime-types");
 
 module.exports = {
-    name: "tiktoksearch",
-    aliases: ["ttsearch", "vts", "vtsearch"],
-    category: "search",
+    name: "metaanimate",
+    aliases: ["metaanim", "metavid"],
+    category: "ai-image",
     handler: {
         coin: 10
     },
@@ -18,22 +18,26 @@ module.exports = {
 
         if (!input) return await ctx.reply(
             `${quote(tools.msg.generateInstruction(["send"], ["text"]))}\n` +
-            quote(tools.msg.generateCommandExample(ctx._used, "evangelion"))
+            quote(tools.msg.generateCommandExample(ctx._used, "moon"))
         );
 
         try {
-            const apiUrl = tools.api.createUrl("exodus", "/search/tiktok", {
-                query: input
+            const apiUrl = tools.api.createUrl("fasturl", "/aiimage/meta", {
+                prompt: "animated"
             });
             const {
                 data
-            } = (await axios.get(apiUrl)).data;
+            } = await axios.get(apiUrl);
+            const result = tools.general.getRandomElement(data.result.animated_media);
 
             return await ctx.reply({
-                video: {
-                    url: data.no_watermark
+                image: {
+                    url: result.url
                 },
-                mimetype: mime.lookup("mp4")
+                mimetype: mime.lookup("png"),
+                caption: `${quote(`Prompt: ${input}`)}\n` +
+                    "\n" +
+                    config.msg.footer
             });
         } catch (error) {
             console.error(`[${config.pkg.name}] Error:`, error);
