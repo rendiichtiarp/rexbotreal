@@ -56,7 +56,7 @@ global.config = {
 
     // Kunci API
     APIKey: {
-        fasturl: "7849084a-64fc-4265-9450-b4eb2c25b6a8", // APIKey tidak disediakan, Anda dapat menggunakan APIKey Anda sendiri
+        fasturl: "", // APIKey tidak disediakan, Anda dapat menggunakan APIKey Anda sendiri
         gifted: "gifted", // APIKey disediakan oleh Gifted Tech
         nexoracle: "free_key@maher_apis", // APIKey disediakan oleh Maher Zubair
         ssateam: "root" // APIKey disediakan oleh Fainshe

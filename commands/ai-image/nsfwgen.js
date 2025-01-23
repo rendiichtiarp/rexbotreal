@@ -1,15 +1,13 @@
 const {
     quote
 } = require("@mengkodingan/ckptw");
-const axios = require("axios");
 const mime = require("mime-types");
 
 module.exports = {
-    name: "tiktoksearch",
-    aliases: ["ttsearch", "vts", "vtsearch"],
-    category: "search",
+    name: "nsfwgen",
+    category: "ai-image",
     handler: {
-        coin: 10
+        premium: true
     },
     code: async (ctx) => {
         if (await handler(ctx, module.exports.handler)) return;
@@ -18,22 +16,22 @@ module.exports = {
 
         if (!input) return await ctx.reply(
             `${quote(tools.msg.generateInstruction(["send"], ["text"]))}\n` +
-            quote(tools.msg.generateCommandExample(ctx._used, "evangelion"))
+            quote(tools.msg.generateCommandExample(ctx._used, "moon"))
         );
 
         try {
-            const apiUrl = tools.api.createUrl("exodus", "/search/tiktok", {
-                query: input
+            const apiUrl = tools.api.createUrl("fasturl", "/aiimage/nsfw", {
+                prompt: input
             });
-            const {
-                data
-            } = (await axios.get(apiUrl)).data;
 
             return await ctx.reply({
-                video: {
-                    url: data.no_watermark
+                image: {
+                    url: apiUrl
                 },
-                mimetype: mime.lookup("mp4")
+                mimetype: mime.lookup("png"),
+                caption: `${quote(`Prompt: ${input}`)}\n` +
+                    "\n" +
+                    config.msg.footer
             });
         } catch (error) {
             console.error(`[${config.pkg.name}] Error:`, error);

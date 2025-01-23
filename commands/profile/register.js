@@ -15,17 +15,21 @@ module.exports = {
     // Gabungkan semua elemen sebelum tanggal lahir sebagai nama
     const name = ctx.args.slice(0, -1).join(" ");
 
+    const today = new Date();
+    const formattedToday = `${today.getDate().toString().padStart(2, '0')}/${(today.getMonth() + 1).toString().padStart(2, '0')}/${today.getFullYear()}`;
+
     if (!name || !birthDate) {
       return await ctx.reply(
         `${quote(tools.msg.generateInstruction(["send"], ["text"]))}\n` +
-            quote(tools.msg.generateCommandExample(ctx._used, "John Doe 09/09/2009"))
+            quote(tools.msg.generateCommandExample(ctx._used, `NamaAnda ${formattedToday}`)) + 
+            `\n` + quote(`Mohon pastikan tanggal lahir Anda berada di samping nama Anda, bukan di bawah!`)
       );
     }
 
     // Validasi nama minimal 3 karakter
-    if (name.length < 3 || name.toLowerCase() === "john doe") {
+    if (name.length < 3 || name.toLowerCase() === "NamaAnda") {
       return await ctx.reply(
-        quote(`❎ Nama terlalu pendek atau menggunakan nama contoh. Gunakan nama asli Anda.`)
+        quote(`❎ Nama yang Anda masukkan terlalu pendek atau menggunakan nama contoh. Mohon gunakan nama asli Anda.`)
       );
     }
 
@@ -33,7 +37,7 @@ module.exports = {
     const specialCharRegex = /[^a-zA-Z0-9\s]/; // Mengizinkan hanya huruf, angka, dan spasi
     if (specialCharRegex.test(name)) {
       return await ctx.reply(
-        quote(`❎ Nama tidak boleh mengandung karakter khusus.`)
+        quote(`❎ Nama tidak boleh mengandung karakter khusus. Mohon periksa kembali.`)
       );
     }
 
@@ -43,8 +47,8 @@ module.exports = {
     // Mengizinkan format yang salah
     if (!dateRegex.test(birthDate)) {
       return await ctx.reply(
-        quote(`❎ Format tanggal tidak sesuai.\n`) +
-        quote(tools.msg.generateCommandExample(ctx._used, "John Doe 09/09/2009"))
+        quote(`❎ Format tanggal yang Anda masukkan tidak sesuai.\n`) +
+        quote(tools.msg.generateCommandExample(ctx._used, `NamaAnda ${formattedToday}`))
       );
     }
 
@@ -66,7 +70,7 @@ module.exports = {
     if (birthDateTime > now || birthDateTime.toString() === "Invalid Date") {
       return await ctx.reply(
         quote(`❎ Format tanggal tidak sesuai.\n`) +
-        quote(tools.msg.generateCommandExample(ctx._used, "John Doe 09/09/2009"))
+        quote(tools.msg.generateCommandExample(ctx._used, `NamaAnda ${formattedToday}`))
       );
     }
 
@@ -78,7 +82,7 @@ module.exports = {
     // Validasi rentang umur
     if (age < 5 || age > 42) {
       return await ctx.reply(
-        quote(`❎ Umur tidak memenuhi syarat. Minimal 5 tahun dan maksimal 42 tahun.\n`) +
+        quote(`❎ Umur yang Anda masukkan tidak memenuhi syarat. Minimal 5 tahun dan maksimal 42 tahun.\n`) +
         quote(`Umur Anda: ${age} tahun.`)
       );
     }
@@ -99,13 +103,13 @@ module.exports = {
       return await ctx.reply(
         quote(
           isUpdate
-            ? `✅ Berhasil memperbarui data
+            ? `✅ Data Anda berhasil diperbarui
 - *Nama:* ${name}
 - *Tanggal Lahir:* ${formattedDay}/${formattedMonth}/${fullYear}
 - *Umur:* ${age} tahun\n` 
 +
 config.msg.footer
-            : `✅ Pendaftaran berhasil
+            : `✅ Pendaftaran Anda berhasil
 - *Nama:* ${name}
 - *Tanggal Lahir:* ${formattedDay}/${formattedMonth}/${fullYear}
 - *Umur:* ${age} tahun\n` 
