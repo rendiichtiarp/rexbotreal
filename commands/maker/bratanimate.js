@@ -8,7 +8,7 @@ const {
 
 module.exports = {
     name: "abrat",
-    aliases: ["asbrat", "stikerabrat", "stickerabrat"],
+    aliases: ["asbrat", "stikerabrat", "stickerabrat", "bratanimate", "bratvid"],
     category: "maker",
     handler: {
         limit: 1,

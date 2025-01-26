@@ -4,6 +4,14 @@ const {
     monospace
 } = require("@mengkodingan/ckptw");
 
+// Fungsi untuk memformat tanggal
+function formatTanggal(date) {
+    const day = String(date.getDate()).padStart(2, '0');
+    const month = String(date.getMonth() + 1).padStart(2, '0'); // Bulan dimulai dari 0
+    const year = date.getFullYear();
+    return `${day}/${month}/${year}`;
+}
+
 // Penanganan opsi khusus
 async function handler(ctx, options) {
     const isGroup = ctx.isGroup();
@@ -114,7 +122,7 @@ async function handler(ctx, options) {
                 return !userDb.name || !userDb.birthDate || !userDb.age;
             },
             msg: quote(`🚫 Tidak dapat melanjutkan perintah karena Anda belum terdaftar.\n\n`) +
-                (`*Cara daftar:*\n\`${ctx._used.prefix}daftar John Doe 31/12/2009\`\n\nGanti \`John Doe\` dengan nama Anda dan \`31/12/2009\` dengan tanggal lahir Anda.`)
+                (`*Ketik:*\n\`${ctx._used.prefix}daftar NamaAnda ${formatTanggal(new Date())}\`\n\nGanti \`NamaAnda\` dengan nama Anda dan \`${formatTanggal(new Date())}\` dengan tanggal lahir Anda.`)
         }
     };
 

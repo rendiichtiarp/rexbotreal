@@ -17,7 +17,7 @@ function getTimeEmoji() {
 
 module.exports = {
     name: "menu",
-    aliases: ["allmenu", "help", "list", "listmenu"],
+    aliases: ["help", "list", "listmenu"],
     category: "general",
     handler: {},
     code: async (ctx) => {
@@ -39,7 +39,6 @@ module.exports = {
                 "tool": "🛠️ Tool",
                 "owner": "👑 Owner",
                 "information": "ℹ️ Information",
-                "misc": "📦 Miscellaneous"
             };
 
             const senderJid = ctx.sender.jid;
@@ -51,7 +50,14 @@ module.exports = {
                 `⏰ ${moment.tz(config.system.timeZone).format("HH:mm")} WIB\n` +
                 `⌛ Runtime: ${tools.general.convertMsToDuration(Date.now() - config.bot.readyAt)}\n\n`;
 
-            let text = "";
+            let text = openingText + `*Jumlah Perintah dan Kategori*\n`;
+
+            // Hitung total perintah dan kategori
+            const totalCommands = Array.from(cmd.values()).length;
+            const totalCategories = Object.keys(tag).length;
+            text += `Total Perintah: ${totalCommands}\n`;
+            text += `Total Kategori: ${totalCategories}\n\n`;
+
             const args = ctx.args[0]?.toLowerCase();
 
             // Jika ada argumen kategori
@@ -72,7 +78,7 @@ module.exports = {
                 );
 
                 if (!categoryKey) {
-                    return await ctx.reply(`❌ Kategori *${args}* tidak ditemukan!\n\nKetik *${ctx._used.prefix}menu* untuk melihat daftar kategori.`);
+                    return await ctx.reply(`❎ Kategori \`${args}\` tidak ditemukan!\n\nKetik \`${ctx._used.prefix}menu\` untuk melihat daftar kategori.`);
                 }
 
                 text = `*${tag[categoryKey]}*\n\n`;
@@ -94,19 +100,18 @@ module.exports = {
                     if (cmd.handler.private) handlerText += "👤";
 
                     text += `◦ \`${ctx._used.prefix}${cmd.name}\` ${handlerText}\n`;
-                    
                 });
 
-                text += `\n*Keterangan:*
-💰 = Butuh koin
-👥 = Khusus grup
-👑 = Khusus owner
-⭐ = Khusus premium
-👤 = Khusus private chat\n`;
+                text += `\n*Keterangan:*\n` +
+                    `💰 = Butuh koin\n` +
+                    `👥 = Khusus grup\n` +
+                    `👑 = Khusus owner\n` +
+                    `⭐ = Khusus premium\n` +
+                    `👤 = Khusus private chat\n`;
             } 
             // Jika tidak ada argumen (tampilkan daftar kategori)
             else {
-                text = openingText + `*Daftar Kategori*\n` +
+                text += `*Daftar Kategori*\n` +
                     `Ketik \`${ctx._used.prefix}menu [kategori]\` untuk melihat daftar perintah\n` +
                     `Contoh: \`${ctx._used.prefix}menu chat\` untuk melihat menu AI Chat\n\n`;
                 

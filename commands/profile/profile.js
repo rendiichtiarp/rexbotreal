@@ -9,13 +9,11 @@ module.exports = {
     category: "profile",
     handler: {},
     code: async (ctx) => {
-        if (await handler(ctx, module.exports.handler)) return;
-
         try {
-            const senderName = ctx.sender.pushName;
-            const senderJid = ctx.sender.jid;
-            const senderId = senderJid.split(/[:@]/)[0];
+            const mentionedJids = ctx.msg?.message?.extendedTextMessage?.contextInfo?.mentionedJid;
+            const userId = Array.isArray(mentionedJids) && mentionedJids.length > 0 ? mentionedJids[0] : ctx.sender.jid;
 
+            const senderId = userId.split(/[:@]/)[0];
             const userDb = await db.get(`user.${senderId}`) || {};
 
             const isOwner = tools.general.isOwner(senderId);
@@ -30,7 +28,7 @@ module.exports = {
 
             const userRank = leaderboardData.findIndex(user => user.id === senderId) + 1;
 
-            const profilePictureUrl = await ctx._client.profilePictureUrl(senderJid, "image").catch(() => "https://i.pinimg.com/736x/70/dd/61/70dd612c65034b88ebf474a52ccc70c4.jpg");
+            const profilePictureUrl = await ctx._client.profilePictureUrl(userId, "image").catch(() => "https://i.pinimg.com/736x/70/dd/61/70dd612c65034b88ebf474a52ccc70c4.jpg");
 
             return await ctx.reply({
                 text: `*🎭 Profil Pengguna*\n\n` +
@@ -51,7 +49,7 @@ module.exports = {
                         mediaType: 1,
                         previewType: 0,
                         mediaUrl: config.bot.website,
-                        title: `${userDb?.name || senderName}'s Profile`,
+                        title: `${userDb?.name || "Pengguna"} Profile`,
                         body: `Level ${userDb?.level || "0"} • Rank #${userRank || "-"}`,
                         renderLargerThumbnail: true,
                         thumbnailUrl: profilePictureUrl,

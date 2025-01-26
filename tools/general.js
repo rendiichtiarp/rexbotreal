@@ -32,7 +32,6 @@ async function checkMedia(msgType, requiredMedia) {
         ptt: "audioMessage",
         reaction: "reactionMessage",
         sticker: "stickerMessage",
-        text: () => ctx.args && ctx.args.length > 0,
         video: "videoMessage",
         viewOnce: "viewOnceMessageV2"
     };
@@ -42,8 +41,6 @@ async function checkMedia(msgType, requiredMedia) {
     return mediaList.some(media => {
         if (media === "document") {
             return mediaMap[media].includes(msgType);
-        } else if (media === "text") {
-            return mediaMap[media]();
         }
         return msgType === mediaMap[media];
     });
@@ -91,7 +88,9 @@ function convertMsToDuration(ms) {
     const hours = Math.floor((ms / (1000 * 60 * 60)) % 24);
     const minutes = Math.floor((ms / (1000 * 60)) % 60);
     const seconds = Math.floor((ms / 1000) % 60);
+
     let durationString = "";
+
     if (years > 0) durationString += years + " tahun ";
     if (months > 0) durationString += months + " bulan ";
     if (weeks > 0) durationString += weeks + " minggu ";
@@ -99,6 +98,7 @@ function convertMsToDuration(ms) {
     if (hours > 0) durationString += hours + " jam ";
     if (minutes > 0) durationString += minutes + " menit ";
     if (seconds > 0) durationString += seconds + " detik";
+
     return durationString.trim();
 }
 
@@ -106,16 +106,20 @@ function formatSize(byteCount) {
     if (byteCount === 0) return "0 Bytes";
 
     const units = ["yBytes", "zBytes", "aBytes", "fBytes", "pBytes", "nBytes", "µBytes", "mBytes", "Bytes", "KiB", "MiB", "GiB", "TiB", "PiB", "EiB", "ZiB", "YiB"];
+
     let index = 8;
     let size = byteCount;
+
     while (size < 1 && index > 0) {
         size *= 1024;
         index--;
     }
+
     while (size >= 1024 && index < units.length - 1) {
         size /= 1024;
         index++;
     }
+
     return `${size.toFixed(2)} ${units[index]}`;
 }
 
@@ -179,6 +183,7 @@ function isCmd(content, config) {
             didyoumean: mean
         };
     }
+
     return false;
 }
 
@@ -195,6 +200,7 @@ async function isBotAdmin(group) {
 
 function isOwner(id) {
     if (config.system.selfOwner) return config.bot.id === id || config.owner.id === id || config.owner.co.includes(id);
+
     return config.owner.id === id || config.owner.co.includes(id);
 }
 
@@ -262,6 +268,7 @@ async function translate(text, to) {
 
 function ucword(str) {
     if (!str || str.trim() === "") return false;
+
     return str.toLowerCase().replace(/\b(\w)/g, (s) => s.toUpperCase());
 }
 
@@ -272,7 +279,7 @@ async function upload(buffer) {
         } = await fromBuffer(buffer);
 
         let form = new FormData();
-        form.append("file", buffer, `tmp.${text}`);
+        form.append("file", buffer, `tmp.${ext}`);
 
         const apiUrl = api.createUrl("https://uploader.nyxs.pw", "/upload", {});
         const response = await axios.post(apiUrl, form, {
@@ -281,7 +288,7 @@ async function upload(buffer) {
             }
         });
 
-        const $ = cheerio.load(respons.data);
+        const $ = cheerio.load(response.data);
         const url = $("a").attr("href");
 
         return url;
