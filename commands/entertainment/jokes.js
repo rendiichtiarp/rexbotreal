@@ -20,7 +20,7 @@ module.exports = {
       const { data } = await axios.get(apiUrl);
       return await ctx.reply(data.data);
     } catch (error) {
-      console.error(`[${config.pkg.name}] Error:`, error);
+      consolefy.error(`Error: ${error}`);
       if (error.response && error.response.status !== 200) {
         return await ctx.reply(config.msg.notFound);
       }

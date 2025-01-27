@@ -19,7 +19,7 @@ module.exports = {
 
             return await ctx.reply(quote(`💤 Anda akan AFK, ${input ? `dengan alasan "${input}"` : "tanpa alasan"}.`));
         } catch (error) {
-            console.error(`[${config.pkg.name}] Error:`, error);
+            consolefy.error(`Error: ${error}`);
             return await ctx.reply(quote(`⚠️ Terjadi kesalahan: ${error.message}`));
         }
     }

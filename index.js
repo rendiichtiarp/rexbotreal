@@ -8,6 +8,15 @@ const fs = require("fs");
 const http = require("http");
 const path = require("path");
 const SimplDB = require("simpl.db");
+const {
+    Consolefy
+} = require("@mengkodingan/consolefy");
+
+// Buat consolefy
+const c = new Consolefy({
+    tag: pkg.name
+});
+
 // Buat basis data
 const db = new SimplDB();
 const dbFile = path.join(__dirname, "database.json");
@@ -17,8 +26,9 @@ global.handler = handler;
 global.config.pkg = pkg;
 global.tools = tools;
 global.db = db;
+global.consolefy = c;
 // Memulai
-console.log(`[${pkg.name}] Starting...`);
+c.log(`Starting...`);
 // Tampilkan judul menggunakan CFonts
 CFonts.say(pkg.name, {
     font: "chrome",
@@ -45,7 +55,7 @@ if (config.system.useServer) {
         res.end(`${pkg.name} is running on port ${port}`);
     });
     server.listen(port, () => {
-        console.log(`[${pkg.name}] Server is running at http://localhost:${port}`);
+        c.success(`Server is running at http://localhost:${port}`);
     });
 }
 // Impor dan jalankan modul utama

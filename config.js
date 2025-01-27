@@ -16,7 +16,22 @@ global.config = {
         thumbnail: "https://i.imgur.com/lmA0tF5.png", // Gambar thumbnail bot
         website: "https://whatsapp.com/channel/0029Vb1aqIYCMY0EmiUODK00", // Website untuk WhatsApp bot
         groupJid: "120363038568602719@g.us", // JID untuk group bot (opsional jika tidak menggunakan requireBotGroupMembership)
-        logGroupJid: "120363366663863260@g.us" // Grup untuk log sistem
+        logGroupJid: "120363366663863260@g.us", // Grup untuk log sistem
+
+        // Konfigurasi autentikasi sesi bot
+        authAdapter: {
+            adapter: "mysql", // Jenis adaptor autentikasi untuk menyimpan status sesi bot (pilihan: 'default', 'mysql')
+            // Konfigurasi database MySQL (jika menggunakan adapter 'mysql')
+            mysql: {
+                host: "localhost", // Nama host
+                port: "3306", // Nomor port (default: 3306)
+                user: "root", // Nama pengguna (default: root)
+                password: "", // Kata sandi
+                database: "dbrexbot", // Nama database
+                session: "sessionRexbot", // Nama tabel atau entitas untuk menyimpan data sesi
+                tableName: "session" //Nama tabel untuk menyimpan data autentikasi (default: 'auth').
+            }
+        }
     },
 
     // Pesan bot yang disesuaikan untuk situasi tertentu
@@ -50,7 +65,7 @@ global.config = {
     owner: {
         name: "Rendi Ichtiar Prasetyo", // Nama owner bot
         organization: "Rendiichtiarrr", // Nama organisasi owner bot
-        id: "6281585030507", // Nomor telepon owner bot
+        id: "6281284900651", // Nomor telepon owner bot
         co: ["6281585030507"] // Nomor co-owner bot
     },
 

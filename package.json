@@ -1,6 +1,6 @@
 {
   "name": "rexbotassistan",
-  "version": "2.31.12",
+  "version": "3.1.0",
   "description": "Rexbot Sourcecode",
   "main": "index.js",
   "directories": {
@@ -28,7 +28,8 @@
   },
   "homepage": "https://github.com/rendiichtiarp/rexbotreal#readme",
   "dependencies": {
-    "@mengkodingan/ckptw": "4.3.9",
+    "@mengkodingan/ckptw": "^4.4.1",
+    "@mengkodingan/consolefy": "^1.0.1",
     "axios": "1.7.9",
     "cfonts": "^3.3.0",
     "cheerio": "^1.0.0",
@@ -40,6 +41,7 @@
     "link-preview-js": "^3.0.13",
     "mime-types": "^2.1.35",
     "moment-timezone": "^0.5.46",
+    "mysql-baileys": "^1.5.1",
     "simpl.db": "^2.13.0",
     "util": "^0.12.5",
     "wa-sticker-formatter": "^4.4.4"

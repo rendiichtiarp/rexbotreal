@@ -66,7 +66,7 @@ async function handleUserEvent(bot, m, type) {
             }
         }
     } catch (error) {
-        console.error(`[${config.pkg.name}] Error:`, error);
+        consolefy.error(`Error: ${error}`);
         await bot.core.sendMessage(id, {
             text: quote(`⚠️ Terjadi kesalahan: ${error.message}`)
         });
@@ -370,9 +370,9 @@ module.exports = (bot) => {
         const timeString = `${currentTime.getHours()}:${currentTime.getMinutes()}:${currentTime.getSeconds()}`;
         
         if (isGroup) {
-            console.log(`[${config.pkg.name}] [${timeString}] Pesan masuk dari grup: ${groupId}, oleh: ${senderId}`);
+            consolefy.info(`[${timeString}] Pesan masuk dari grup: ${groupId}, oleh: ${senderId}`);
         } else {
-            console.log(`[${config.pkg.name}] [${timeString}] Pesan masuk dari: ${senderId}`);
+            consolefy.info(`[${timeString}] Pesan masuk dari: ${senderId}`);
         }
 
         // Grup atau Pribadi
@@ -463,7 +463,7 @@ module.exports = (bot) => {
 
                         await ctx.reply(monospace(util.inspect(result)));
                     } catch (error) {
-                        console.error(`[${config.pkg.name}] Error:`, error);
+                        consolefy.error(`Error: ${error}`);
                         await ctx.reply(quote(`⚠️ Terjadi kesalahan: ${error.message}`));
                     }
                 }
@@ -477,7 +477,7 @@ module.exports = (bot) => {
 
                         await ctx.reply(monospace(output.stdout || output.stderr));
                     } catch (error) {
-                        console.error(`[${config.pkg.name}] Error:`, error);
+                        consolefy.error(`Error: ${error}`);
                         await ctx.reply(quote(`⚠️ Terjadi kesalahan: ${error.message}`));
                     }
                 }
