@@ -28,7 +28,7 @@
   },
   "homepage": "https://github.com/rendiichtiarp/rexbotreal#readme",
   "dependencies": {
-    "@mengkodingan/ckptw": "^4.3.9",
+    "@mengkodingan/ckptw": "4.3.9",
     "axios": "1.7.9",
     "cfonts": "^3.3.0",
     "cheerio": "^1.0.0",
@@ -43,6 +43,5 @@
     "simpl.db": "^2.13.0",
     "util": "^0.12.5",
     "wa-sticker-formatter": "^4.4.4"
-  },
-  "devDependencies": {}
+  }
 }

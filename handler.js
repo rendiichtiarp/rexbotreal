@@ -21,16 +21,6 @@ async function handler(ctx, options) {
     const userDb = await db.get(`user.${senderId}`) || {};
     const isOwner = tools.general.isOwner(senderId);
 
-    const botMode = await db.get("bot.mode") || "public";
-    if (isPrivate && botMode === "group") {
-        if (!userDb?.premium && !isOwner) {
-            await ctx.reply(config.msg.groupMode);
-            return true;
-        }
-    }
-    if (isGroup && botMode === "private") return true;
-    if (!tools.general.isOwner(senderId, true) && botMode === "self") return true;
-
     if (config.system.requireBotGroupMembership && !isOwner && !userDb?.premium) {
         const botGroupMembersId = (await ctx.group(config.bot.groupJid).members()).map(member => member.id.split("@")[0]);
         if (!botGroupMembersId.includes(senderId)) {
@@ -53,23 +43,39 @@ async function handler(ctx, options) {
         }
     }
 
+    const botMode = await db.get("bot.mode") || "public";
+    if (isPrivate && botMode === "group") {
+        if (!userDb?.premium && !isOwner) {
+            return ctx.react(ctx.id, '👥');
+        }
+    }
+    if (isGroup && botMode === "private") return true;
+    if (!tools.general.isOwner(senderId, true) && botMode === "self") return true;
+
     if (userDb?.banned) {
         await ctx.reply(config.msg.banned);
         return true;
     }
 
+    /*const cooldown = new Cooldown(ctx, config.system.cooldown);
+    if (cooldown.onCooldown && !isOwner && !userDb?.premium) {
+        // Mengirim reaksi untuk menunjukkan cooldown
+        return ctx.react(ctx.id, '🔃'); // Reaksi untuk menunjukkan cooldown
+    } else if (!cooldown.onCooldown && !isOwner && !userDb?.premium) {
+        // Jika cooldown sudah habis, berikan reaksi kosong
+        return ctx.react(ctx.id, '✅'); // Reaksi kosong setelah cooldown
+    }*/
+
     const cooldown = new Cooldown(ctx, config.system.cooldown);
     if (cooldown.onCooldown && !isOwner && !userDb?.premium) {
-        const timeLeftInSeconds = cooldown.timeleft / 1000;
-        const formattedTimeLeft = timeLeftInSeconds.toFixed(2);
-        
-        // Mengirim pesan awal
-        const message = await ctx.reply(quote('🔃 Perintah bisa digunakan dalam ' + formattedTimeLeft + ' detik lagi, sabar...'));
+    
+        // Memberikan react ke pesan
+        await ctx.react(ctx.id, '🔃');
         
         // Menunggu hingga cooldown habis
         setTimeout(async () => {
-            // Mengedit pesan setelah cooldown habis
-            await ctx.editMessage(message.key, quote('✅ Perintah sudah bisa digunakan kembali!'));
+            // Memberikan react ke pesan setelah cooldown habis
+            await ctx.react(ctx.id, '✅');
         }, cooldown.timeleft); // Menggunakan waktu cooldown yang tersisa
 
         return true;

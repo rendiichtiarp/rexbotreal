@@ -28,7 +28,7 @@ global.config = {
         botGroupMembership: quote("🚫 Tidak dapat melanjutkan perintah, karena Kamu tidak mengikuti saluran dan grup bot!\n> Klik tautan diatas untuk masuk ke grup bot."), // Pesan untuk pengguna yang tidak ada dalam grup
         // cooldown: quote("🔃 Perintah sedang cooldown 20 detik, sabar..."), // Pesan saat cooldown perintah
         coin: quote("🚫 Koin Kamu tidak cukup! Tidak dapat melanjutkan proses."), // Pesan ketika koin tidak cukup
-        groupMode: quote("🚫 Bot dalam mode grup, tidak dapat memproses perintah!"), //Pesan ketika dalam mode grup
+        // groupMode: quote("🚫 Bot dalam mode grup, tidak dapat memproses perintah!"), //Pesan ketika dalam mode grup
         group: quote("🚫 Perintah ini hanya dapat diakses dalam grup!"), // Pesan untuk perintah grup
         onlyGroup: quote("🚫 Perintah ini hanya dapat diakses dalam grup!\n> Beli premium untuk menggunakan dalam private.\n> Hubungi admin/owner untuk membeli premium."), //Pesan jika dalam mode group
         owner: quote("🚫 Perintah ini hanya dapat diakses Owner!"), // Pesan untuk perintah yang hanya owner bisa akses
@@ -50,7 +50,7 @@ global.config = {
     owner: {
         name: "Rendi Ichtiar Prasetyo", // Nama owner bot
         organization: "Rendiichtiarrr", // Nama organisasi owner bot
-        id: "6281284900651", // Nomor telepon owner bot
+        id: "6281585030507", // Nomor telepon owner bot
         co: ["6281585030507"] // Nomor co-owner bot
     },
 
@@ -72,7 +72,7 @@ global.config = {
         autoMention: false, // Bot otomatis mention seseorang dalam pesan yang dikirim
         autoRead: false, // Bot baca pesan otomatis
         autoTypingOnCmd: true, // Tampilkan status mengetik saat memproses
-        cooldown: 20 * 1000, // Jeda antar perintah (ms)
+        cooldown: 30 * 1000, // Jeda antar perintah (ms)
         port: 3000, // Port (jika pakai server)
         restrict: false, // Batasi akses perintah
         requireBotGroupMembership: false, // Harus gabung grup bot

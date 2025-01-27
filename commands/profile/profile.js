@@ -9,6 +9,9 @@ module.exports = {
     category: "profile",
     handler: {},
     code: async (ctx) => {
+
+        if (await handler(ctx, module.exports.handler)) return;
+        
         try {
             const mentionedJids = ctx.msg?.message?.extendedTextMessage?.contextInfo?.mentionedJid;
             const userId = Array.isArray(mentionedJids) && mentionedJids.length > 0 ? mentionedJids[0] : ctx.sender.jid;

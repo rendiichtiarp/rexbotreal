@@ -9,10 +9,10 @@ const moment = require("moment-timezone");
 // Tambahkan fungsi untuk menentukan emoji berdasarkan waktu
 function getTimeEmoji() {
     const hour = moment.tz(config.system.timeZone).hour();
-    if (hour < 6) return "🌙"; // Malam
-    if (hour < 12) return "🌅"; // Pagi
-    if (hour < 18) return "☀️"; // Siang
-    return "🌇"; // Sore
+    if (hour >= 4 && hour < 10) return "Selamat Pagi"; // Pagi
+    if (hour >= 10 && hour < 14) return "Selamat Siang"; // Siang
+    if (hour >= 14 && hour < 18.5) return "Selamat Sore"; // Sore
+    return "Selamat Malam"; // Malam
 }
 
 module.exports = {
@@ -21,8 +21,6 @@ module.exports = {
     category: "general",
     handler: {},
     code: async (ctx) => {
-        if (await handler(ctx, module.exports.handler)) return;
-
         try {
             const { cmd } = ctx._config;
             const tag = {
