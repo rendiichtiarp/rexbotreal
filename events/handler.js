@@ -29,7 +29,6 @@ async function handleUserEvent(bot, m, type) {
             for (const jid of participants) {
                 const profilePictureUrl = await bot.core.profilePictureUrl(jid, "image").catch(() => "https://i.pinimg.com/736x/70/dd/61/70dd612c65034b88ebf474a52ccc70c4.jpg");
 
-                const eventType = m.eventsType;
                 const customText = type === "UserJoin" ? groupDb?.text?.welcome : groupDb?.text?.goodbye;
                 const userTag = `@${jid.split("@")[0]}`;
 
@@ -38,11 +37,11 @@ async function handleUserEvent(bot, m, type) {
                     .replace(/%tag%/g, userTag)
                     .replace(/%subject%/g, metadata.subject)
                     .replace(/%description%/g, metadata.description) :
-                    (eventType === "UserJoin" ?
+                    (type === "UserJoin" ?
                         quote(`👋 Selamat datang ${userTag} di grup ${metadata.subject}!`) :
                         quote(`👋 ${userTag} keluar dari grup ${metadata.subject}.`));
 
-                    await bot.core.sendMessage(id, {
+                await bot.core.sendMessage(id, {
                     text,
                     contextInfo: {
                         mentionedJid: [jid],
@@ -383,16 +382,15 @@ module.exports = (bot) => {
 
             // Penanganan basis data pengguna
             const {
-                coin,
                 limit,
+                coin,
                 level,
                 ...otherUserDb
             } = userDb || {};
-
             const newUserDb = {
-                coin: (isOwner || isPremium) ? 0 : (userDb?.coin ?? 1000),
-                limit: (isOwner || isPremium) ? 0 : (userDb?.limit ?? 10),
-                level: userDb?.level || 0,
+                limit: (isOwner || isPremium) ? 0 : Math.max(0, Math.min(limit || 1000, 10000)),
+                coin: (isOwner || isPremium) ? 0 : Math.max(0, Math.min(coin || 1000, 10000)),
+                level: Math.max(0, Math.min(level || 0, 100)),
                 uid: userDb?.uid || tools.general.generateUID(senderId),
                 xp: userDb?.xp || 0,
                 ...otherUserDb
@@ -412,7 +410,7 @@ module.exports = (bot) => {
                 if (mean) await ctx.reply(quote(`❎ Anda salah ketik, sepertinya ${monospace(prefix + mean)}.`));
 
                 // Penanganan XP & Level untuk pengguna
-                const xpGain = 10;
+                const xpGain = 5;
                 let xpToLevelUp = 100;
 
                 let newUserXp = userDb?.xp + xpGain;

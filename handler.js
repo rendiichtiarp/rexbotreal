@@ -141,14 +141,17 @@ async function handler(ctx, options) {
         }
     }
 
-    for (const [option, { check, msg }] of Object.entries(checkOptions)) {
-        if (options[option] && typeof check === "function" && await check()) {
-            await ctx.reply(msg);
-            return true;
-        }
+    for (const [option, {
+        check,
+        msg
+    }] of Object.entries(checkOptions)) {
+    if (options[option] && typeof check === "function" && await check()) {
+        await ctx.reply(msg);
+        return true;
     }
+}
 
-    return false;
+return false;
 }
 
 // Cek koin
