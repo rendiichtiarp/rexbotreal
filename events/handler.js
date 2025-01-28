@@ -385,12 +385,13 @@ module.exports = (bot) => {
                 limit,
                 coin,
                 level,
+                xp,
                 ...otherUserDb
             } = userDb || {};
             const newUserDb = {
-                limit: (isOwner || isPremium) ? 0 : Math.max(0, Math.min(limit || 1000, 10000)),
-                coin: (isOwner || isPremium) ? 0 : Math.max(0, Math.min(coin || 1000, 10000)),
-                level: Math.max(0, Math.min(level || 0, 100)),
+                limit: (isOwner || isPremium) ? 0 : 10,
+                coin: (isOwner || isPremium) ? 0 : 1000,
+                level: 0,
                 uid: userDb?.uid || tools.general.generateUID(senderId),
                 xp: userDb?.xp || 0,
                 ...otherUserDb
