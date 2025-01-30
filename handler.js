@@ -161,7 +161,8 @@ async function checkCoin(requiredCoin, senderId) {
 
     if (userCoin < requiredCoin) return true;
 
-    await userHelper.updateCoin(senderId, -requiredCoin);
+    // Kurangi coin sesuai yang dibutuhkan
+    await userHelper.updateUserCoin(senderId, -requiredCoin);
     return false;
 }
 
@@ -178,8 +179,8 @@ async function checkLimit(ctx, requiredLimit, senderId) {
 
     if (userLimit < requiredLimit) return true;
 
-    // Limit hanya berkurang jika bukan dalam grup
-    await userHelper.updateLimit(senderId, -requiredLimit);
+    // Kurangi limit sesuai yang dibutuhkan
+    await userHelper.updateUserLimit(senderId, -requiredLimit);
     return false;
 }
 

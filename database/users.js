@@ -59,23 +59,45 @@ const userHelper = {
 
     async updateUserCoin(noUser, amount) {
         try {
-            await connection.execute(
-                'UPDATE users SET coin = coin - ? WHERE no_user = ?',
-                [amount, noUser]
-            );
+            // Jika amount negatif, berarti mengurangi coin
+            if (amount < 0) {
+                await connection.execute(
+                    'UPDATE users SET coin = coin + ? WHERE no_user = ? AND coin >= ?',
+                    [amount, noUser, Math.abs(amount)]
+                );
+            } else {
+                // Jika positif, tambahkan coin
+                await connection.execute(
+                    'UPDATE users SET coin = coin + ? WHERE no_user = ?',
+                    [amount, noUser]
+                );
+            }
+            return true;
         } catch (error) {
             console.error('Error updating user coin:', error);
+            throw error;
         }
     },
 
     async updateUserLimit(noUser, amount) {
         try {
-            await connection.execute(
-                'UPDATE users SET `user_limit` = `user_limit` - ? WHERE no_user = ?',
-                [amount, noUser]
-            );
+            // Jika amount negatif, berarti mengurangi limit
+            if (amount < 0) {
+                await connection.execute(
+                    'UPDATE users SET user_limit = user_limit + ? WHERE no_user = ? AND user_limit >= ?',
+                    [amount, noUser, Math.abs(amount)]
+                );
+            } else {
+                // Jika positif, tambahkan limit
+                await connection.execute(
+                    'UPDATE users SET user_limit = user_limit + ? WHERE no_user = ?',
+                    [amount, noUser]
+                );
+            }
+            return true;
         } catch (error) {
             console.error('Error updating user limit:', error);
+            throw error;
         }
     },
 
@@ -409,6 +431,18 @@ const userHelper = {
                         WHEN wingame < 0 THEN 0 
                         WHEN wingame IS NULL THEN 0 
                         ELSE wingame 
+                    END,
+                    premium = CASE
+                        WHEN premium_expired < NOW() THEN 0
+                        ELSE premium
+                    END,
+                    banned = CASE
+                        WHEN banned IS NULL THEN 0
+                        ELSE banned
+                    END,
+                    afk = CASE
+                        WHEN TIMESTAMPDIFF(HOUR, afk_time, NOW()) > 24 THEN 0
+                        ELSE afk
                     END
             `);
 
