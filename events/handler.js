@@ -11,6 +11,11 @@ const {
 } = require("child_process");
 const fs = require("fs");
 const util = require("util");
+const { connection } = require('../database/connection');
+const userHelper = require('../database/users');
+const menfessHelper = require('../database/menfess');
+const botHelper = require('../database/bot');
+const groupHelper = require('../database/groups');
 
 // Utilitas
 async function handleUserEvent(bot, m, type) {
@@ -21,15 +26,15 @@ async function handleUserEvent(bot, m, type) {
 
     try {
         const groupId = id.split("@")[0];
-        const groupDb = await db.get(`group.${groupId}`) || {};
+        const groupDb = await groupHelper.getGroup(groupId);
 
-        if (groupDb?.option?.welcome) {
+        if (groupDb?.welcome === 1 || groupDb?.welcome === true) {
             const metadata = await bot.core.groupMetadata(id);
 
             for (const jid of participants) {
                 const profilePictureUrl = await bot.core.profilePictureUrl(jid, "image").catch(() => "https://i.pinimg.com/736x/70/dd/61/70dd612c65034b88ebf474a52ccc70c4.jpg");
 
-                const customText = type === "UserJoin" ? groupDb?.text?.welcome : groupDb?.text?.goodbye;
+                const customText = type === "UserJoin" ? groupDb?.text_welcome : groupDb?.text_goodbye;
                 const userTag = `@${jid.split("@")[0]}`;
 
                 const text = customText ?
@@ -58,10 +63,14 @@ async function handleUserEvent(bot, m, type) {
                     }
                 });
 
-                if (type === "UserJoin" && groupDb?.text?.intro) await bot.core.sendMessage(id, {
-                    text: groupDb?.text?.intro,
-                    mentions: [jid]
-                });
+                if (type === "UserJoin" && (groupDb?.intro === 1 || groupDb?.intro === true)) {
+                    if (groupDb?.text_intro) {
+                        await bot.core.sendMessage(id, {
+                            text: groupDb.text_intro,
+                            mentions: [jid]
+                        });
+                    }
+                }
             }
         }
     } catch (error) {
@@ -72,19 +81,93 @@ async function handleUserEvent(bot, m, type) {
     }
 }
 
+// Tambahkan fungsi untuk reset data menfess
+async function resetMenfessData() {
+    await menfessHelper.resetMenfessData();
+}
+
+// Tambahkan fungsi untuk reset menfess harian
+async function resetMenfessDaily() {
+    const now = new Date();
+    const nextMidnight = new Date(now);
+    nextMidnight.setHours(24, 0, 0, 0);
+    
+    const timeUntilMidnight = nextMidnight.getTime() - now.getTime();
+
+    setTimeout(async () => {
+        try {
+            // Reset data menfess setiap tengah malam
+            await resetMenfessData();
+
+            // Siapkan pesan status reset
+            const statusMessage = quote(
+                `📊 Laporan Reset Menfess Harian\n\n` +
+                `📅 Waktu: ${new Date().toLocaleString()}\n` +
+                `✅ Data menfess telah direset.\n\n` +
+                `⏰ Reset selanjutnya: ${nextMidnight.toLocaleString()}`
+            );
+
+            // Kirim pesan ke grup log
+            await bot.core.sendMessage(config.bot.logGroupJid, {
+                text: statusMessage
+            });
+            
+            console.log(`[${config.pkg.name}] Berhasil reset menfess harian ${new Date().toLocaleString()}`);
+            
+            // Jalankan lagi untuk hari berikutnya
+            resetMenfessDaily();
+        } catch (error) {
+            console.error(`[${config.pkg.name}] Error reset menfess harian:`, error);
+            
+            // Kirim pesan error ke grup dengan JID manual
+            const errorMessage = quote(
+                `⚠️ Error Reset Menfess Harian\n\n` +
+                `📅 Waktu: ${new Date().toLocaleString()}\n` +
+                `❌ Error: ${error.message}\n\n` +
+                `🔃 Mencoba lagi dalam 1 menit...`
+            );
+            
+            // Kirim pesan error ke grup log
+            await bot.core.sendMessage(config.bot.logGroupJid, {
+                text: errorMessage
+            });
+            
+            // Coba lagi dalam 1 menit jika terjadi error
+            setTimeout(resetMenfessDaily, 60000);
+        }
+    }, timeUntilMidnight);
+
+    // Log informasi waktu reset berikutnya
+    const nextResetTime = new Date(now.getTime() + timeUntilMidnight);
+    console.log(`[${config.pkg.name}] Reset menfess harian selanjutnya pada: ${nextResetTime.toLocaleString()}`);
+}
+
+function isEnabled(value) {
+    return value === true || value === 1;
+}
+
 module.exports = (bot) => {
     // Penanganan acara saat bot siap
     bot.ev.once(Events.ClientReady, async (m) => {
         console.log(`[${config.pkg.name}] ${config.bot.name} by ${config.owner.name} | Ready at ${m.user.id}`);
 
-        const botRestart = await db.get("bot.restart") || {};
-        if (botRestart && botRestart.jid && botRestart.timestamp) {
-            const timeago = tools.general.convertMsToDuration(Date.now() - botRestart.timestamp);
-            await bot.core.sendMessage(botRestart.jid, {
-                text: quote(`✅ Berhasil dimulai ulang! Membutuhkan waktu ${timeago}.`),
-                edit: botRestart.key
-            });
-            db.delete("bot.restart");
+        const botRestart = await botHelper.getSetting("bot.restart") || null;
+        if (botRestart) {
+            try {
+                const { jid, timestamp, key } = JSON.parse(botRestart);
+                const timeago = tools.general.convertMsToDuration(Date.now() - timestamp);
+                
+                // Mengedit pesan yang ada
+                await bot.core.sendMessage(jid, {
+                    text: quote(`✅ Berhasil dimulai ulang! Membutuhkan waktu ${timeago}.`),
+                    edit: key
+                });
+
+                // Menghapus data restart setelah digunakan
+                await botHelper.deleteSetting("bot.restart");
+            } catch (error) {
+                console.error('Error parsing bot.restart:', error);
+            }
         }
 
         // Tetapkan config pada bot
@@ -99,117 +182,6 @@ module.exports = (bot) => {
             const code = await bot.core.groupInviteCode(config.bot.groupJid);
             config.bot.groupLink = `https://chat.whatsapp.com/${code}`;
         }
-
-        // Tambahkan fungsi untuk reset data menfess
-        async function resetMenfessData() {
-            try {
-                const menfess = await db.get("menfess") || {};
-                console.log(`[${config.pkg.name}] Memproses reset data menfess...`);
-
-                Object.keys(menfess).forEach(async (conversationId) => {
-                    const { from, to } = menfess[conversationId] || {};
-
-                    const filteredMenfessData = {
-                        ...(from && { from }),
-                        ...(to && { to })
-                    };
-
-                    if (!/^[0-9]$/.test(conversationId)) {
-                        await db.delete(`menfess.${conversationId}`);
-                    } else {
-                        await db.set(`menfess.${conversationId}`, filteredMenfessData);
-                    }
-                });
-
-                console.log(`[${config.pkg.name}] Berhasil mereset data menfess.`);
-                
-                // Kirim pesan ke grup log
-                const logMessage = quote(`📊 Data menfess telah direset pada ${new Date().toLocaleString()}.`);
-                await bot.core.sendMessage(config.bot.logGroupJid, {
-                    text: logMessage
-                });
-            } catch (error) {
-                console.error(`[${config.pkg.name}] Error mereset data menfess:`, error);
-            }
-        }
-
-        // Tambahkan fungsi untuk reset limit harian
-        async function resetDailyLimit() {
-            const now = new Date();
-            const nextMidnight = new Date(now);
-            nextMidnight.setHours(24, 0, 0, 0);
-            
-            const timeUntilMidnight = nextMidnight.getTime() - now.getTime();
-
-            setTimeout(async () => {
-                try {
-                    // Reset data menfess setiap tengah malam
-                    await resetMenfessData();
-
-                    // Ambil semua data user
-                    const allUsers = await db.get("user") || {};
-                    let successCount = 0;
-                    let failedCount = 0;
-                    
-                    // Reset limit untuk setiap user non-premium
-                    for (const [userId, userData] of Object.entries(allUsers)) {
-                        try {
-                            if (!userData.premium && !tools.general.isOwner({ sender: { jid: userId } }, userId.split(/[:@]/)[0], config.system.selfOwner)) {
-                                await db.set(`user.${userId}.limit`, 10);
-                                successCount++;
-                            }
-                        } catch (err) {
-                            console.error(`Gagal reset limit untuk user ${userId}:`, err);
-                            failedCount++;
-                        }
-                    }
-                    
-                    // Siapkan pesan status reset
-                    const statusMessage = quote(
-                        `📊 Laporan Reset Limit Harian\n\n` +
-                        `📅 Waktu: ${new Date().toLocaleString()}\n` +
-                        `✅ Berhasil: ${successCount} user\n` +
-                        `❌ Gagal: ${failedCount} user\n\n` +
-                        `⏰ Reset selanjutnya: ${nextMidnight.toLocaleString()}`
-                    );
-
-                    // Kirim pesan ke grup log
-                    await bot.core.sendMessage(config.bot.logGroupJid, {
-                        text: statusMessage
-                    });
-                    
-                    console.log(`[${config.pkg.name}] Berhasil reset limit harian ${new Date().toLocaleString()}`);
-                    
-                    // Jalankan lagi untuk hari berikutnya
-                    resetDailyLimit();
-                } catch (error) {
-                    console.error(`[${config.pkg.name}] Error reset limit harian:`, error);
-                    
-                    // Kirim pesan error ke grup dengan JID manual
-                    const errorMessage = quote(
-                        `⚠️ Error Reset Limit Harian\n\n` +
-                        `📅 Waktu: ${new Date().toLocaleString()}\n` +
-                        `❌ Error: ${error.message}\n\n` +
-                        `🔄 Mencoba lagi dalam 1 menit...`
-                    );
-                    
-                    // Kirim pesan error ke grup log
-                    await bot.core.sendMessage(config.bot.logGroupJid, {
-                        text: errorMessage
-                    });
-                    
-                    // Coba lagi dalam 1 menit jika terjadi error
-                    setTimeout(resetDailyLimit, 60000);
-                }
-            }, timeUntilMidnight);
-
-            // Log informasi waktu reset berikutnya
-            const nextResetTime = new Date(now.getTime() + timeUntilMidnight);
-            console.log(`[${config.pkg.name}] Reset limit harian selanjutnya pada: ${nextResetTime.toLocaleString()}`);
-        }
-
-        // Mulai penghitung waktu untuk reset limit harian
-        resetDailyLimit();
 
         // Fungsi untuk mendapatkan jadwal shalat untuk multiple zona
         async function getPrayerSchedules() {
@@ -229,11 +201,7 @@ module.exports = (bot) => {
                         kota: city.kota
                     });
                     
-                    const { data } = await axios.get(apiUrl, {
-                        headers: {
-                            "x-api-key": tools.api.listUrl().agatz.APIKey
-                        }
-                    });
+                    const { data } = await axios.get(apiUrl);
                     
                     // Sesuaikan dengan struktur response API
                     schedules[zone] = {
@@ -308,8 +276,8 @@ module.exports = (bot) => {
                             // Kirim pesan ke grup yang mengaktifkan fitur shalat
                             const groups = await bot.core.groupFetchAllParticipating();
                             for (const groupId of Object.keys(groups)) {
-                                const groupDb = await db.get(`group.${groupId.split('@')[0]}.option`) || {};
-                                if (groupDb.shalat) {
+                                const groupDb = await groupHelper.getGroup(groupId.split('@')[0]);
+                                if (groupDb?.shalat === 1 || groupDb?.shalat === true) {
                                     await bot.core.sendMessage(groupId, {
                                         text: message,
                                         contextInfo: {
@@ -341,303 +309,317 @@ module.exports = (bot) => {
 
         // Jalankan pengecekan pertama kali
         checkPrayerTime();
+
+        // Mulai penghitung waktu untuk reset menfess harian
+        resetMenfessDaily();
     });
 
     // Penanganan event ketika pesan muncul
     bot.ev.on(Events.MessagesUpsert, async (m, ctx) => {
         const isGroup = ctx.isGroup();
-        const isPrivate = !isGroup;
+            const isPrivate = !isGroup;
 
-        const senderJid = ctx.sender.jid;
-        const senderId = senderJid.split(/[:@]/)[0];
-        const groupJid = isGroup ? ctx.id : null;
-        const groupId = isGroup ? groupJid.split("@")[0] : null;
+            const senderJid = ctx.sender.jid;
+            const senderId = senderJid.split(/[:@]/)[0];
+            const groupJid = isGroup ? ctx.id : null;
+            const groupId = isGroup ? groupJid.split("@")[0] : null;
 
-        // Basis data untuk pengguna
-        const userDb = await db.get(`user.${senderId}`) || {};
-        const isOwner = tools.general.isOwner(senderId);
-        const isPremium = userDb?.premium;
+            // Basis data untuk pengguna
+            let userDb = await userHelper.getUser(senderId);
+            const isOwner = tools.general.isOwner(senderId);
+            const isPremium = userDb?.premium;
 
-        // Penanganan pada mode bot
-        const botMode = await db.get("bot.mode") || "public";
-        if (isPrivate && botMode === "group") return;
-        if (isGroup && botMode === "private") return;
-        if (!isOwner && botMode === "self") return;
+            // Penanganan pada mode bot
+            const botMode = await botHelper.getSetting("bot.mode") || "public";
+            if (isPrivate && botMode === "group") return;
+            if (isGroup && botMode === "private") return;
+            if (!isOwner && botMode === "self") return;
 
-        // Log pesan masuk
-        const currentTime = new Date();
-        const timeString = `${currentTime.getHours()}:${currentTime.getMinutes()}:${currentTime.getSeconds()}`;
-        
-        if (isGroup) {
-            consolefy.info(`[${timeString}] Pesan masuk dari grup: ${groupId}, oleh: ${senderId}`);
-        } else {
-            consolefy.info(`[${timeString}] Pesan masuk dari: ${senderId}`);
-        }
-
-        // Grup atau Pribadi
-        if (isGroup || isPrivate) {
+            // Log pesan masuk
+            const currentTime = new Date();
+            const timeString = `${currentTime.getHours()}:${currentTime.getMinutes()}:${currentTime.getSeconds()}`;
             
-            // Penangan pada ukuran basis data
-            config.bot.dbSize = fs.existsSync("database.json") ? tools.general.formatSize(fs.statSync("database.json").size / 1024) : "N/A";
+            if (isGroup) {
+                consolefy.info(`[${timeString}] Pesan masuk dari grup: ${groupId}, oleh: ${senderId}`);
+            } else {
+                consolefy.info(`[${timeString}] Pesan masuk dari: ${senderId}`);
+            }
 
-            // Penanganan basis data pengguna
-            const {
-                limit,
-                coin,
-                level,
-                xp,
-                ...otherUserDb
-            } = userDb || {};
-            const newUserDb = {
-                limit: (isOwner || isPremium) ? 0 : 10,
-                coin: (isOwner || isPremium) ? 0 : 1000,
-                level: 0,
-                uid: userDb?.uid || tools.general.generateUID(senderId),
-                xp: userDb?.xp || 0,
-                ...otherUserDb
-            };
-            await db.set(`user.${senderId}`, newUserDb);
+            // Grup atau Pribadi
+            if (isGroup || isPrivate) {
 
-            // Penanganan untuk perintah
-            const isCmd = tools.general.isCmd(m.content, ctx._config);
-            if (isCmd) {
-                if (config.system.autoTypingOnCmd) await ctx.simulateTyping(); // Simulasi pengetikan otomatis untuk perintah
+                // Penanganan basis data pengguna
+                if (!userDb.no_user) {
+                    try {
+                        // Buat user baru jika belum ada
+                        const newUserData = {
+                            no_user: senderId,
+                            user_limit: (isOwner || isPremium) ? 0 : 10,
+                            coin: (isOwner || isPremium) ? 0 : 1000,
+                            level: 0,
+                            uid: tools.general.generateUID(senderId),
+                            xp: 0,
+                            premium: isPremium || false,
+                            banned: false,
+                            afk: false,
+                            wingame: 0
+                        };
+                        await userHelper.createUser(newUserData);
+                        
+                        // Reload user data setelah create
+                        userDb = await userHelper.getUser(senderId);
+                    } catch (error) {
+                        console.error('Error creating new user:', error);
+                        // Handle error sesuai kebutuhan
+                    }
+                }
 
-                // Did you mean?
-                const mean = isCmd.didyoumean;
-                const prefix = isCmd.prefix;
-                const input = isCmd.input;
+                // Penanganan untuk perintah
+                const isCmd = tools.general.isCmd(m.content, ctx._config);
+                if (isCmd) {
+                    if (config.system.autoTypingOnCmd) await ctx.simulateTyping(); // Simulasi pengetikan otomatis untuk perintah
 
-                if (mean) await ctx.reply(quote(`❎ Anda salah ketik, sepertinya ${monospace(prefix + mean)}.`));
+                    // Did you mean?
+                    const mean = isCmd.didyoumean;
+                    const prefix = isCmd.prefix;
+                    const input = isCmd.input;
 
-                // Penanganan XP & Level untuk pengguna
-                const xpGain = 5;
-                let xpToLevelUp = 100;
+                    if (mean) {
+                        if (mean) await ctx.reply(quote(`❎ Anda salah ketik, sepertinya ${monospace(prefix + mean)}.`));
+                        return; // Jangan tambah XP jika command salah
+                    }
 
-                let newUserXp = userDb?.xp + xpGain;
+                    // Penanganan XP & Level untuk pengguna (hanya jika command valid)
+                    try {
+                        // Tambah XP hanya jika command valid dan berhasil dieksekusi
+                        const xpGain = 10; // XP tetap untuk setiap command
+                        const xpResult = await userHelper.addXP(senderId, xpGain);
 
-                if (newUserXp >= xpToLevelUp) {
-                    let newUserLevel = userDb?.level + 1;
-                    newUserXp -= xpToLevelUp;
+                        // Cek level up dan autolevelup dari database
+                        if (xpResult.success && xpResult.newLevel > xpResult.oldLevel) {
+                            // Dapatkan data user terbaru untuk cek status autolevelup
+                            const updatedUserDb = await userHelper.getUser(senderId);
+                            
+                            // Cek jika autolevelup aktif
+                            if (updatedUserDb.autolevelup) {
+                                const profilePictureUrl = await ctx._client.profilePictureUrl(senderJid, "image")
+                                    .catch(() => "https://i.pinimg.com/736x/70/dd/61/70dd612c65034b88ebf474a52ccc70c4.jpg");
 
-                    xpToLevelUp = Math.floor(xpToLevelUp * 1.2);
-
-                    const profilePictureUrl = await ctx._client.profilePictureUrl(senderJid, "image").catch(() => "https://i.pinimg.com/736x/70/dd/61/70dd612c65034b88ebf474a52ccc70c4.jpg");
-
-                    if (userDb?.autolevelup) await ctx.reply({
-                        text: `${quote(`Selamat! Kamu telah naik ke level ${newUserLevel}!`)}\n` +
-                            `${config.msg.readmore}\n` +
-                            quote(tools.msg.generateNotes([`Terganggu? Ketik ${monospace(`${prefix}setprofile autolevelup`)} untuk menonaktifkan pesan autolevelup.`])),
-                        contextInfo: {
-                            externalAdReply: {
-                                mediaType: 1,
-                                previewType: 0,
-                                mediaUrl: config.bot.website,
-                                title: config.msg.watermark,
-                                body: null,
-                                renderLargerThumbnail: true,
-                                thumbnailUrl: profilePictureUrl || config.bot.thumbnail,
-                                sourceUrl: config.bot.website
+                                await ctx.reply({
+                                    text: `${quote(`Selamat! Kamu telah naik ke level ${xpResult.newLevel}!`)}\n` +
+                                        `${config.msg.readmore}\n` +
+                                        quote(tools.msg.generateNotes([`Terganggu? Ketik ${monospace(`${prefix}setprofile autolevelup`)} untuk menonaktifkan pesan autolevelup.`])),
+                                    contextInfo: {
+                                        externalAdReply: {
+                                            mediaType: 1,
+                                            previewType: 0,
+                                            mediaUrl: config.bot.website,
+                                            title: config.msg.watermark,
+                                            body: null,
+                                            renderLargerThumbnail: true,
+                                            thumbnailUrl: profilePictureUrl || config.bot.thumbnail,
+                                            sourceUrl: config.bot.website
+                                        }
+                                    }
+                                });
                             }
                         }
-                    });
-
-                    await Promise.all([
-                        db.set(`user.${senderId}.xp`, newUserXp),
-                        db.set(`user.${senderId}.level`, newUserLevel)
-                    ]);
-                } else {
-                    await db.set(`user.${senderId}.xp`, newUserXp);
-                }
-            }
-
-            // Perintah khusus Owner
-            if (isOwner) {
-                // Perintah Eval: Jalankan kode JavaScript
-                if (m.content && m.content.startsWith && (m.content.startsWith("==> ") || m.content.startsWith("=> "))) {
-                    const code = m.content.slice(m.content.startsWith("==> ") ? 4 : 3);
-
-                    try {
-                        const result = await eval(m.content.startsWith("==> ") ? `(async () => { ${code} })()` : code);
-
-                        await ctx.reply(monospace(util.inspect(result)));
                     } catch (error) {
-                        consolefy.error(`Error: ${error}`);
-                        await ctx.reply(quote(`⚠️ Terjadi kesalahan: ${error.message}`));
+                        console.error('Error in XP/Level handling:', error);
                     }
                 }
 
-                // Perintah Exec: Jalankan perintah shell
-                if (m.content && m.content.startsWith && m.content.startsWith("$ ")) {
-                    const command = m.content.slice(2);
+                // Perintah khusus Owner
+                if (isOwner) {
+                    // Perintah Eval: Jalankan kode JavaScript
+                    if (m.content && m.content.startsWith && (m.content.startsWith("==> ") || m.content.startsWith("=> "))) {
+                        const code = m.content.slice(m.content.startsWith("==> ") ? 4 : 3);
 
+                        try {
+                            const result = await eval(m.content.startsWith("==> ") ? `(async () => { ${code} })()` : code);
+
+                            await ctx.reply(monospace(util.inspect(result)));
+                        } catch (error) {
+                            consolefy.error(`Error: ${error}`);
+                            await ctx.reply(quote(`⚠️ Terjadi kesalahan: ${error.message}`));
+                        }
+                    }
+
+                    // Perintah Exec: Jalankan perintah shell
+                    if (m.content && m.content.startsWith && m.content.startsWith("$ ")) {
+                        const command = m.content.slice(2);
+
+                        try {
+                            const output = await util.promisify(exec)(command);
+
+                            await ctx.reply(monospace(output.stdout || output.stderr));
+                        } catch (error) {
+                            consolefy.error(`Error: ${error}`);
+                            await ctx.reply(quote(`⚠️ Terjadi kesalahan: ${error.message}`));
+                        }
+                    }
+                }
+
+                // Penanganan AFK: Pengguna yang disebutkan
+                const mentionJids = m.message?.extendedTextMessage?.contextInfo?.mentionedJid;
+                if (mentionJids && mentionJids.length > 0) {
+                    for (const mentionJid of mentionJids) {
+                        const mentionedUser = await userHelper.getAFKInfo(mentionJid.split('@')[0]);
+                        if (mentionedUser?.afk) {
+                            const timeago = tools.general.convertMsToDuration(Date.now() - mentionedUser.afk_time);
+                            const reason = mentionedUser.afk_reason ? ` dengan alasan "${mentionedUser.afk_reason}"` : '';
+                            await ctx.reply(quote(`💤 Dia sedang AFK${reason} (${timeago}).`));
+                        }
+                    }
+                }
+
+                // Penanganan AFK: Pengguna yang kembali
+                if (userDb?.afk) {
+                    const timeElapsed = Date.now() - userDb.afk_time;
+                    if (timeElapsed > 3000) {
+                        const timeago = tools.general.convertMsToDuration(timeElapsed);
+                        await ctx.reply(quote(`💤 Kamu telah keluar dari AFK selama ${timeago}.`));
+                        await userHelper.setAFK(senderId, false);
+                    }
+                }
+            }
+
+            // Grup
+            if (isGroup) {
+                if (m.key.fromMe) return;
+
+                let groupDb = await groupHelper.getGroup(groupId);
+
+                // Jika data grup belum ada, buat baru
+                if (!groupDb) {
                     try {
-                        const output = await util.promisify(exec)(command);
-
-                        await ctx.reply(monospace(output.stdout || output.stderr));
+                        const created = await groupHelper.createGroup(groupId);
+                        if (created) {
+                            groupDb = await groupHelper.getGroup(groupId);
+                            console.log(`[${config.pkg.name}] Berhasil membuat data baru untuk grup: ${groupId}`);
+                        } else {
+                            console.log(`[${config.pkg.name}] Grup ${groupId} sudah ada di database`);
+                            groupDb = await groupHelper.getGroup(groupId);
+                        }
                     } catch (error) {
-                        consolefy.error(`Error: ${error}`);
-                        await ctx.reply(quote(`⚠️ Terjadi kesalahan: ${error.message}`));
+                        console.error(`[${config.pkg.name}] Error membuat data grup:`, error);
+                        return; // Keluar jika gagal membuat data grup
                     }
                 }
-            }
 
-            // Penanganan AFK: Pengguna yang disebutkan
-            const mentionJids = m.message?.extendedTextMessage?.contextInfo?.mentionedJid;
-            if (mentionJids && mentionJids.length > 0) {
-                for (const mentionJid of mentionJids) {
-                    const userAFK = await db.get(`user.${mentionJid}.afk`) || {};
-
-                    if (userAFK && userAFK.reason && userAFK.timestamp) {
-                        const timeago = tools.general.convertMsToDuration(Date.now() - userAFK.timestamp);
-                        await ctx.reply(quote(`💤 Dia sedang AFK ${userAFK.reason ? `dengan alasan "${userAFK.reason}"` : "tanpa alasan"} selama ${timeago}.`));
-                    }
+                // Pastikan groupDb ada sebelum melanjutkan
+                if (!groupDb) {
+                    console.error(`[${config.pkg.name}] Tidak bisa mendapatkan data grup: ${groupId}`);
+                    return;
                 }
-            }
 
-            const userAFK = await db.get(`user.${senderId}.afk`) || {};
-
-            if (userAFK && userAFK.reason && userAFK.timestamp) {
-                const currentTime = Date.now();
-                const timeElapsed = currentTime - userAFK.timestamp;
-
-                if (timeElapsed > 3000) {
-                    const timeago = tools.general.convertMsToDuration(timeElapsed);
-                    await ctx.reply(quote(`💤 Kamu telah keluar dari AFK ${userAFK.reason ? `dengan alasan "${userAFK.reason}"` : "tanpa alasan"} selama ${timeago}.`));
-                    await db.delete(`user.${senderId}.afk`);
-                }
-            }
-        }
-
-        // Grup
-        if (isGroup) {
-            if (m.key.fromMe) return;
-
-            const groupDb = await db.get(`group.${groupId}`) || {};
-
-            // Penanganan antilink
-            if (groupDb?.option?.antilink) {
-                const isUrl = await tools.general.isUrl(m.content);
-                if (m.content && await tools.general.isUrl(m.content) && !await tools.general.isAdmin(ctx.group(), senderJid)) {
-                    await ctx.reply(quote(`⛔ Jangan kirim tautan!`));
-                    await ctx.deleteMessage(m.key);
-                    if (!config.system.restrict && groupDb?.option?.autokick) {
-                        await ctx.group().kick([senderJid]);
-                        // Kirim pesan peringatan ke pesan pribadi
-                        await ctx._client.sendMessage(senderJid, {
-                            text: quote(`⚠️ Kamu dikick dari grup karena mengirim tautan.\n\n> Jika ini adalah kesalahan segera hubungi owner/admin.`)
-                        });
-                    }
-                }
-            }
-
-            // Penanganan antinsfw
-            if (groupDb?.option?.antinsfw) {
-                const msgType = ctx.getMessageType();
-                const checkMedia = await tools.general.checkMedia(msgType, "image");
-
-                if (checkMedia && !await tools.general.isAdmin(ctx.group(), senderJid)) {
-                    const buffer = await ctx.msg.media.toBuffer();
-                    const uploadUrl = await tools.general.upload(buffer);
-
-                    const apiUrl = tools.api.createUrl("fasturl", "/tool/imagechecker", {
-                        url: uploadUrl
-                    });
-                    const {
-                        data
-                    } = await axios.get(apiUrl);
-
-                    if (data.results.status === "NSFW") {
-                        await ctx.reply(`⛔ Jangan kirim NSFW!`);
+                // Penanganan antilink
+                if (groupDb?.antilink === 1 || groupDb?.antilink === true) {
+                    if (tools.general.isUrl(m.content) && !await tools.general.isAdmin(ctx.group(), senderJid)) {
+                        await ctx.reply(quote(`⛔ Jangan kirim link!`));
                         await ctx.deleteMessage(m.key);
-                        if (!config.system.restrict && groupDb?.option?.autokick) {
+                        if (!config.system.restrict && (groupDb?.autokick === 1 || groupDb?.autokick === true)) {
                             await ctx.group().kick([senderJid]);
-                            // Kirim pesan peringatan ke pesan pribadi
                             await ctx._client.sendMessage(senderJid, {
-                                text: quote(`⚠️ Kamu dikick dari grup karena mengirim NFSW.\n\n> Jika ini adalah kesalahan segera hubungi owner/admin.`)
+                                text: quote(`⚠️ Kamu dikick dari grup karena mengirim link.\n\n> Jika ini adalah kesalahan segera hubungi owner/admin.`)
+                            });
+                        }
+                    }
+                }
+
+                // Penanganan antinsfw
+                if (groupDb?.antinsfw === 1 || groupDb?.antinsfw === true) {
+                    if (m.image && !await tools.general.isAdmin(ctx.group(), senderJid)) {
+                        const buffer = await ctx.msg.media.toBuffer();
+                        const uploadUrl = await tools.general.upload(buffer);
+
+                        const apiUrl = tools.api.createUrl("fasturl", "/tool/imagechecker", {
+                            url: uploadUrl
+                        });
+                        const {
+                            data
+                        } = await axios.get(apiUrl);
+
+                        if (data.results.status === "NSFW") {
+                            await ctx.reply(`⛔ Jangan kirim NSFW!`);
+                            await ctx.deleteMessage(m.key);
+                            if (!config.system.restrict && (groupDb?.autokick === 1 || groupDb?.autokick === true)) {
+                                await ctx.group().kick([senderJid]);
+                                await ctx._client.sendMessage(senderJid, {
+                                    text: quote(`⚠️ Kamu dikick dari grup karena mengirim NFSW.\n\n> Jika ini adalah kesalahan segera hubungi owner/admin.`)
+                                });
+                            }
+                        }
+                    }
+                }
+
+                // Penanganan antisticker
+                if (groupDb?.antisticker === 1 || groupDb?.antisticker === true) {
+                    if (m.sticker && !await tools.general.isAdmin(ctx.group(), senderJid)) {
+                        await ctx.reply(`⛔ Jangan kirim stiker!`);
+                        await ctx.deleteMessage(m.key);
+                        if (!config.system.restrict && (groupDb?.autokick === 1 || groupDb?.autokick === true)) {
+                            await ctx.group().kick([senderJid]);
+                            await ctx._client.sendMessage(senderJid, {
+                                text: quote(`⚠️ Kamu dikick dari grup karena mengirim sticker.\n\n> Jika ini adalah kesalahan segera hubungi owner/admin.`)
+                            });
+                        }
+                    }
+                }
+
+                // Penanganan antitoxic
+                const toxicRegex = /anj(k|g)|ajn?(g|k)|a?njin(g|k)|bajingan|b(a?n)?gsa?t|ko?nto?l|me?me?(k|q)|pe?pe?(k|q)|meki|titi(t|d)|pe?ler|tetek|toket|ngewe|go?blo?k|to?lo?l|idiot|(k|ng)e?nto?(t|d)|jembut|bego|dajj?al|janc(u|o)k|pantek|puki ?(mak)?|kimak|kampang|lonte|col(i|mek?)|pelacur|henceu?t|nigga|fuck|dick|bitch|tits|bastard|asshole|dontol|kontoi|ontol/i;
+                if (groupDb?.antitoxic === 1 || groupDb?.antitoxic === true) {
+                    if (m.content && toxicRegex.test(m.content) && !await tools.general.isAdmin(ctx.group(), senderJid)) {
+                        await ctx.reply(quote(`⛔ Jangan toxic!`));
+                        await ctx.deleteMessage(m.key);
+                        if (!config.system.restrict && (groupDb?.autokick === 1 || groupDb?.autokick === true)) {
+                            await ctx.group().kick([senderJid]);
+                            await ctx._client.sendMessage(senderJid, {
+                                text: quote(`⚠️ Kamu dikick dari grup karena mengirim toxic.\n\n> Jika ini adalah kesalahan segera hubungi owner/admin.`)
                             });
                         }
                     }
                 }
             }
 
-            // Penanganan antisticker
-            if (groupDb?.option?.antisticker) {
-                const msgType = ctx.getMessageType();
-                const checkMedia = await tools.general.checkMedia(msgType, "sticker");
+            // Pribadi
+            if (isPrivate) {
+                if (m.key.fromMe) return;
 
-                if (checkMedia && !await tools.general.isAdmin(ctx.group(), senderJid)) {
-                    await ctx.reply(`⛔ Jangan kirim stiker!`);
-                    await ctx.deleteMessage(m.key);
-                    if (!config.system.restrict && groupDb?.option?.autokick) {
-                        await ctx.group().kick([senderJid]);
-                        // Kirim pesan peringatan ke pesan pribadi
-                        await ctx._client.sendMessage(senderJid, {
-                            text: quote(`⚠️ Kamu dikick dari grup karena mengirim sticker.\n\n> Jika ini adalah kesalahan segera hubungi owner/admin.`)
-                        });
+                const isCmd = tools.general.isCmd(m.content, ctx._config);
+
+                // Penanganan menfess
+                const allMenfessDb = await menfessHelper.getMenfessByUser(senderId) || {};
+                if ((!isCmd || isCmd.didyoumean) && allMenfessDb && Array.isArray(allMenfessDb) && allMenfessDb.length > 0) {
+                    for (const menfessData of allMenfessDb) {
+                        const { from_user, to_user } = menfessData;
+                        const senderInConversation = senderId === from_user || senderId === to_user;
+
+                        if (m.content && /^\b(delete|stop)\b$/i.test(m.content.trim()) && senderInConversation) {
+                            const targetId = senderId === from_user ? to_user : from_user;
+                            const message = senderId === from_user ? "✅ Sesi percakapan diakhiri oleh pengirim!" : "✅ Sesi percakapan diakhiri oleh penerima!";
+
+                            await ctx.reply(quote(message));
+                            await ctx.sendMessage(`${targetId}@s.whatsapp.net`, {
+                                text: quote(message)
+                            });
+                            await menfessHelper.deleteMenfess(menfessData.id);
+                            break;
+                        }
+
+                        if (senderInConversation) {
+                            const targetId = senderId === from_user ? `${to_user}@s.whatsapp.net` : `${from_user}@s.whatsapp.net`;
+
+                            await ctx._client.sendMessage(targetId, {
+                                forward: m
+                            });
+
+                            break;
+                        }
                     }
                 }
             }
-
-            // Penanganan antitoxic
-            const toxicRegex = /anj(k|g)|ajn?(g|k)|a?njin(g|k)|bajingan|b(a?n)?gsa?t|ko?nto?l|me?me?(k|q)|pe?pe?(k|q)|meki|titi(t|d)|pe?ler|tetek|toket|ngewe|go?blo?k|to?lo?l|idiot|(k|ng)e?nto?(t|d)|jembut|bego|dajj?al|janc(u|o)k|pantek|puki ?(mak)?|kimak|kampang|lonte|col(i|mek?)|pelacur|henceu?t|nigga|fuck|dick|bitch|tits|bastard|asshole|dontol|kontoi|ontol/i;
-            if (groupDb?.option?.antitoxic) {
-                if (m.content && toxicRegex.test(m.content) && !await tools.general.isAdmin(ctx.group(), senderJid)) {
-                    await ctx.reply(quote(`⛔ Jangan toxic!`));
-                    await ctx.deleteMessage(m.key);
-                    if (!config.system.restrict && groupDb?.option?.autokick) {
-                        await ctx.group().kick([senderJid]);
-                        // Kirim pesan peringatan ke pesan pribadi
-                        await ctx._client.sendMessage(senderJid, {
-                            text: quote(`⚠️ Kamu dikick dari grup karena mengirim toxic.\n\n> Jika ini adalah kesalahan segera hubungi owner/admin.`)
-                        });
-                    }
-                }
-            }
-        }
-
-        // Pribadi
-        if (isPrivate) {
-            if (m.key.fromMe) return;
-
-            const isCmd = tools.general.isCmd(m.content, ctx._config);
-
-            // Penanganan menfess
-            const allMenfessDb = await db.get("menfess") || {};
-            if ((!isCmd || isCmd.didyoumean) && allMenfessDb && typeof allMenfessDb === "object" && Object.keys(allMenfessDb).length > 0) {
-                const menfessEntries = Object.entries(allMenfessDb);
-
-                for (const [conversationId, menfessData] of menfessEntries) {
-                    const {
-                        from,
-                        to
-                    } = menfessData;
-                    const senderInConversation = senderId === from || senderId === to;
-
-                    if (m.content && /^\b(delete|stop)\b$/i.test(m.content.trim()) && senderInConversation) {
-                        const targetId = senderId === from ? to : from;
-                        const message = senderId === from ? "✅ Sesi percakapan diakhiri oleh pengirim!" : "✅ Sesi percakapan diakhiri oleh penerima!";
-
-                        await ctx.reply(quote(message));
-                        await ctx.sendMessage(`${targetId}@s.whatsapp.net`, {
-                            text: quote(message)
-                        });
-                        await db.delete(`menfess.${conversationId}`);
-                        break;
-                    }
-
-                    if (senderInConversation) {
-                        const targetId = senderId === from ? `${to}@s.whatsapp.net` : `${from}@s.whatsapp.net`;
-
-                        await ctx._client.sendMessage(targetId, {
-                            forward: m
-                        });
-
-                        break;
-                    }
-                }
-            }
-        }
     });
 
     // Penanganan peristiwa ketika pengguna bergabung atau keluar dari grup

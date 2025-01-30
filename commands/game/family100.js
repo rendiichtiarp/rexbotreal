@@ -1,5 +1,6 @@
 const { monospace, quote } = require("@mengkodingan/ckptw");
 const axios = require("axios");
+const userHelper = require('../../database/users');
 
 const session = new Map();
 
@@ -35,7 +36,7 @@ module.exports = {
       await ctx.reply(
         `${quote(`Soal: ${data.soal}`)}\n` +
           `${quote(`Jumlah jawaban: ${game.answers.size}`)}\n` +
-          `${quote(`Waktu ${game.timeout / 1000} detik`)}\n` +
+          `${quote(`Waktu: ${game.timeout / 1000} detik`)}\n` +
           `${quote("Ketik 's' untuk menyerah.")}\n` +
           "\n" +
           config.msg.footer
@@ -54,9 +55,7 @@ module.exports = {
           game.answers.delete(userAnswer);
           game.participants.add(participantId);
 
-          const userDb = await db.get(`user.${participantId}`) || {};
-          
-          await db.set(`user.${participantId}.coin`, (userDb?.coin || 0) + game.coin.answered);
+          await userHelper.addCoin(participantId, game.coin.answered);
           await ctx.sendMessage(
             ctx.id,
             {
@@ -74,9 +73,8 @@ module.exports = {
           if (game.answers.size === 0) {
             session.delete(ctx.id);
             for (const participant of game.participants) {
-              const participantDb = await db.get(`user.${participant}`) || {};
-              await db.set(`user.${participant}.coin`, (participantDb?.coin || 0) + game.coin.allAnswered);
-              await db.add(`user.${participant}.winGame`, 1);
+              await userHelper.addCoin(participant, game.coin.allAnswered);
+              await userHelper.addWinGame(participant);
             }
             await ctx.reply(
               quote(

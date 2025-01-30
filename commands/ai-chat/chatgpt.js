@@ -2,6 +2,7 @@ const {
     quote
 } = require("@mengkodingan/ckptw");
 const axios = require("axios");
+const userHelper = require('../../database/users');
 
 module.exports = {
     name: "chatgpt",
@@ -28,7 +29,8 @@ module.exports = {
         try {
             const style = `You are a WhatsApp bot named ${config.bot.name}, owned by ${config.owner.name}. Be friendly, informative, and engaging.`; // Dapat diubah sesuai keinginan Anda
             const senderId = ctx.sender.jid.split(/[:@]/)[0];
-            const uid = await db.get(`user.${senderId}.uid`) || "guest";
+            const userDb = await userHelper.getUser(senderId);
+            const uid = userDb.uid || "guest";
 
             if (checkMedia || checkQuotedMedia) {
                 const buffer = await ctx.msg.media.toBuffer() || await ctx.quoted?.media.toBuffer();

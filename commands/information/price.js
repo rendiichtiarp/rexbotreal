@@ -1,6 +1,7 @@
 const {
     quote
 } = require("@mengkodingan/ckptw");
+const botHelper = require('../../database/bot');
 
 module.exports = {
     name: "price",
@@ -14,7 +15,7 @@ module.exports = {
             const senderJid = ctx.sender.jid;
             const senderId = senderJid.split(/[:@]/)[0];
 
-            const customText = await db.get(`bot.text.price`) || null;
+            const customText = await botHelper.getSetting('text_price') || null;
             const text = customText ?
                 customText
                 .replace(/%tag%/g, `@${senderId}`)
@@ -22,7 +23,6 @@ module.exports = {
                 .replace(/%version%/g, config.pkg.version)
                 .replace(/%prefix%/g, ctx._used.prefix)
                 .replace(/%command%/g, ctx._used.command)
-                .replace(/%watermark%/g, config.msg.watermark)
                 .replace(/%watermark%/g, config.msg.watermark)
                 .replace(/%footer%/g, config.msg.footer)
                 .replace(/%readmore%/g, config.msg.readmore) :

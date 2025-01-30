@@ -11,6 +11,7 @@ const SimplDB = require("simpl.db");
 const {
     Consolefy
 } = require("@mengkodingan/consolefy");
+const { connection, testConnection } = require('./database/connection');
 
 // Buat consolefy
 const c = new Consolefy({
@@ -58,5 +59,20 @@ if (config.system.useServer) {
         c.success(`Server is running at http://localhost:${port}`);
     });
 }
+// Test koneksi database saat aplikasi dimulai
+testConnection()
+    .then(isConnected => {
+        if (isConnected) {
+            c.success('Mysql Database Connected');
+        } else {
+            c.error('Mysql Database Connection Failed');
+            process.exit(1);
+        }
+
+    })
+    .catch(error => {
+        console.error('Error Mysql Database Connection:', error);
+        process.exit(1);
+    });
 // Impor dan jalankan modul utama
 require("./main.js");

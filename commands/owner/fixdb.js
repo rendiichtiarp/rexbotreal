@@ -2,6 +2,10 @@ const {
     monospace,
     quote
 } = require("@mengkodingan/ckptw");
+const userHelper = require('../../database/users');
+const menfessHelper = require('../../database/menfess');
+const groupHelper = require('../../database/groups');
+const botHelper = require('../../database/bot');
 
 module.exports = {
     name: "fixdb",
@@ -17,7 +21,7 @@ module.exports = {
 
         if (!input) return await ctx.reply(
             `${quote(tools.msg.generateInstruction(["send"], ["text"]))}\n` +
-            quote(tools.msg.generateCommandExample(ctx._used, `@${senderId}`)),
+            quote(tools.msg.generateCommandExample(ctx._used, `user`))
         );
 
         if (input === "list") {
@@ -28,107 +32,68 @@ module.exports = {
         try {
             const waitMsg = await ctx.reply(config.msg.wait);
 
-            const dbJSON = await db.toJSON();
-            const {
-                user = {}, group = {}, menfess = {}
-            } = dbJSON;
-
             switch (input) {
                 case "user": {
-                    await ctx.editMessage(waitMsg.key, quote(`🔄 Memproses data pengguna...`));
-                    Object.keys(user).forEach(async (userId) => {
-                        const userData = user[userId] || {};
-                        const {
-                            afk,
-                            banned,
-                            coin = 1000,
-                            lastClaim,
-                            level = 0,
-                            premium,
-                            uid,
-                            winGame,
-                            xp = 0
-                        } = userData;
-
-                        const filteredData = {
-                            ...(afk && {
-                                afk
-                            }),
-                            banned,
-                            coin,
-                            lastClaim,
-                            level,
-                            ...(premium && {
-                                premium
-                            }),
-                            ...(uid && {
-                                uid
-                            }),
-                            ...(winGame && {
-                                winGame
-                            }),
-                            xp
-                        };
-
-                        if (!/^[0-9]$/.test(userId)) {
-                            await db.delete(`user.${userId}`);
-                        } else {
-                            await db.set(`user.${userId}`, filteredData);
-                        }
-                    });
+                    await ctx.editMessage(waitMsg.key, quote(`🔄 Memperbaiki data pengguna...`));
+                    
+                    // Reset nilai yang tidak valid
+                    await userHelper.fixUserData();
+                    // Hapus user yang tidak valid (no_user bukan angka)
+                    // Reset coin/limit/level/xp yang minus
+                    // Reset status premium yang kadaluarsa
+                    // Reset status banned yang tidak valid
+                    // Reset status afk yang terlalu lama
                     break;
                 }
 
                 case "group": {
-                    await ctx.editMessage(waitMsg.key, quote(`🔄 Memproses data grup...`));
-                    Object.keys(group).forEach(async (groupId) => {
-                        const groupData = group[groupId] || {};
-                        const {
-                            text,
-                            option
-                        } = groupData;
-
-                        const filteredGroupData = {
-                            ...(text && {
-                                text
-                            }),
-                            ...(option && {
-                                option
-                            })
-                        };
-
-                        if (!/^[0-9]$/.test(groupId)) {
-                            await db.delete(`group.${groupId}`);
-                        } else {
-                            await db.set(`group.${groupId}`, filteredGroupData);
-                        }
-                    });
+                    await ctx.editMessage(waitMsg.key, quote(`🔄 Memperbaiki data grup...`));
+                    
+                    // Reset nilai boolean yang tidak valid
+                    await groupHelper.fixGroupData();
+                    // Hapus grup yang sudah tidak ada botnya
+                    // Reset text welcome/goodbye/intro yang tidak valid
+                    // Reset pengaturan yang tidak konsisten
                     break;
                 }
 
                 case "menfess": {
-                    await ctx.editMessage(waitMsg.key, quote(`🔄 Memproses data menfess...`));
-                    Object.keys(menfess).forEach(async (conversationId) => {
-                        const {
-                            from,
-                            to
-                        } = menfess[conversationId] || {};
+                    await ctx.editMessage(waitMsg.key, quote(`🔄 Membersihkan data menfess...`));
+                    
+                    // Hapus menfess yang sudah lama
+                    await menfessHelper.resetMenfessData();
+                    break;
+                }
 
-                        const filteredMenfessData = {
-                            ...(from && {
-                                from
-                            }),
-                            ...(to && {
-                                to
-                            })
-                        };
+                case "bot": {
+                    await ctx.editMessage(waitMsg.key, quote(`🔄 Memperbaiki pengaturan bot...`));
+                    
+                    // Reset pengaturan yang tidak valid
+                    // Hapus pengaturan yang tidak terpakai
+                    // Reset mode yang tidak konsisten
+                    await botHelper.fixBotData();
+                    break;
+                }
 
-                        if (!/^[0-9]$/.test(conversationId)) {
-                            await db.delete(`menfess.${conversationId}`);
-                        } else {
-                            await db.set(`menfess.${conversationId}`, filteredMenfessData);
-                        }
-                    });
+                case "all": {
+                    await ctx.editMessage(waitMsg.key, quote(`🔄 Memperbaiki semua data...`));
+                    
+                    // Jalankan semua perbaikan
+                    await userHelper.fixUserData();
+                    await groupHelper.fixGroupData();
+                    await menfessHelper.resetMenfessData();
+                    await botHelper.fixBotData();
+                    break;
+                }
+
+                case "clean": {
+                    await ctx.editMessage(waitMsg.key, quote(`🔄 Membersihkan semua data...`));
+                    
+                    // Hapus semua data
+                    await userHelper.cleanUserData();
+                    await groupHelper.cleanGroupData();
+                    await menfessHelper.cleanMenfessData();
+                    await botHelper.cleanBotData();
                     break;
                 }
 
@@ -137,7 +102,7 @@ module.exports = {
                 }
             }
 
-            return await ctx.editMessage(waitMsg.key, quote(`✅ Basis data berhasil dibersihkan untuk ${input}!`));
+            return await ctx.editMessage(waitMsg.key, quote(`✅ Basis data berhasil diperbaiki untuk ${input}!`));
         } catch (error) {
             consolefy.error(`Error: ${error}`);
             return await ctx.reply(quote(`⚠️ Terjadi kesalahan: ${error.message}`));

@@ -2,6 +2,8 @@ const {
     quote,
     monospace
 } = require("@mengkodingan/ckptw");
+const userHelper = require('../../database/users');
+const { connection } = require('../../database/connection');
 
 module.exports = {
     name: "profile",
@@ -17,35 +19,32 @@ module.exports = {
             const userId = Array.isArray(mentionedJids) && mentionedJids.length > 0 ? mentionedJids[0] : ctx.sender.jid;
 
             const senderId = userId.split(/[:@]/)[0];
-            const userDb = await db.get(`user.${senderId}`) || {};
-
+            
+            // Get user data from MySQL
+            const userDb = await userHelper.getUser(senderId);
             const isOwner = tools.general.isOwner(senderId);
 
-            const leaderboardData = Object.entries((await db.toJSON()).user)
-                .map(([id, data]) => ({
-                    id,
-                    winGame: data.winGame || 0,
-                    level: data.level || 0
-                }))
-                .sort((a, b) => b.winGame - a.winGame || b.level - a.level);
+            // Get user rank using the new helper function
+            const userRank = await userHelper.getUserRank(senderId);
 
-            const userRank = leaderboardData.findIndex(user => user.id === senderId) + 1;
-
-            const profilePictureUrl = await ctx._client.profilePictureUrl(userId, "image").catch(() => "https://i.pinimg.com/736x/70/dd/61/70dd612c65034b88ebf474a52ccc70c4.jpg");
+            const profilePictureUrl = await ctx._client.profilePictureUrl(userId, "image")
+                .catch(() => "https://i.pinimg.com/736x/70/dd/61/70dd612c65034b88ebf474a52ccc70c4.jpg");
 
             return await ctx.reply({
                 text: `*🎭 Profil Pengguna*\n\n` +
                     `*📝 Info Pribadi*\n` +
+                    `🆔 *UID*: ${userDb?.uid || "-"}\n` +
                     `👤 *Nama*: ${userDb?.name || "-"}\n` +
                     `🎂 *Umur*: ${userDb?.age ? userDb.age + " Tahun" : "-"}\n` +
-                    `📅 *Tanggal Lahir*: ${userDb?.birthDate || "-"}\n` +
+                    `📅 *Tanggal Lahir*: ${userDb?.birth_date ? new Date(userDb.birth_date).toLocaleDateString('id-ID') : "-"}\n` +
                     `✨ *Status*: ${isOwner ? "Pemilik" : userDb?.premium ? "Pengguna Premium" : "Pengguna Gratis" || "-"}\n\n` +
-                    `*📊 Statistik*\n` +
-                    `🪙 Koin: ${isOwner || userDb?.premium ? "∞" : userDb?.coin || "0"}\n` +
-                    `⭐ Level: ${userDb?.level || "0"}\n` +
-                    `🎉 XP: ${userDb?.xp || "0"}\n` +
-                    `🏆 Game Win: ${userDb?.winGame || "0"}\n` +
-                    `🏅 Ranking: #${userRank || "-"}\n\n` +
+                    `📊 *Statistik*\n` +
+                    `🪙 *Koin*: ${isOwner || userDb?.premium ? "∞" : userDb?.coin || "0"}\n` +
+                    `⭐ *Level*: ${userDb?.level || "0"}\n` +
+                    `🎉 *XP*: ${userDb?.xp || "0"}\n` +
+                    `🏆 *Game Win*: ${userDb?.wingame || "0"}\n` +
+                    `🏅 *Ranking*: #${userRank || "-"}\n` +
+                    `📉 *Limit*: ${userDb?.user_limit || "0"}\n\n` +
                     config.msg.footer,
                 contextInfo: {
                     externalAdReply: {

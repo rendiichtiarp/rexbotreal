@@ -5,6 +5,7 @@ const {
     exec
 } = require("child_process");
 const util = require("util");
+const botHelper = require('../../database/bot');
 
 module.exports = {
     name: "restart",
@@ -19,11 +20,11 @@ module.exports = {
         try {
             const waitMsg = await ctx.reply(config.msg.wait);
 
-            await db.set(`bot.restart`, {
+            await botHelper.setSetting(`bot.restart`, JSON.stringify({
                 jid: ctx.id,
                 key: waitMsg.key,
                 timestamp: Date.now()
-            });
+            }));
 
             return await util.promisify(exec)("pm2 reload $(basename $(pwd))"); // PM2
         } catch (error) {

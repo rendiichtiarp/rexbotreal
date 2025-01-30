@@ -1,6 +1,7 @@
 const {
     quote
 } = require("@mengkodingan/ckptw");
+const menfessHelper = require('../../database/menfess');
 
 module.exports = {
     name: "menfess",
@@ -25,9 +26,9 @@ module.exports = {
             quote(tools.msg.generateNotes(["Jangan gunakan spasi pada angka. Contoh: +62 8123-4567-8910, seharusnya +628123-4567-8910"]))
         );
 
-        const allMenfessDb = await db.get("menfess") || {};
-        const isSenderInMenfess = Object.values(allMenfessDb).some(m => m.from === senderId || m.to === senderId);
-        const isReceiverInMenfess = Object.values(allMenfessDb).some(m => m.from === formattedId || m.to === formattedId);
+        const allMenfessDb = await menfessHelper.getMenfessByUser(senderId);
+        const isSenderInMenfess = allMenfessDb.some(m => m.from_user === senderId || m.to_user === senderId);
+        const isReceiverInMenfess = allMenfessDb.some(m => m.from_user === formattedId || m.to_user === formattedId);
 
         if (isSenderInMenfess) return await ctx.reply(quote(`❎ Anda sudah terlibat dalam percakapan lain. Pastikan kamu sudah mengakhiri percakapan sebelumnya.`));
         if (isReceiverInMenfess) return await ctx.reply(quote(`❎ Pengguna ini sudah terlibat dalam percakapan lain. Coba lagi nanti.`));
@@ -69,6 +70,7 @@ module.exports = {
                 }
             });
 
+            // Kirim pesan menfess
             await ctx.sendMessage(`${formattedId}@s.whatsapp.net`, {
                 text: `${menfessText}\n` +
                     `${config.msg.readmore}\n` +
@@ -77,10 +79,7 @@ module.exports = {
                 /*quoted: fakeText*/
             });
 
-            await db.set(`menfess.${Date.now()}`, {
-                from: senderId,
-                to: formattedId
-            });
+            await menfessHelper.createMenfess(senderId, formattedId);
 
             return await ctx.reply(quote("✅ Kirim pesan kamu disini. Pesan yang Anda kirim disini akan diteruskan ke orang tersebut.\n\nJika ingin berhenti, cukup ketik `delete` atau `stop` ."));
         } catch (error) {

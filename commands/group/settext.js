@@ -2,6 +2,7 @@ const {
     monospace,
     quote
 } = require("@mengkodingan/ckptw");
+const groupHelper = require('../../database/groups');
 
 module.exports = {
     name: "settext",
@@ -31,23 +32,23 @@ module.exports = {
 
         try {
             const groupId = ctx.isGroup() ? ctx.id.split("@")[0] : null;
-            let setKey;
+            let updateFunction;
 
             switch (key.toLowerCase()) {
                 case "goodbye":
-                    setKey = `group.${groupId}.text.goodbye`;
+                    updateFunction = groupHelper.updateTextGoodbye;
                     break;
                 case "intro":
-                    setKey = `group.${groupId}.text.intro`;
+                    updateFunction = groupHelper.updateTextIntro;
                     break;
                 case "welcome":
-                    setKey = `group.${groupId}.text.welcome`;
+                    updateFunction = groupHelper.updateTextWelcome;
                     break;
                 default:
                     return await ctx.reply(quote(`❎ Key '${key}' tidak valid!`));
             }
 
-            await db.set(setKey, text);
+            await updateFunction(groupId, text);
             return await ctx.reply(quote(`✅ Pesan untuk key '${key}' berhasil disimpan!`));
         } catch (error) {
             consolefy.error(`Error: ${error}`);

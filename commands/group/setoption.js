@@ -2,6 +2,7 @@ const {
     monospace,
     quote
 } = require("@mengkodingan/ckptw");
+const groupHelper = require('../../database/groups');
 
 module.exports = {
     name: "setoption",
@@ -30,16 +31,17 @@ module.exports = {
 
         if (ctx.args[0] === "status") {
             const groupId = ctx.isGroup() ? ctx.id.split("@")[0] : null;
-            const groupOption = await db.get(`group.${groupId}.option`) || {};
+            const groupDb = await groupHelper.getGroup(groupId);
 
             return await ctx.reply(
-                `${quote(`Antilink: ${groupOption.antilink ? "Aktif" : "Nonaktif"}`)}\n` +
-                `${quote(`Antinsfw: ${groupOption.antinsfw ? "Aktif" : "Nonaktif"}`)}\n` +
-                `${quote(`Antisticker: ${groupOption.antisticker ? "Aktif" : "Nonaktif"}`)}\n` +
-                `${quote(`Antitoxic: ${groupOption.antitoxic ? "Aktif" : "Nonaktif"}`)}\n` +
-                `${quote(`Autokick: ${groupOption.autokick ? "Aktif" : "Nonaktif"}`)}\n` +
-                `${quote(`Welcome: ${groupOption.welcome ? "Aktif" : "Nonaktif"}`)}\n` +
-                `${quote(`Shalat: ${groupOption.shalat ? "Aktif" : "Nonaktif"}`)}\n` +
+                `${quote(`Antilink: ${groupDb?.antilink ? "Aktif" : "Nonaktif"}`)}\n` +
+                `${quote(`Antinsfw: ${groupDb?.antinsfw ? "Aktif" : "Nonaktif"}`)}\n` +
+                `${quote(`Antisticker: ${groupDb?.antisticker ? "Aktif" : "Nonaktif"}`)}\n` +
+                `${quote(`Antitoxic: ${groupDb?.antitoxic ? "Aktif" : "Nonaktif"}`)}\n` +
+                `${quote(`Autokick: ${groupDb?.autokick ? "Aktif" : "Nonaktif"}`)}\n` +
+                `${quote(`Welcome: ${groupDb?.welcome ? "Aktif" : "Nonaktif"}`)}\n` +
+                `${quote(`Shalat: ${groupDb?.shalat ? "Aktif" : "Nonaktif"}`)}\n` +
+                `${quote(`Intro: ${groupDb?.intro ? "Aktif" : "Nonaktif"}`)}\n` +
                 "\n" +
                 config.msg.footer
             );
@@ -47,38 +49,53 @@ module.exports = {
 
         try {
             const groupId = ctx.isGroup() ? ctx.id.split("@")[0] : null;
-            let setKey;
+            let updateFunction;
+            let optionName;
+            let textKey;
 
             switch (input.toLowerCase()) {
                 case "antilink":
-                    setKey = `group.${groupId}.option.antilink`;
+                    updateFunction = groupHelper.updateAntilink;
+                    optionName = "antilink";
                     break;
                 case "antinsfw":
-                    setKey = `group.${groupId}.option.antinsfw`;
+                    updateFunction = groupHelper.updateAntinsfw;
+                    optionName = "antinsfw";
                     break;
                 case "antisticker":
-                    setKey = `group.${groupId}.option.antisticker`;
+                    updateFunction = groupHelper.updateAntisticker;
+                    optionName = "antisticker";
                     break;
                 case "antitoxic":
-                    setKey = `group.${groupId}.option.antitoxic`;
+                    updateFunction = groupHelper.updateAntitoxic;
+                    optionName = "antitoxic";
                     break;
                 case "autokick":
-                    setKey = `group.${groupId}.option.autokick`;
+                    updateFunction = groupHelper.updateAutokick;
+                    optionName = "autokick";
                     break;
                 case "welcome":
-                    setKey = `group.${groupId}.option.welcome`;
+                    updateFunction = groupHelper.updateWelcome;
+                    optionName = "welcome";
                     break;
                 case "shalat":
-                    setKey = `group.${groupId}.option.shalat`;
+                    updateFunction = groupHelper.updateShalat;
+                    optionName = "shalat";
+                    break;
+                case "intro":
+                    updateFunction = groupHelper.updateIntro;
+                    textKey = "intro";
                     break;
                 default:
                     return await ctx.reply(quote(`❎ Key '${input}' tidak valid!`));
             }
 
-            const currentStatus = await db.get(setKey);
+            const groupDb = await groupHelper.getGroup(groupId);
+            const currentStatus = groupDb?.[optionName] || false;
             const newStatus = !currentStatus;
 
-            await db.set(setKey, newStatus);
+            await updateFunction(groupId, newStatus);
+
             const statusText = newStatus ? "diaktifkan" : "dinonaktifkan";
             return await ctx.reply(quote(`✅ Fitur '${input}' berhasil ${statusText}!`));
         } catch (error) {

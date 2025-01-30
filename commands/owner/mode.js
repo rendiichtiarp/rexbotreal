@@ -2,6 +2,7 @@ const {
     monospace,
     quote
 } = require("@mengkodingan/ckptw");
+const botHelper = require('../../database/bot');
 
 module.exports = {
     name: "mode",
@@ -28,16 +29,16 @@ module.exports = {
         try {
             switch (input.toLowerCase()) {
                 case "group":
-                    await db.set("bot.mode", "group");
+                    await botHelper.setSetting("bot.mode", "group");
                     break;
                 case "private":
-                    await db.set("bot.mode", "private");
+                    await botHelper.setSetting("bot.mode", "private");
                     break;
                 case "public":
-                    await db.set("bot.mode", "public");
+                    await botHelper.setSetting("bot.mode", "public");
                     break;
                 case "self":
-                    await db.set("bot.mode", "self");
+                    await botHelper.setSetting("bot.mode", "self");
                     break;
                 default:
                     return await ctx.reply(quote(`❎ Teks tidak valid.`));

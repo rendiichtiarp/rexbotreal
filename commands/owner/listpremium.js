@@ -1,6 +1,7 @@
 const {
     quote
 } = require("@mengkodingan/ckptw");
+const userHelper = require('../../database/users');
 
 module.exports = {
     name: "listpremium",
@@ -13,11 +14,10 @@ module.exports = {
         if (await handler(ctx, module.exports.handler)) return;
 
         try {
-            const users = (await db.toJSON()).user;
-            const premiumUsers = [];
+            const premiumUsers = await userHelper.getPremiumUsers();
 
-            for (const userId in users) {
-                if (users[userId].premium === true) premiumUsers.push(userId);
+            if (premiumUsers.length === 0) {
+                return await ctx.reply(quote(`❎ Tidak ada pengguna premium.`));
             }
 
             let resultText = "";
@@ -25,9 +25,6 @@ module.exports = {
 
             premiumUsers.forEach((userId) => {
                 resultText += `${quote(`@${userId}`)}\n`;
-            });
-
-            premiumUsers.forEach((userId) => {
                 userMentions.push(`${userId}@s.whatsapp.net`);
             });
 

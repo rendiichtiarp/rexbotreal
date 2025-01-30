@@ -3,6 +3,8 @@ const {
     quote,
     monospace
 } = require("@mengkodingan/ckptw");
+const userHelper = require('./database/users');
+const botHelper = require('./database/bot');
 
 // Fungsi untuk memformat tanggal
 function formatTanggal(date) {
@@ -18,7 +20,7 @@ async function handler(ctx, options) {
     const isPrivate = !isGroup;
     const senderJid = ctx.sender.jid;
     const senderId = senderJid.split(/[:@]/)[0];
-    const userDb = await db.get(`user.${senderId}`) || {};
+    const userDb = await userHelper.getUser(senderId);
     const isOwner = tools.general.isOwner(senderId);
 
     if (config.system.requireBotGroupMembership && !isOwner && !userDb?.premium) {
@@ -43,7 +45,7 @@ async function handler(ctx, options) {
         }
     }
 
-    const botMode = await db.get("bot.mode") || "public";
+    const botMode = await botHelper.getSetting("bot.mode") || "public";
     if (isPrivate && botMode === "group") {
         if (!userDb?.premium && !isOwner) {
             return ctx.react(ctx.id, '👥');
@@ -56,15 +58,6 @@ async function handler(ctx, options) {
         await ctx.reply(config.msg.banned);
         return true;
     }
-
-    /*const cooldown = new Cooldown(ctx, config.system.cooldown);
-    if (cooldown.onCooldown && !isOwner && !userDb?.premium) {
-        // Mengirim reaksi untuk menunjukkan cooldown
-        return ctx.react(ctx.id, '🔃'); // Reaksi untuk menunjukkan cooldown
-    } else if (!cooldown.onCooldown && !isOwner && !userDb?.premium) {
-        // Jika cooldown sudah habis, berikan reaksi kosong
-        return ctx.react(ctx.id, '✅'); // Reaksi kosong setelah cooldown
-    }*/
 
     const cooldown = new Cooldown(ctx, config.system.cooldown);
     if (cooldown.onCooldown && !isOwner && !userDb?.premium) {
@@ -125,7 +118,10 @@ async function handler(ctx, options) {
         register: {
             check: async () => {
                 if (isOwner) return false;
-                return !userDb.name || !userDb.birthDate || !userDb.age;
+                const userDb = await userHelper.getUser(senderId);
+                
+                // Periksa apakah pengguna terdaftar
+                return !userDb.registered;
             },
             msg: quote(`🚫 Tidak dapat melanjutkan perintah karena Anda belum terdaftar.\n\n`) +
                 (`*Ketik:*\n\`${ctx._used.prefix}daftar NamaAnda ${formatTanggal(new Date())}\`\n\nGanti \`NamaAnda\` dengan nama Anda dan \`${formatTanggal(new Date())}\` dengan tanggal lahir Anda.`)
@@ -157,7 +153,7 @@ return false;
 // Cek koin
 async function checkCoin(requiredCoin, senderId) {
     const isOwner = tools.general.isOwner(senderId);
-    const userDb = await db.get(`user.${senderId}`) || {};
+    const userDb = await userHelper.getUser(senderId);
 
     if (isOwner || userDb?.premium) return false;
 
@@ -165,7 +161,7 @@ async function checkCoin(requiredCoin, senderId) {
 
     if (userCoin < requiredCoin) return true;
 
-    await db.subtract(`user.${senderId}.coin`, requiredCoin);
+    await userHelper.updateCoin(senderId, -requiredCoin);
     return false;
 }
 
@@ -173,17 +169,17 @@ async function checkCoin(requiredCoin, senderId) {
 async function checkLimit(ctx, requiredLimit, senderId) {
     const isGroup = ctx.isGroup();
     const isOwner = tools.general.isOwner(senderId);
-    const userDb = await db.get(`user.${senderId}`) || {};
+    const userDb = await userHelper.getUser(senderId);
 
     // Jika dalam grup, limit tidak akan berkurang
     if (isOwner || userDb?.premium || isGroup) return false;
 
-    const userLimit = userDb?.limit || 0;
+    const userLimit = userDb?.user_limit || 0;
 
     if (userLimit < requiredLimit) return true;
 
     // Limit hanya berkurang jika bukan dalam grup
-    await db.subtract(`user.${senderId}.limit`, requiredLimit);
+    await userHelper.updateLimit(senderId, -requiredLimit);
     return false;
 }
 

@@ -1,6 +1,7 @@
 const {
     quote
 } = require("@mengkodingan/ckptw");
+const userHelper = require('../../database/users');
 
 module.exports = {
     name: "reset",
@@ -23,8 +24,13 @@ module.exports = {
                 const senderId = ctx.sender.jid.split(/[:@]/)[0];
 
                 if (userAnswer === "Y") {
-                    db.delete(`user.${senderId}`);
-                    await ctx.reply(quote("✅ Data Kamu berhasil direset. Semua data telah dihapus!"));
+                    try {
+                        await userHelper.deleteUser(senderId);
+                        await ctx.reply(quote("✅ Data Kamu berhasil direset. Semua data telah dihapus!"));
+                    } catch (error) {
+                        consolefy.error(`Error deleting user: ${error}`);
+                        await ctx.reply(quote(`⚠️ Gagal mereset data: ${error.message}`));
+                    }
                     collector.stop();
                 } else if (userAnswer === "N") {
                     await ctx.reply(quote("❌ Proses reset data telah dibatalkan."));

@@ -5,6 +5,7 @@ const {
     italic,
     quote
 } = require("@mengkodingan/ckptw");
+require('dotenv').config(); // Memuat variabel lingkungan dari .env
 
 // Konfigurasi
 global.config = {
@@ -20,14 +21,17 @@ global.config = {
 
         // Konfigurasi autentikasi sesi bot
         authAdapter: {
-            adapter: "mysql", // Jenis adaptor autentikasi untuk menyimpan status sesi bot (pilihan: 'default', 'mysql')
+            adapter: "default", // Jenis adaptor autentikasi untuk menyimpan status sesi bot (pilihan: 'default', 'mysql')
             // Konfigurasi database MySQL (jika menggunakan adapter 'mysql')
             mysql: {
-                host: "localhost", // Nama host
-                port: "3306", // Nomor port (default: 3306)
-                user: "root", // Nama pengguna (default: root)
-                password: "", // Kata sandi
-                database: "dbrexbot", // Nama database
+                host: process.env.DB_HOST, // Mengambil dari .env
+                port: process.env.DB_PORT, // Mengambil dari .env
+                user: process.env.DB_USER, // Mengambil dari .env
+                password: process.env.DB_PASSWORD, // Mengambil dari .env
+                database: process.env.DB_NAME, // Mengambil dari .env
+                ssl: {
+                    rejectUnauthorized: false // Menambahkan opsi SSL
+                },
                 session: "sessionRexbot", // Nama tabel atau entitas untuk menyimpan data sesi
                 tableName: "session" //Nama tabel untuk menyimpan data autentikasi (default: 'auth').
             }

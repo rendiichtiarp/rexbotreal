@@ -2,6 +2,7 @@ const {
     quote
 } = require("@mengkodingan/ckptw");
 const moment = require("moment-timezone");
+const userHelper = require('../../database/users');
 
 function getTimeEmoji() {
     const hour = moment.tz(config.system.timeZone).hour();
@@ -37,7 +38,7 @@ module.exports = {
 
             const senderJid = ctx.sender.jid;
             const senderId = senderJid.split(/[:@]/)[0];
-            const userDb = await db.get(`user.${senderId}`) || {};
+            const userDb = await userHelper.getUser(senderId);
             
             const openingText = `Hai ${userDb?.name || "Kak"}! ${getTimeEmoji()}\n\n` +
                 `📅 ${moment.tz(config.system.timeZone).locale("id").format("dddd, DD MMMM YYYY")}\n` +

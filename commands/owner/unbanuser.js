@@ -1,6 +1,7 @@
 const {
     quote
 } = require("@mengkodingan/ckptw");
+const userHelper = require('../../database/users');
 
 module.exports = {
     name: "unbanuser",
@@ -29,7 +30,7 @@ module.exports = {
             const [result] = await ctx._client.onWhatsApp(user);
             if (!result.exists) return await ctx.reply(quote(`❎ Akun tidak ada di WhatsApp!`));
 
-            await db.set(`user.${user.split("@")[0]}.banned`, false);
+            await userHelper.setBanned(user.split("@")[0], false);
 
             await ctx.sendMessage(user, {
                 text: quote(`🎉 Kamu telah diunbanned oleh Owner!`)

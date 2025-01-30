@@ -1,6 +1,7 @@
 const {
     quote
 } = require("@mengkodingan/ckptw");
+const userHelper = require('../../database/users');
 
 module.exports = {
     name: "givecoin",
@@ -19,7 +20,9 @@ module.exports = {
         const mentionedJids = ctx.msg?.message?.extendedTextMessage?.contextInfo?.mentionedJid;
         const user = Array.isArray(mentionedJids) && mentionedJids.length > 0 ? mentionedJids[0] : (userId ? `${userId}@s.whatsapp.net` : null);
 
-        const senderCoins = await db.get(`user.${senderId}.coin`) || 0;
+        // Get sender's coin from database
+        const senderData = await userHelper.getUser(senderId);
+        const senderCoins = senderData?.coin || 0;
 
         const userMentions = user ? [`${user.split("@")[0]}@s.whatsapp.net`] : [];
 
@@ -43,13 +46,14 @@ module.exports = {
             const [result] = await ctx._client.onWhatsApp(user);
             if (!result.exists) return await ctx.reply(quote(`❎ Akun tidak ada di WhatsApp!`));
 
-            await db.add(`user.${user.split("@")[0]}.coin`, coinAmount);
-            await db.subtract(`user.${senderId}.coin`, coinAmount);
+            // Transfer coin using helper
+            await userHelper.transferCoin(senderId, user.split("@")[0], coinAmount);
 
             await ctx.sendMessage(user, {
                 text: quote(`🎉 Kamu telah menerima ${coinAmount} koin dari @${senderId}!`),
-                mentions: [user]
+                mentions: [senderJid]
             });
+
             return await ctx.reply({
                 text: quote(`✅ Berhasil memberikan ${coinAmount} koin kepada pengguna @${user.split(/[:@]/)[0]}!`),
                 mentions: userMentions

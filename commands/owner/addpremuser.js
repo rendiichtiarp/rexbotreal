@@ -1,6 +1,7 @@
 const {
     quote
 } = require("@mengkodingan/ckptw");
+const userHelper = require('../../database/users');
 
 module.exports = {
     name: "addpremuser",
@@ -29,7 +30,7 @@ module.exports = {
             const [result] = await ctx._client.onWhatsApp(user);
             if (!result.exists) return await ctx.reply(quote(`❎ Akun tidak ada di WhatsApp.`));
 
-            await db.set(`user.${user.split("@")[0]}.premium`, true);
+            await userHelper.setPremium(user.split("@")[0], true);
 
             await ctx.sendMessage(user, {
                 text: quote(`🎉 Kamu telah ditambahkan sebagai pengguna Premium oleh Owner!`)

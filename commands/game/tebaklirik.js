@@ -1,5 +1,6 @@
 const { monospace, quote } = require("@mengkodingan/ckptw");
 const axios = require("axios");
+const userHelper = require('../../database/users');
 
 const session = new Map();
 
@@ -27,7 +28,7 @@ module.exports = {
       session.set(ctx.id, true);
 
       await ctx.reply(
-        `${quote(`Soal: ${data.soal}`)}\n` +
+        `${quote(`Lirik: ${data.lirik}`)}\n` +
           `${quote(`Waktu: ${game.timeout / 1000} detik`)}\n` +
           `${quote(`Bonus: ${game.coin} Koin`)}\n` +
           `${quote("Ketik 'h' untuk petunjuk.")}\n` +
@@ -46,9 +47,10 @@ module.exports = {
         if (userAnswer === game.answer) {
           session.delete(ctx.id);
 
-          const updatedUserDb = await db.get(`user.${game.senderId}`) || {};
-          
-          db.set(`user.${game.senderId}.coin`, (updatedUserDb?.coin || 0) + game.coin);
+          await Promise.all([
+            userHelper.addCoin(game.senderId, game.coin),
+            userHelper.addWinGame(game.senderId),
+          ]);
           await ctx.sendMessage(
             ctx.id,
             {

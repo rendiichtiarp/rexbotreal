@@ -2,6 +2,7 @@ const {
     quote
 } = require("@mengkodingan/ckptw");
 const axios = require("axios");
+const userHelper = require('../../database/users');
 
 module.exports = {
     name: "iqtest",
@@ -13,17 +14,17 @@ module.exports = {
         if (await handler(ctx, module.exports.handler)) return;
 
         const senderId = ctx.sender.jid.split(/[:@]/)[0];
-        const winGame = await db.get(`user.${senderId}.winGame`) || 0;
+        const userDb = await userHelper.getUser(senderId);
 
         let iqScore;
         let feedback;
 
-        if (winGame < 5) {
+        if (userDb.wingame < 5) {
             iqScore = Math.floor(Math.random() * 50) + 1;
             feedback = iqScore < 50 ?
                 "Hmm, mungkin Kamu harus mencobanya lagi? Jangan menyerah!" :
                 "Cukup bagus, terus bermain untuk meningkatkan keterampilan Kamu!";
-        } else if (winGame < 20) {
+        } else if (userDb.wingame < 20) {
             iqScore = Math.floor(Math.random() * 50) + 51;
             feedback = iqScore < 100 ?
                 "Tidak buruk, tapi Kamu bisa melakukannya lebih baik!" :

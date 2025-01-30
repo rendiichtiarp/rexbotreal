@@ -1,6 +1,7 @@
 const {
     quote
 } = require("@mengkodingan/ckptw");
+const userHelper = require('../../database/users');
 
 module.exports = {
     name: "addcoinuser",
@@ -18,23 +19,30 @@ module.exports = {
         const senderJid = ctx.sender.jid;
         const senderId = senderJid.split(/[:@]/)[0];
         const mentionedJids = ctx.msg?.message?.extendedTextMessage?.contextInfo?.mentionedJid;
-        const user = Array.isArray(mentionedJids) && mentionedJids.length > 0 ? mentionedJids[0] : (userId ? `${userId}@s.whatsapp.net` : null);
+        const targetUser = Array.isArray(mentionedJids) && mentionedJids.length > 0 ? 
+            mentionedJids[0].split('@')[0] : userId?.replace(/[^0-9]/g, '');
 
-        if (!user && isNaN(coinAmount)) return await ctx.reply({
+        if (!targetUser || isNaN(coinAmount)) return await ctx.reply({
             text: `${quote(tools.msg.generateInstruction(["send"], ["text"]))}\n` +
             quote(tools.msg.generateCommandExample(ctx._used, `@${senderId} 4`)),
             mentions: [senderJid]
         });
 
         try {
-            const [result] = await ctx._client.onWhatsApp(user);
-            if (!result.exists) return await ctx.reply(quote(`❎ Akun tidak ada di WhatsApp!`));
+            // Cek apakah user ada di database
+            const userData = await userHelper.getUser(targetUser);
+            if (!userData?.no_user) {
+                return await ctx.reply(quote(`❎ User belum terdaftar di database!`));
+            }
 
-            await db.add(`user.${user.split("@")[0]}.coin`, coinAmount);
+            // Add coin using helper
+            await userHelper.addCoin(targetUser, coinAmount);
 
-            await ctx.sendMessage(user, {
+            // Kirim notifikasi ke user
+            await ctx.sendMessage(`${targetUser}@s.whatsapp.net`, {
                 text: quote(`🎉 Kamu telah menerima ${coinAmount} koin dari Owner!`)
             });
+
             return await ctx.reply(quote(`✅ Berhasil menambahkan ${coinAmount} koin kepada pengguna!`));
         } catch (error) {
             consolefy.error(`Error: ${error}`);

@@ -1,6 +1,7 @@
 const {
     quote
 } = require("@mengkodingan/ckptw");
+const userHelper = require('../../database/users');
 
 module.exports = {
     name: "listbanned",
@@ -13,11 +14,10 @@ module.exports = {
         if (await handler(ctx, module.exports.handler)) return;
 
         try {
-            const users = (await db.toJSON()).user;
-            const bannedUsers = [];
+            const bannedUsers = await userHelper.getBannedUsers();
 
-            for (const userId in users) {
-                if (users[userId].banned === true) bannedUsers.push(userId);
+            if (bannedUsers.length === 0) {
+                return await ctx.reply(quote(`❎ Tidak ada pengguna yang dibanned.`));
             }
 
             let resultText = "";
@@ -25,9 +25,6 @@ module.exports = {
 
             bannedUsers.forEach((userId) => {
                 resultText += `${quote(`@${userId}`)}\n`;
-            });
-
-            bannedUsers.forEach((userId) => {
                 userMentions.push(`${userId}@s.whatsapp.net`);
             });
 

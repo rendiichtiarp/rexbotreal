@@ -1,6 +1,7 @@
 const {
     quote
 } = require("@mengkodingan/ckptw");
+const groupHelper = require('../../database/groups');
 
 module.exports = {
     name: "intro",
@@ -14,7 +15,8 @@ module.exports = {
 
         try {
             const groupId = ctx.isGroup() ? ctx.id.split("@")[0] : null;
-            const introText = await db.get(`group.${groupId}.text.intro`) || quote("❎ Grup ini tidak memiliki intro.");
+            const groupDb = await groupHelper.getGroup(groupId);
+            const introText = groupDb?.text_intro || quote("❎ Grup ini tidak memiliki intro.");
 
             return await ctx.reply(introText);
         } catch (error) {

@@ -1,5 +1,6 @@
 const { monospace, quote } = require("@mengkodingan/ckptw");
 const axios = require("axios");
+const userHelper = require('../../database/users');
 
 const session = new Map();
 
@@ -45,20 +46,15 @@ module.exports = {
 
         if (userAnswer === game.answer) {
           session.delete(ctx.id);
-
-          const updatedUserDb = await db.get(`user.${game.senderId}`) || {};
           
           await Promise.all([
-            db.set(`user.${game.senderId}.coin`, (updatedUserDb?.coin || 0) + game.coin),
-            await db.add(`user.${game.senderId}.winGame`, 1),
+            userHelper.addCoin(game.senderId, game.coin),
+            userHelper.addWinGame(game.senderId),
           ]);
           await ctx.sendMessage(
             ctx.id,
             {
-              text:
-                `${quote("💯 Kamu benar!")}\n` +
-                `${quote(data.deskripsi)}\n` +
-                quote(`+${game.coin} Koin`),
+              text: `${quote("💯 Kamu benar!")}\n` + quote(`+${game.coin} Koin\n` + quote(data.deskripsi)),
             },
             {
               quoted: m,
@@ -93,8 +89,7 @@ module.exports = {
           session.delete(ctx.id);
           return await ctx.reply(
             `${quote("⏰ Waktu kamu habis!")}\n` +
-              `${quote(`Jawaban: ${game.answer}.`)}\n` +
-              quote(description)
+              quote(`Jawaban: ${game.answer}.\n` + quote(description))
           );
         }
       });

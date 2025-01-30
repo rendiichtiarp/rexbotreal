@@ -2,6 +2,7 @@ const {
     quote
 } = require("@mengkodingan/ckptw");
 const axios = require("axios");
+const userHelper = require('../../database/users');
 
 module.exports = {
     name: "muslim",
@@ -20,7 +21,8 @@ module.exports = {
 
         try {
             const senderId = ctx.sender.jid.split(/[:@]/)[0];
-            const uid = await db.get(`user.${senderId}.uid`) || "guest";
+            const userDb = await userHelper.getUser(senderId);
+            const uid = userDb.uid || "guest";
             const apiUrl = tools.api.createUrl("fasturl", "/aillm/muslim", {
                 ask: input,
                 sessionId: uid

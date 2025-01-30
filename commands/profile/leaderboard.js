@@ -3,6 +3,7 @@ const {
     monospace,
     bold
 } = require("@mengkodingan/ckptw");
+const userHelper = require('../../database/users');
 
 module.exports = {
     name: "leaderboard",
@@ -14,39 +15,38 @@ module.exports = {
 
         try {
             const senderJid = ctx.sender.jid.split(/[:@]/)[0];
-            const users = (await db.toJSON()).user;
-
-            const leaderboardData = Object.entries(users)
-                .map(([id, data]) => ({
-                    id,
-                    level: data.level || 0,
-                    winGame: data.winGame || 0
-                }))
-                .sort((a, b) => b.winGame - a.winGame || b.level - a.level);
-
-            const userRank = leaderboardData.findIndex(user => user.id === senderJid) + 1;
+            
+            // Get leaderboard data
+            const leaderboardData = await userHelper.getLeaderboard();
+            const userRank = await userHelper.getUserRank(senderJid);
+            
+            // Get top 10 users
             const topUsers = leaderboardData.slice(0, 10);
             const userMentions = [];
             let resultText = "";
 
+            // Generate leaderboard text
             topUsers.forEach((user, index) => {
                 const isUser = user.id === senderJid;
                 const position = index + 1;
                 const medal = index === 0 ? '🥇' : index === 1 ? '🥈' : index === 2 ? '🥉' : '  ';
+                const userName = user.name || user.id;
                 const userText = `${medal}${position}. @${user.id}${isUser ? ' (Anda)' : ''}`;
+                
                 resultText += (
                     `${index < 3 ? bold(userText) : userText}\n` +
-                    `     ⚔️ Win: ${user.winGame}  |  ⭐ Level: ${user.level}\n`
+                    `     ⚔️ Win: ${user.wingame}  |  ⭐ Level: ${user.level}\n`
                 );
                 userMentions.push(`${user.id}@s.whatsapp.net`);
             });
 
+            // Add user position if not in top 10
             if (userRank > 10) {
-                const userStats = leaderboardData[userRank - 1];
+                const userData = await userHelper.getUser(senderJid);
                 resultText += (
                     `\n\nPosisi Anda:\n` +
                     `${userRank}. @${senderJid}\n` +
-                    `     ⚔️ Win: ${userStats.winGame}  |  ⭐ Level: ${userStats.level}\n`
+                    `     ⚔️ Win: ${userData.wingame}  |  ⭐ Level: ${userData.level}\n`
                 );
                 userMentions.push(`${senderJid}@s.whatsapp.net`);
             }

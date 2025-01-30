@@ -1,8 +1,9 @@
 const { quote, monospace } = require("@mengkodingan/ckptw");
+const userHelper = require('../../database/users');
 
 module.exports = {
   name: "register",
-  aliases: ["daftar", "reg", "regist"],
+  aliases: ["daftar", "reg", "regist", "verif", "verify"],
   category: "profile",
   handler: {
     skipRegisterCheck: true,
@@ -88,16 +89,20 @@ module.exports = {
     }
 
     try {
-      const userData = await db.get(`user.${ctx.sender.jid.split(/[:@]/)[0]}`);
-      const isUpdate = userData && (userData.name || userData.birthDate);
+      const noUser = ctx.sender.jid.split(/[:@]/)[0];
+      const userData = await userHelper.getUser(noUser);
+      const isUpdate = userData && (userData.name || userData.birth_date);
 
-      // Simpan data ke database
-      await db.set(`user.${ctx.sender.jid.split(/[:@]/)[0]}`, {
-        ...userData,
+      // Buat timestamp untuk ulang tahun
+      const birthTimestamp = birthDateTime.getTime();
+
+      // Update data user
+      await userHelper.updateUserProfile(noUser, {
         name: name,
-        birthDate: `${formattedDay}/${formattedMonth}/${fullYear}`,
+        birth_date: `${fullYear}-${formattedMonth}-${formattedDay}`, // Format MySQL YYYY-MM-DD
+        birth_date_time: birthTimestamp, // Simpan sebagai timestamp
         age: age,
-        birthDateTime: birthDateTime.getTime(), // Simpan timestamp untuk perhitungan umur di masa depan
+        registered: true, // Set registered menjadi true saat pendaftaran berhasil
       });
 
       return await ctx.reply(
@@ -106,15 +111,13 @@ module.exports = {
             ? `✅ Data Anda berhasil diperbarui
 - *Nama:* ${name}
 - *Tanggal Lahir:* ${formattedDay}/${formattedMonth}/${fullYear}
-- *Umur:* ${age} tahun\n` 
-+
-config.msg.footer
+- *Umur:* ${age} tahun\n` +
+            config.msg.footer
             : `✅ Pendaftaran Anda berhasil
 - *Nama:* ${name}
 - *Tanggal Lahir:* ${formattedDay}/${formattedMonth}/${fullYear}
-- *Umur:* ${age} tahun\n` 
-+
-config.msg.footer
+- *Umur:* ${age} tahun\n` +
+            config.msg.footer
         )
       );
     } catch (error) {

@@ -11,9 +11,10 @@ module.exports = {
         if (await handler(ctx, module.exports.handler)) return;
 
         return await ctx.reply(
-            `${("https://github.com/rendiichtiarp/rexbotreal (Private)")}\n` +
+            `${quote("https://github.com/itsreimau/ckptw-wabot (Base)")}\n` +
+            `${quote("https://github.com/rendiichtiarp/rexbotreal (Edited)")}\n` +
             "\n" +
-            `${config.msg.footer}`
+            config.msg.footer
         ); // Jika Anda tidak menghapus ini, terima kasih!
     }
 };

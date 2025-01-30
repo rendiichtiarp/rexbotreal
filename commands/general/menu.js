@@ -5,6 +5,7 @@ const {
     quote
 } = require("@mengkodingan/ckptw");
 const moment = require("moment-timezone");
+const userHelper = require('../../database/users'); // Tambahkan import userHelper
 
 // Tambahkan fungsi untuk menentukan emoji berdasarkan waktu
 function getTimeEmoji() {
@@ -41,7 +42,7 @@ module.exports = {
 
             const senderJid = ctx.sender.jid;
             const senderId = senderJid.split(/[:@]/)[0];
-            const userDb = await db.get(`user.${senderId}`) || {};
+            const userDb = await userHelper.getUser(senderId); // Ambil data pengguna
             
             const openingText = `Hai ${userDb?.name || "Kak"}! ${getTimeEmoji()}\n\n` +
                 `📅 ${moment.tz(config.system.timeZone).locale("id").format("dddd, DD MMMM YYYY")}\n` +
@@ -60,19 +61,17 @@ module.exports = {
 
             // Jika ada argumen kategori
             if (args) {
-                // Ubah format input user (hilangkan tanda "-")
                 const normalizedInput = args.replace(/\s+/g, ''); // Hilangkan spasi
                 const searchKey = normalizedInput.replace(/(ai|chat|image)/gi, (match) => {
-                    // Handle kasus khusus untuk ai-chat dan ai-image
                     if (match.toLowerCase() === 'chat') return 'ai-chat';
                     if (match.toLowerCase() === 'image') return 'ai-image';
                     return match;
                 });
 
                 const categoryKey = Object.keys(tag).find(key => 
-                    key === searchKey || // Exact match
-                    key.replace('-', '') === searchKey || // Match tanpa tanda "-"
-                    key.split('-')[1] === searchKey // Match dengan bagian setelah "-"
+                    key === searchKey || 
+                    key.replace('-', '') === searchKey || 
+                    key.split('-')[1] === searchKey
                 );
 
                 if (!categoryKey) {
@@ -106,9 +105,7 @@ module.exports = {
                     `👑 = Khusus owner\n` +
                     `⭐ = Khusus premium\n` +
                     `👤 = Khusus private chat\n`;
-            } 
-            // Jika tidak ada argumen (tampilkan daftar kategori)
-            else {
+            } else {
                 text += `*Daftar Kategori*\n` +
                     `Ketik \`${ctx._used.prefix}menu [kategori]\` untuk melihat daftar perintah\n` +
                     `Contoh: \`${ctx._used.prefix}menu chat\` untuk melihat menu AI Chat\n\n`;

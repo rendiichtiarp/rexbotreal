@@ -2,6 +2,7 @@ const {
     monospace,
     quote
 } = require("@mengkodingan/ckptw");
+const botHelper = require('../../database/bot');
 
 module.exports = {
     name: "osettext",
@@ -28,18 +29,19 @@ module.exports = {
         }
 
         try {
-            let setKey;
+            let updateFunction;
+            let textKey;
 
             switch (key.toLowerCase()) {
                 case "price":
-                    setKey = `bot.text.price`;
+                    await botHelper.setSetting('text_price', text);
+                    textKey = "price";
                     break;
                 default:
                     return await ctx.reply(quote(`❎ Key '${key}' tidak valid!`));
             }
 
-            await db.set(setKey, text);
-            return await ctx.reply(quote(`✅ Pesan untuk key '${key}' berhasil disimpan!`));
+            return await ctx.reply(quote(`✅ Pesan untuk key '${textKey}' berhasil disimpan!`));
         } catch (error) {
             consolefy.error(`Error: ${error}`);
             return await ctx.reply(quote(`⚠️ Terjadi kesalahan: ${error.message}`));

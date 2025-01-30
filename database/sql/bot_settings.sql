@@ -1,0 +1,7 @@
+-- schema_bot.sql
+CREATE TABLE bot_settings (
+    setting_key VARCHAR(50) PRIMARY KEY,
+    value TEXT,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+);

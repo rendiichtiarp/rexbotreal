@@ -11,11 +11,17 @@ module.exports = {
         if (await handler(ctx, module.exports.handler)) return;
 
         return await ctx.reply(
-            `${("- Allah SWT")}\n` +
-            `${("- Kedua ortu")}\n` +
-            `${("- Myrex Team")}\n` +
-            `${("- Teman - Teman")}\n` +
-            `${quote("Terima kasih yang sudah support project ini.")}\n` +
+            `${quote("Allah SWT")}\n` +
+            `${quote("ItsReimau (https://github.com/itsreimau)")}\n` +
+            `${quote("JastinXyz (https://github.com/JastinXyz)")}\n` +
+            `${quote("Idul (https://github.com/aidulcandra)")}\n` +
+            `${quote("UdeanDev (https://github.com/udeannn)")}\n` +
+            `${quote("Nyx Altair (https://github.com/NyxAltair)")}\n` +
+            `${quote("Caliph Dev (https://github.com/caliph91)")}\n` +
+            `${quote("ZTRdiamond (https://github.com/ZTRdiamond)")}\n` +
+            `${quote("FastURL (alias Hikaru) (https://github.com/fasturl)")}\n` +
+            `${quote("Serv00 (https://serv00.com/)")}\n` +
+            `${quote("Dan kepada semua pihak yang telah membantu dalam pengembangan bot ini.")}\n` +
             "\n" +
             config.msg.footer
         ); // Jika Anda tidak menghapus ini, terima kasih!

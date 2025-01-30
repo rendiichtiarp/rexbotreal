@@ -1,5 +1,6 @@
 const { monospace, quote } = require("@mengkodingan/ckptw");
 const axios = require("axios");
+const userHelper = require('../../database/users');
 
 const session = new Map();
 
@@ -54,12 +55,8 @@ module.exports = {
 
             if (userAnswer === game.correctAnswer) {
                 session.delete(ctx.id);
-                const updatedUserDb = await db.get(`user.${ctx.sender.jid.split(/[:@]/)[0]}`) || {};
-                
-                await Promise.all([
-                    db.set(`user.${ctx.sender.jid.split(/[:@]/)[0]}.coin`, (updatedUserDb?.coin || 0) + 5),
-                    await db.add(`user.${ctx.sender.jid.split(/[:@]/)[0]}.winGame`, 1),
-                ]);
+                await userHelper.addCoin(game.senderId, 5);
+                await userHelper.addWinGame(game.senderId);
                 await ctx.sendMessage(
                     ctx.id,
                     {

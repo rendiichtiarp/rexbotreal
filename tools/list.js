@@ -39,7 +39,14 @@ async function get(type) {
                 break;
             }
             case "fixdb": {
-                const data = ["user", "group", "menfess"];
+                const data = [
+                    "user - Perbaiki data user (coin, limit, level, premium, banned, afk)",
+                    "group - Perbaiki data grup (antilink, welcome, text, dll)",
+                    "menfess - Reset data menfess",
+                    "bot - Perbaiki pengaturan bot",
+                    "all - Perbaiki semua data",
+                    "clean - Hapus semua data"
+                ];
                 text = createList(data, d => `${quote(d)}`);
                 break;
             }
