@@ -34,7 +34,7 @@ async function get(type) {
                 break;
             }
             case "claim": {
-                const data = ["daily", "weekly", "monthly", "yearly"];
+                const data = ["daily", "weekly", "monthly", "yearly", "limit"];
                 text = createList(data, d => `${quote(d)}`);
                 break;
             }

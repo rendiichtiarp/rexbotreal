@@ -55,7 +55,7 @@ module.exports = {
 
             if (userAnswer === game.correctAnswer) {
                 session.delete(ctx.id);
-                await userHelper.addCoin(game.senderId, 5);
+                await userHelper.addCoin(game.senderId, 25);
                 await userHelper.addWinGame(game.senderId);
                 await ctx.sendMessage(
                     ctx.id,

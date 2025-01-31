@@ -8,7 +8,7 @@ module.exports = {
     category: "ai-image",
     aliases: ["text2image", "texttoimage", "texttoimg"],
     handler: {
-        coin: 10
+        limit: 1
     },
     code: async (ctx) => {
         if (await handler(ctx, module.exports.handler)) return;

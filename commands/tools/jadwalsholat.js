@@ -7,7 +7,9 @@ module.exports = {
     name: "jadwalsholat",
     aliases: ["sholat"],
     category: "tool",
-    handler: {},
+    handler: {
+        limit: 1
+    },
     code: async (ctx) => {
         if (await handler(ctx, module.exports.handler)) return;
 

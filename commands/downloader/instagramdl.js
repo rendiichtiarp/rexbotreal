@@ -9,7 +9,7 @@ module.exports = {
     aliases: ["ig", "igdl", "instagram"],
     category: "downloader",
     handler: {
-        coin: 10
+        limit: 1
     },
     code: async (ctx) => {
         const status = await handler(ctx, module.exports.handler);

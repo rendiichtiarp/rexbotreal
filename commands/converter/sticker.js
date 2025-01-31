@@ -10,7 +10,9 @@ module.exports = {
     name: "sticker",
     aliases: ["s", "stiker"],
     category: "converter",
-    handler: {},
+    handler: {
+        limit: 1
+    },
     code: async (ctx) => {
         if (await handler(ctx, module.exports.handler)) return;
 

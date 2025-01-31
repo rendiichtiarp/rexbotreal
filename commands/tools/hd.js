@@ -10,7 +10,7 @@ module.exports = {
     aliases: ["enhance", "enhancer", "hd", "hdr", "remini"],
     category: "tools",
     handler: {
-        coin: 10
+        limit: 1
     },
     code: async (ctx) => {
         if (await handler(ctx, module.exports.handler)) return;

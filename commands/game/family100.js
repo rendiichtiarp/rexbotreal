@@ -22,7 +22,7 @@ module.exports = {
       const game = {
         coin: {
           answered: 5,
-          allAnswered: 50,
+          allAnswered: 100,
         },
         timeout: 90000,
         senderId: ctx.sender.jid.split(/[:@]/)[0],

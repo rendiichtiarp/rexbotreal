@@ -9,7 +9,7 @@ module.exports = {
     aliases: ["yta", "ytaudio", "ytmp3"],
     category: "downloader",
     handler: {
-        coin: 10
+        limit: 1
     },
     code: async (ctx) => {
         if (await handler(ctx, module.exports.handler)) return;

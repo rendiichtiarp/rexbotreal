@@ -308,9 +308,11 @@ const userHelper = {
     async claimReward(noUser, claimType, amount) {
         try {
             const columnName = `last_claim_${claimType}`;
+            const isLimitClaim = claimType === 'limit';
+            const updateColumn = isLimitClaim ? 'user_limit' : 'coin';
             await connection.execute(
                 `UPDATE users 
-                 SET coin = coin + ?,
+                 SET ${updateColumn} = ${updateColumn} + ?,
                      ${columnName} = ?
                  WHERE no_user = ?`,
                 [amount, Date.now(), noUser]
@@ -324,8 +326,9 @@ const userHelper = {
 
     async getLastClaim(noUser, claimType) {
         try {
+            const columnName = claimType === 'limit' ? 'last_claim_limit' : `last_claim_${claimType}`;
             const [rows] = await connection.execute(
-                `SELECT last_claim_${claimType} as lastClaim 
+                `SELECT ${columnName} as lastClaim 
                  FROM users 
                  WHERE no_user = ?`,
                 [noUser]
@@ -466,6 +469,43 @@ const userHelper = {
             return true;
         } catch (error) {
             console.error('Error cleaning user data:', error);
+            throw error;
+        }
+    },
+
+    async claimLimit(userId, amount) {
+        try {
+            const [result] = await connection.query(
+                'UPDATE users SET user_limit = user_limit + ?, last_claim_limit = ? WHERE no_user = ?',
+                [amount, Date.now(), userId]
+            );
+
+            if (result.affectedRows === 0) {
+                throw new Error('User tidak ditemukan');
+            }
+
+            return true;
+        } catch (error) {
+            console.error('Error in claimLimit:', error);
+            throw error;
+        }
+    },
+
+    async convertCoinToLimit(userId, limitAmount) {
+        try {
+            const coinAmount = limitAmount * 100;
+            const [result] = await connection.query(
+                'UPDATE users SET coin = coin - ?, user_limit = user_limit + ? WHERE no_user = ? AND coin >= ?',
+                [coinAmount, limitAmount, userId, coinAmount]
+            );
+
+            if (result.affectedRows === 0) {
+                throw new Error('Coin tidak cukup atau user tidak ditemukan');
+            }
+
+            return true;
+        } catch (error) {
+            console.error('Error in convertCoinToLimit:', error);
             throw error;
         }
     },

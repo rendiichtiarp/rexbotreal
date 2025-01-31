@@ -8,7 +8,7 @@ module.exports = {
     aliases: ["pd", "pddl", "pixeldrain"],
     category: "downloader",
     handler: {
-        coin: 10
+        premium: true
     },
     code: async (ctx) => {
         if (await handler(ctx, module.exports.handler)) return;

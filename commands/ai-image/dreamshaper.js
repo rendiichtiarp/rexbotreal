@@ -7,7 +7,7 @@ module.exports = {
     name: "dreamshaper",
     category: "ai-image",
     handler: {
-        coin: 10
+        limit: 1
     },
     code: async (ctx) => {
         if (await handler(ctx, module.exports.handler)) return;

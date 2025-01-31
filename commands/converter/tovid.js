@@ -12,7 +12,9 @@ module.exports = {
     name: "tovideo",
     aliases: ["togif", "tomp4", "tovid"],
     category: "converter",
-    handler: {},
+    handler: {
+        limit: 1
+    },
     code: async (ctx) => {
         if (await handler(ctx, module.exports.handler)) return;
 

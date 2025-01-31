@@ -22,7 +22,7 @@ module.exports = {
       const { data } = (await axios.get(apiUrl)).data;
 
       const game = {
-        coin: 5,
+        coin: 25,
         timeout: 60000,
         senderId: ctx.sender.jid.split(/[:@]/)[0],
         answer: data.jawaban.toUpperCase(),

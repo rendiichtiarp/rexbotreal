@@ -4,29 +4,21 @@ const handler = require("./handler.js");
 const pkg = require("./package.json");
 const tools = require("./tools/exports.js");
 const CFonts = require("cfonts");
-const fs = require("fs");
 const http = require("http");
-const path = require("path");
-const SimplDB = require("simpl.db");
 const {
     Consolefy
 } = require("@mengkodingan/consolefy");
-const { connection, testConnection } = require('./database/connection');
+const { testConnection } = require('./database/connection');
 
 // Buat consolefy
 const c = new Consolefy({
     tag: pkg.name
 });
 
-// Buat basis data
-const db = new SimplDB();
-const dbFile = path.join(__dirname, "database.json");
-if (!fs.existsSync(dbFile)) fs.writeFileSync(dbFile, JSON.stringify({}), "utf8");
 // Atur konfigurasi ke global
 global.handler = handler;
 global.config.pkg = pkg;
 global.tools = tools;
-global.db = db;
 global.consolefy = c;
 // Memulai
 c.log(`Starting...`);

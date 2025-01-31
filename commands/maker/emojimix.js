@@ -12,8 +12,7 @@ module.exports = {
     aliases: ["emix"],
     category: "maker",
     handler: {
-        limit: 1,
-        coin: 10
+        limit: 1
     },
     code: async (ctx) => {
         if (await handler(ctx, module.exports.handler)) return;

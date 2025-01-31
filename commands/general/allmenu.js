@@ -18,6 +18,8 @@ module.exports = {
     category: "general",
     handler: {},
     code: async (ctx) => {
+
+        if (await handler(ctx, module.exports.handler)) return;
         try {
             const { cmd } = ctx._config;
             const tag = {

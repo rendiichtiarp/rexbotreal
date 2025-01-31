@@ -8,7 +8,9 @@ module.exports = {
     name: "islamic",
     aliases: ["islamicai"],
     category: "ai-chat",
-    handler: {},
+    handler: {
+        limit: 1
+    },
     code: async (ctx) => {
         if (await handler(ctx, module.exports.handler)) return;
 

@@ -1,6 +1,6 @@
 {
   "name": "rexbotassistan",
-  "version": "3.2.0",
+  "version": "3.2.16",
   "description": "Rexbot Sourcecode",
   "main": "index.js",
   "directories": {
@@ -44,7 +44,6 @@
     "moment-timezone": "^0.5.46",
     "mysql-baileys": "^1.5.1",
     "mysql2": "^3.12.0",
-    "simpl.db": "^2.13.0",
     "util": "^0.12.5",
     "wa-sticker-formatter": "^4.4.4"
   }

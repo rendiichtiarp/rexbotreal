@@ -5,7 +5,7 @@ module.exports = {
   name: "jokes",
   category: "entertainment",
   handler: {
-    coin: 10,
+    limit: 1,
   },
   code: async (ctx) => {
     if (await handler(ctx, module.exports.handler)) return;
