@@ -168,12 +168,11 @@ async function checkCoin(requiredCoin, senderId) {
 
 // Cek limit
 async function checkLimit(ctx, requiredLimit, senderId) {
-    const isGroup = ctx.isGroup();
     const isOwner = tools.general.isOwner(senderId);
     const userDb = await userHelper.getUser(senderId);
 
     // Jika dalam grup, limit tidak akan berkurang
-    if (isOwner || userDb?.premium || isGroup) return false;
+    if (isOwner || userDb?.premium ) return false;
 
     const userLimit = userDb?.user_limit || 0;
 

@@ -93,16 +93,23 @@ module.exports = {
       const userData = await userHelper.getUser(noUser);
       const isUpdate = userData && (userData.name || userData.birth_date);
 
-      // Buat timestamp untuk ulang tahun
-      const birthTimestamp = birthDateTime.getTime();
+      // Format tanggal untuk MySQL (YYYY-MM-DD)
+      const mysqlDate = `${fullYear}-${formattedMonth}-${formattedDay}`;
+      
+      // Pastikan birth_date_time adalah number yang valid
+      const birthTimestamp = new Date(mysqlDate).getTime();
 
-      // Update data user
+      if (isNaN(birthTimestamp)) {
+        throw new Error('Tanggal lahir tidak valid');
+      }
+
+      // Update data user dengan format yang benar
       await userHelper.updateUserProfile(noUser, {
         name: name,
-        birth_date: `${fullYear}-${formattedMonth}-${formattedDay}`, // Format MySQL YYYY-MM-DD
-        birth_date_time: birthTimestamp, // Simpan sebagai timestamp
+        birth_date: mysqlDate,
+        birth_date_time: birthTimestamp,
         age: age,
-        registered: true, // Set registered menjadi true saat pendaftaran berhasil
+        registered: true
       });
 
       return await ctx.reply(

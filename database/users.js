@@ -21,7 +21,7 @@ const userHelper = {
                 user_limit = 10,
                 coin = 1000,
                 level = 0,
-                uid,
+                uid = null,
                 xp = 0,
                 name = null,
                 birth_date = null,
@@ -34,22 +34,33 @@ const userHelper = {
                 registered = false,
             } = userData;
 
-            await connection.execute(
+            if (!no_user || typeof no_user !== 'string') {
+                throw new Error('no_user tidak valid');
+            }
+
+            const [existingUser] = await connection.execute(
+                'SELECT no_user FROM users WHERE no_user = ?',
+                [no_user]
+            );
+
+            if (existingUser && existingUser.length > 0) {
+                throw new Error('User sudah terdaftar');
+            }
+
+            const result = await connection.execute(
                 `INSERT INTO users (
                     uid, no_user, name, birth_date, birth_date_time, 
                     age, premium, banned, afk, coin, 
                     \`user_limit\`, level, xp, wingame, registered
-                ) VALUES (
-                    ?, ?, ?, ?, ?, 
-                    ?, ?, ?, ?, ?,
-                    ?, ?, ?, ?, ?
-                )`,
+                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
                 [
                     uid, no_user, name, birth_date, birth_date_time,
                     age, premium, banned, afk, coin,
                     user_limit, level, xp, wingame, registered
                 ]
             );
+
+            return result[0];
 
         } catch (error) {
             console.error('Error creating user:', error);
@@ -202,14 +213,39 @@ const userHelper = {
     async updateUserProfile(noUser, userData) {
         try {
             const { name, birth_date, birth_date_time, age, registered } = userData;
-            await connection.execute(
+            
+            // Validasi input
+            if (!name || typeof name !== 'string') {
+                throw new Error('Nama tidak valid');
+            }
+            
+            if (!birth_date || !/^\d{4}-\d{2}-\d{2}$/.test(birth_date)) {
+                throw new Error('Format tanggal lahir tidak valid');
+            }
+            
+            if (!birth_date_time || typeof birth_date_time !== 'number') {
+                throw new Error('Timestamp tidak valid');
+            }
+            
+            if (typeof age !== 'number' || age < 0) {
+                throw new Error('Umur tidak valid');
+            }
+
+            const result = await connection.execute(
                 `UPDATE users 
                  SET name = ?, birth_date = ?, birth_date_time = ?, age = ?, registered = ? 
                  WHERE no_user = ?`,
-                [name, birth_date, birth_date_time, age, registered, noUser]
+                [name, birth_date, birth_date_time, age, registered ? 1 : 0, noUser]
             );
+
+            if (result[0].affectedRows === 0) {
+                throw new Error('User tidak ditemukan');
+            }
+
+            return true;
         } catch (error) {
             console.error('Error updating user profile:', error);
+            throw error; // Re-throw error agar bisa ditangkap di level atas
         }
     },
 
