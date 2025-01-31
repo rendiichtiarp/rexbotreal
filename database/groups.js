@@ -1,9 +1,11 @@
-const { connection } = require('./connection');
+const { connection, getConnection } = require('./connection');
 
 const groupHelper = {
     async getGroup(groupId) {
+        let conn;
         try {
-            const [rows] = await connection.execute(
+            conn = await getConnection();
+            const [rows] = await conn.execute(
                 'SELECT * FROM `group_settings` WHERE group_id = ?',
                 [groupId]
             );
@@ -24,13 +26,17 @@ const groupHelper = {
         } catch (error) {
             console.error('Error getting group:', error);
             return null;
+        } finally {
+            if (conn) conn.release();
         }
     },
 
     async createGroup(groupId) {
+        let conn;
         try {
+            conn = await getConnection();
             // Cek apakah grup sudah ada
-            const [existing] = await connection.execute(
+            const [existing] = await conn.execute(
                 'SELECT group_id FROM group_settings WHERE group_id = ?',
                 [groupId]
             );
@@ -41,7 +47,7 @@ const groupHelper = {
             }
 
             // Buat data grup baru dengan nilai default
-            const [result] = await connection.execute(
+            await conn.execute(
                 `INSERT INTO group_settings (
                     group_id, welcome, antilink, antinsfw, antisticker,
                     antitoxic, autokick, shalat, intro,
@@ -55,11 +61,15 @@ const groupHelper = {
         } catch (error) {
             console.error('Error creating group:', error);
             throw error;
+        } finally {
+            if (conn) conn.release();
         }
     },
 
     async updateGroup(groupId, groupData) {
+        let conn;
         try {
+            conn = await getConnection();
             const {
                 text_intro,
                 antilink,
@@ -73,7 +83,7 @@ const groupHelper = {
                 text_goodbye
             } = groupData;
 
-            await connection.execute(
+            await conn.execute(
                 `UPDATE \`group_settings\` SET 
                     text_intro = ?, antilink = ?, antinsfw = ?, antitoxic = ?, 
                     antisticker = ?, autokick = ?, welcome = ?, shalat = ?, 
@@ -86,145 +96,193 @@ const groupHelper = {
         } catch (error) {
             console.error('Error updating group:', error);
             throw error;
+        } finally {
+            if (conn) conn.release();
         }
     },
 
     async updateTextIntro(groupId, textIntro) {
+        let conn;
         try {
-            await connection.execute(
+            conn = await getConnection();
+            await conn.execute(
                 `UPDATE \`group_settings\` SET text_intro = ? WHERE group_id = ?`,
                 [textIntro, groupId]
             );
         } catch (error) {
             console.error('Error updating text_intro:', error);
             throw error;
+        } finally {
+            if (conn) conn.release();
         }
     },
 
     async updateTextWelcome(groupId, textWelcome) {
+        let conn;
         try {
-            await connection.execute(
+            conn = await getConnection();
+            await conn.execute(
                 `UPDATE \`group_settings\` SET text_welcome = ? WHERE group_id = ?`,
                 [textWelcome, groupId]
             );
         } catch (error) {
             console.error('Error updating text_welcome:', error);
             throw error;
+        } finally {
+            if (conn) conn.release();
         }
     },
 
     async updateTextGoodbye(groupId, textGoodbye) {
+        let conn;
         try {
-            await connection.execute(
+            conn = await getConnection();
+            await conn.execute(
                 `UPDATE \`group_settings\` SET text_goodbye = ? WHERE group_id = ?`,
                 [textGoodbye, groupId]
             );
         } catch (error) {
             console.error('Error updating text_goodbye:', error);
             throw error;
+        } finally {
+            if (conn) conn.release();
         }
     },
 
     async updateAntilink(groupId, status) {
+        let conn;
         try {
-            await connection.execute(
+            conn = await getConnection();
+            await conn.execute(
                 'UPDATE `group_settings` SET antilink = ? WHERE group_id = ?',
                 [status, groupId]
             );
         } catch (error) {
             console.error('Error updating antilink:', error);
             throw error;
+        } finally {
+            if (conn) conn.release();
         }
     },
 
     async updateAntinsfw(groupId, status) {
+        let conn;
         try {
-            await connection.execute(
+            conn = await getConnection();
+            await conn.execute(
                 'UPDATE `group_settings` SET antinsfw = ? WHERE group_id = ?',
                 [status, groupId]
             );
         } catch (error) {
             console.error('Error updating antinsfw:', error);
             throw error;
+        } finally {
+            if (conn) conn.release();
         }
     },
 
     async updateAntitoxic(groupId, status) {
+        let conn;
         try {
-            await connection.execute(
+            conn = await getConnection();
+            await conn.execute(
                 'UPDATE `group_settings` SET antitoxic = ? WHERE group_id = ?',
                 [status, groupId]
             );
         } catch (error) {
             console.error('Error updating antitoxic:', error);
             throw error;
+        } finally {
+            if (conn) conn.release();
         }
     },
 
     async updateAntisticker(groupId, status) {
+        let conn;
         try {
-            await connection.execute(
+            conn = await getConnection();
+            await conn.execute(
                 'UPDATE `group_settings` SET antisticker = ? WHERE group_id = ?',
                 [status, groupId]
             );
         } catch (error) {
             console.error('Error updating antisticker:', error);
             throw error;
+        } finally {
+            if (conn) conn.release();
         }
     },
 
     async updateAutokick(groupId, status) {
+        let conn;
         try {
-            await connection.execute(
+            conn = await getConnection();
+            await conn.execute(
                 'UPDATE `group_settings` SET autokick = ? WHERE group_id = ?',
                 [status, groupId]
             );
         } catch (error) {
             console.error('Error updating autokick:', error);
             throw error;
+        } finally {
+            if (conn) conn.release();
         }
     },
 
     async updateWelcome(groupId, status) {
+        let conn;
         try {
-            await connection.execute(
+            conn = await getConnection();
+            await conn.execute(
                 `UPDATE \`group_settings\` SET welcome = ? WHERE group_id = ?`,
                 [status, groupId]
             );
         } catch (error) {
             console.error('Error updating welcome:', error);
             throw error;
+        } finally {
+            if (conn) conn.release();
         }
     },
 
     async updateShalat(groupId, status) {
+        let conn;
         try {
-            await connection.execute(
+            conn = await getConnection();
+            await conn.execute(
                 `UPDATE \`group_settings\` SET shalat = ? WHERE group_id = ?`,
                 [status, groupId]
             );
         } catch (error) {
             console.error('Error updating shalat:', error);
             throw error;
+        } finally {
+            if (conn) conn.release();
         }
     },
 
     async deleteGroup(groupId) {
+        let conn;
         try {
-            await connection.execute(
+            conn = await getConnection();
+            await conn.execute(
                 'DELETE FROM `group_settings` WHERE group_id = ?',
                 [groupId]
             );
         } catch (error) {
             console.error('Error deleting group:', error);
             throw error;
+        } finally {
+            if (conn) conn.release();
         }
     },
 
     async fixGroupData() {
+        let conn;
         try {
+            conn = await getConnection();
             // Reset nilai boolean yang tidak valid
-            await connection.execute(`
+            await conn.execute(`
                 UPDATE group_settings 
                 SET welcome = COALESCE(welcome, false),
                     antilink = COALESCE(antilink, false),
@@ -236,7 +294,7 @@ const groupHelper = {
             `);
 
             // Hapus data grup yang tidak valid
-            await connection.execute(`
+            await conn.execute(`
                 DELETE FROM group_settings 
                 WHERE group_id REGEXP '[^0-9]' 
                 OR group_id IS NULL
@@ -246,28 +304,38 @@ const groupHelper = {
         } catch (error) {
             console.error('Error fixing group data:', error);
             throw error;
+        } finally {
+            if (conn) conn.release();
         }
     },
 
     async cleanGroupData() {
+        let conn;
         try {
-            await connection.execute('TRUNCATE TABLE group_settings');
+            conn = await getConnection();
+            await conn.execute('TRUNCATE TABLE group_settings');
             return true;
         } catch (error) {
             console.error('Error cleaning group data:', error);
             throw error;
+        } finally {
+            if (conn) conn.release();
         }
     },
 
     async updateIntro(groupId, status) {
+        let conn;
         try {
-            await connection.execute(
+            conn = await getConnection();
+            await conn.execute(
                 'UPDATE group_settings SET intro = ? WHERE group_id = ?',
                 [status, groupId]
             );
         } catch (error) {
             console.error('Error updating intro:', error);
             throw error;
+        } finally {
+            if (conn) conn.release();
         }
     }
 };

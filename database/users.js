@@ -1,4 +1,4 @@
-const { connection } = require('./connection');
+const { connection, getConnection } = require('./connection');
 
 const userHelper = {
     async getUser(noUser) {
@@ -15,7 +15,10 @@ const userHelper = {
     },
 
     async createUser(userData) {
+        let conn;
         try {
+            conn = await getConnection();
+            
             const { 
                 no_user,
                 user_limit = 10,
@@ -38,7 +41,8 @@ const userHelper = {
                 throw new Error('no_user tidak valid');
             }
 
-            const [existingUser] = await connection.execute(
+            // Cek user yang sudah ada
+            const [existingUser] = await conn.execute(
                 'SELECT no_user FROM users WHERE no_user = ?',
                 [no_user]
             );
@@ -47,7 +51,7 @@ const userHelper = {
                 throw new Error('User sudah terdaftar');
             }
 
-            const result = await connection.execute(
+            const result = await conn.execute(
                 `INSERT INTO users (
                     uid, no_user, name, birth_date, birth_date_time, 
                     age, premium, banned, afk, coin, 
@@ -65,6 +69,8 @@ const userHelper = {
         } catch (error) {
             console.error('Error creating user:', error);
             throw error;
+        } finally {
+            if (conn) conn.release();
         }
     },
 

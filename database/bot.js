@@ -1,23 +1,22 @@
-const { connection } = require('./connection');
+const { connection, getConnection } = require('./connection');
 
 const botHelper = {
     async setSetting(key, value) {
+        let conn;
         try {
-            // Cek apakah setting sudah ada
-            const [existing] = await connection.execute(
+            conn = await getConnection();
+            const [existing] = await conn.execute(
                 'SELECT setting_key FROM bot_settings WHERE setting_key = ?',
                 [key]
             );
 
             if (existing.length > 0) {
-                // Update jika sudah ada
-                await connection.execute(
+                await conn.execute(
                     'UPDATE bot_settings SET value = ? WHERE setting_key = ?',
                     [value, key]
                 );
             } else {
-                // Insert jika belum ada
-                await connection.execute(
+                await conn.execute(
                     'INSERT INTO bot_settings (setting_key, value) VALUES (?, ?)',
                     [key, value]
                 );
@@ -25,6 +24,8 @@ const botHelper = {
         } catch (error) {
             console.error('Error setting bot setting:', error);
             throw error;
+        } finally {
+            if (conn) conn.release();
         }
     },
 

@@ -1,21 +1,27 @@
-const { connection } = require('./connection');
+const { connection, getConnection } = require('./connection');
 
 const menfessHelper = {
     async createMenfess(fromUser, toUser) {
+        let conn;
         try {
-            await connection.execute(
+            conn = await getConnection();
+            await conn.execute(
                 'INSERT INTO menfess (from_user, to_user) VALUES (?, ?)',
                 [fromUser, toUser]
             );
         } catch (error) {
             console.error('Error creating menfess:', error);
             throw error;
+        } finally {
+            if (conn) conn.release();
         }
     },
 
     async getMenfessByUser(userId) {
+        let conn;
         try {
-            const [rows] = await connection.execute(
+            conn = await getConnection();
+            const [rows] = await conn.execute(
                 'SELECT * FROM menfess WHERE to_user = ? OR from_user = ?',
                 [userId, userId]
             );
@@ -23,18 +29,24 @@ const menfessHelper = {
         } catch (error) {
             console.error('Error getting menfess:', error);
             return [];
+        } finally {
+            if (conn) conn.release();
         }
     },
 
     async deleteMenfess(id) {
+        let conn;
         try {
-            await connection.execute(
+            conn = await getConnection();
+            await conn.execute(
                 'DELETE FROM menfess WHERE id = ?',
                 [id]
             );
         } catch (error) {
             console.error('Error deleting menfess:', error);
             throw error;
+        } finally {
+            if (conn) conn.release();
         }
     },
 
@@ -50,12 +62,16 @@ const menfessHelper = {
     },
 
     async cleanMenfessData() {
+        let conn;
         try {
-            await connection.execute('TRUNCATE TABLE menfess');
+            conn = await getConnection();
+            await conn.execute('TRUNCATE TABLE menfess');
             return true;
         } catch (error) {
             console.error('Error cleaning menfess data:', error);
             throw error;
+        } finally {
+            if (conn) conn.release();
         }
     }
 };

@@ -1,28 +1,37 @@
 const mysql = require('mysql2/promise');
-require('dotenv').config();
+const config = require('../config');
 
-const connection = mysql.createPool({
-    host: process.env.DB_HOST,
-    user: process.env.DB_USER,
-    password: process.env.DB_PASSWORD,
-    database: process.env.DB_NAME,
-    ssl: {
-        rejectUnauthorized: false
-    }
+// Konfigurasi pool koneksi
+const pool = mysql.createPool({
+    host: config.database.host,
+    user: config.database.user,
+    password: config.database.password,
+    database: config.database.name,
+    waitForConnections: true,
+    connectionLimit: 10,
+    queueLimit: 0,
+    enableKeepAlive: true,
+    keepAliveInitialDelay: 0,
+    connectTimeout: 10000, // timeout 10 detik
+    // Tambahan konfigurasi untuk menangani reconnect
+    maxIdle: 10, // max idle connections, the default value is the same as `connectionLimit`
+    idleTimeout: 60000, // idle connections timeout, in milliseconds, the default value 60000
 });
 
-// Fungsi untuk test koneksi database
-const testConnection = async () => {
+// Fungsi untuk mencoba koneksi ulang
+const getConnection = async () => {
     try {
-        const conn = await connection.getConnection();
-        conn.release();
-        return true;
+        const connection = await pool.getConnection();
+        return connection;
     } catch (error) {
-        return false;
+        console.error('Error getting connection:', error);
+        // Tunggu 5 detik sebelum mencoba koneksi ulang
+        await new Promise(resolve => setTimeout(resolve, 5000));
+        return getConnection();
     }
 };
 
 module.exports = {
-    connection,
-    testConnection
+    connection: pool,
+    getConnection
 };
