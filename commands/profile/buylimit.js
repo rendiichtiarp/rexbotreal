@@ -11,7 +11,7 @@ module.exports = {
     code: async (ctx) => {
         const input = ctx.args.join(" ") || null;
 
-        if (!input) return await ctx.reply(
+        if (!input || input.includes("<") || input.includes(">")) return await ctx.reply(
             `${quote(tools.msg.generateInstruction(["send"], ["text"]))}\n` +
             `${quote(tools.msg.generateCommandExample(ctx.used, "10"))}\n`
         );

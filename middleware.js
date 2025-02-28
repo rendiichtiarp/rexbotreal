@@ -32,6 +32,21 @@ async function checkLimit(requiredLimit, senderId) {
     return false;
 }
 
+// Fungsi untuk delay random dengan variasi lebih natural
+const randomDelay = () => {
+    return new Promise(resolve => {
+        // Base delay 2-5 detik
+        const baseDelay = Math.floor(Math.random() * (6000 - 2000 + 1) + 2000);
+        
+        // Tambahkan variasi random milliseconds (0-999ms)
+        const variation = Math.floor(Math.random() * 1000);
+        
+        const totalDelay = baseDelay + variation;
+        
+        setTimeout(resolve, totalDelay);
+    });
+};
+
 // Middleware utama bot
 module.exports = (bot) => {
     bot.use(async (ctx, next) => {
@@ -55,6 +70,11 @@ module.exports = (bot) => {
             if (botMode === "private" && isGroup) return;
             if (botMode === "self" && !isOwner) return;
             if (groupDb?.mute && ctx.used.command !== "unmute") return;
+
+            // Terapkan random delay untuk non-premium user saat mengirim pesan
+            if (!isOwner && !userDb?.premium) {
+                await randomDelay();
+            }
 
             if (config.system.autoTypingOnCmd) await ctx.simulateTyping();
 

@@ -85,4 +85,38 @@ CREATE TABLE IF NOT EXISTS menfess (
 -- Indexes untuk optimasi query
 ALTER TABLE users ADD INDEX idx_premium (premium);
 ALTER TABLE users ADD INDEX idx_banned (banned);
-ALTER TABLE group_settings ADD INDEX idx_mute (mute); 
+ALTER TABLE group_settings ADD INDEX idx_mute (mute);
+
+-- Tabel untuk kode redeem
+CREATE TABLE IF NOT EXISTS redeem_codes (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    code VARCHAR(20) UNIQUE NOT NULL,
+    reward_type ENUM('coin', 'limit', 'premium') NOT NULL,
+    reward_amount INT DEFAULT 0,
+    max_claims INT NOT NULL DEFAULT 1,
+    current_claims INT NOT NULL DEFAULT 0,
+    created_by VARCHAR(255) NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    expired_at TIMESTAMP NOT NULL,
+    CONSTRAINT valid_reward_amount CHECK (reward_amount >= 0),
+    CONSTRAINT valid_max_claims CHECK (max_claims >= 1),
+    CONSTRAINT valid_current_claims CHECK (current_claims >= 0),
+    CONSTRAINT claims_not_exceed CHECK (current_claims <= max_claims)
+);
+
+-- Tabel untuk history klaim kode redeem
+CREATE TABLE IF NOT EXISTS redeem_history (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    code_id INT NOT NULL,
+    user_id VARCHAR(255) NOT NULL,
+    claimed_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (code_id) REFERENCES redeem_codes(id) ON DELETE CASCADE,
+    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+    UNIQUE KEY unique_claim (code_id, user_id)
+);
+
+-- Index untuk optimasi query
+ALTER TABLE redeem_codes ADD INDEX idx_code (code);
+ALTER TABLE redeem_codes ADD INDEX idx_expired_at (expired_at);
+ALTER TABLE redeem_codes ADD INDEX idx_claims (current_claims, max_claims);
+ALTER TABLE redeem_history ADD INDEX idx_user_claims (user_id, code_id);
