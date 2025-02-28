@@ -24,24 +24,17 @@ module.exports = {
         }
 
         try {
-            switch (input.toLowerCase()) {
-                case "group":
-                    await db.set("bot.mode", "group");
-                    break;
-                case "private":
-                    await db.set("bot.mode", "private");
-                    break;
-                case "public":
-                    await db.set("bot.mode", "public");
-                    break;
-                case "self":
-                    await db.set("bot.mode", "self");
-                    break;
-                default:
-                    return await ctx.reply(quote(`❎ Teks tidak valid.`));
+            const validModes = ["group", "private", "public", "self"];
+            const mode = input.toLowerCase();
+
+            if (!validModes.includes(mode)) {
+                return await ctx.reply(quote(`❎ Mode tidak valid.`));
             }
 
-            return await ctx.reply(quote(`✅ Berhasil mengubah mode ke ${input}!`));
+            // Update mode bot di database
+            await Database.updateBotMode(mode);
+            return await ctx.reply(quote(`✅ Berhasil mengubah mode ke ${mode}!`));
+
         } catch (error) {
             consolefy.error(`Error: ${error}`);
             return await ctx.reply(quote(`⚠️ Terjadi kesalahan: ${error.message}`));

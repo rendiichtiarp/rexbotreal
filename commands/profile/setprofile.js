@@ -2,7 +2,7 @@ const {
     monospace,
     quote
 } = require("@mengkodingan/ckptw");
-
+    
 module.exports = {
     name: "setprofile",
     aliases: ["set", "setp", "setprof"],
@@ -23,23 +23,20 @@ module.exports = {
         }
 
         try {
-            const senderId = tools.general.getID(ctx.sender.jid);;
-            let setKey;
+            const senderId = tools.general.getID(ctx.sender.jid);
+            const userDb = await Database.getUser(senderId);
 
             switch (input.toLowerCase()) {
                 case "autolevelup":
-                    setKey = `user.${senderId}.autolevelup`;
-                    break;
+                    const newStatus = !(userDb?.autolevelup || false);
+                    await Database.updateUser(senderId, {
+                        autolevelup: newStatus
+                    });
+                    const statusText = newStatus ? "diaktifkan" : "dinonaktifkan";
+                    return await ctx.reply(quote(`✅ Fitur '${input}' berhasil ${statusText}!`));
                 default:
                     return await ctx.reply(quote(`❎ Teks tidak valid.`));
             }
-
-            const currentStatus = await db.get(setKey) || false;
-            const newStatus = !currentStatus;
-            await db.set(setKey, newStatus);
-
-            const statusText = newStatus ? "diaktifkan" : "dinonaktifkan";
-            return await ctx.reply(quote(`✅ Fitur '${input}' berhasil ${statusText}!`));
         } catch (error) {
             consolefy.error(`Error: ${error}`);
             return await ctx.reply(quote(`⚠️ Terjadi kesalahan: ${error.message}`));

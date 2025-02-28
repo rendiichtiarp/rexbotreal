@@ -11,22 +11,20 @@ module.exports = {
     },
     code: async (ctx) => {
         try {
-            const users = (await db.toJSON()).user;
-            const bannedUsers = [];
+            // Ambil semua user yang dibanned
+            const users = await Database.getAllUsers();
+            const bannedUsers = users.filter(user => user.banned === 1 || user.banned === true);
 
-            for (const userId in users) {
-                if (users[userId].banned === true) bannedUsers.push(userId);
+            if (bannedUsers.length === 0) {
+                return await ctx.reply(quote("❎ Tidak ada pengguna yang dibanned."));
             }
 
             let resultText = "";
             let userMentions = [];
 
-            bannedUsers.forEach((userId) => {
-                resultText += `${quote(`@${userId}`)}\n`;
-            });
-
-            bannedUsers.forEach((userId) => {
-                userMentions.push(`${userId}@s.whatsapp.net`);
+            bannedUsers.forEach((user) => {
+                resultText += `${quote(`@${user.id}`)}\n`;
+                userMentions.push(`${user.id}@s.whatsapp.net`);
             });
 
             return await ctx.reply({

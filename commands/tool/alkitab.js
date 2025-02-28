@@ -9,7 +9,7 @@ module.exports = {
     aliases: ["bible", "injil"],
     category: "tool",
     permissions: {
-        coin: 10
+        limit: 1
     },
     code: async (ctx) => {
         const [abbr, chapter] = ctx.args;

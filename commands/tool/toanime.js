@@ -8,7 +8,7 @@ module.exports = {
     aliase: ["jadianime"],
     category: "tool",
     permissions: {
-        coin: 10
+        limit: 1
     },
     code: async (ctx) => {
         const msgType = ctx.getMessageType();

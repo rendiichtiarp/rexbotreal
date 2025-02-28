@@ -5,6 +5,7 @@ const {
     quote,
     VCardBuilder
 } = require("@mengkodingan/ckptw");
+const Database = require('../lib/database/queries');
 const axios = require("axios");
 const {
     exec
@@ -21,15 +22,17 @@ async function handleUserEvent(bot, m, type) {
 
     try {
         const groupId = tools.general.getID(id);
-        const groupDb = await db.get(`group.${groupId}`) || {};
+        const groupDb = await Database.getGroup(groupId);
 
-        if (groupDb?.option?.welcome) {
+        if (groupDb?.welcome) {
             const metadata = await bot.core.groupMetadata(id);
 
             for (const jid of participants) {
                 const profilePictureUrl = await bot.core.profilePictureUrl(jid, "image").catch(() => "https://i.pinimg.com/736x/70/dd/61/70dd612c65034b88ebf474a52ccc70c4.jpg");
 
-                const customText = type === "UserJoin" ? groupDb?.text?.welcome : groupDb?.text?.goodbye;
+                const customText = type === "UserJoin" ? 
+                    groupDb?.welcome_text : 
+                    groupDb?.goodbye_text;
                 const userTag = `@${tools.general.getID(jid)}`;
 
                 const text = customText ?
@@ -58,8 +61,8 @@ async function handleUserEvent(bot, m, type) {
                     }
                 });
 
-                if (type === "UserJoin" && groupDb?.text?.intro) await bot.core.sendMessage(id, {
-                    text: groupDb?.text?.intro,
+                if (type === "UserJoin" && groupDb?.intro_text) await bot.core.sendMessage(id, {
+                    text: groupDb.intro_text,
                     mentions: [jid]
                 });
             }
@@ -77,16 +80,16 @@ module.exports = (bot) => {
     // Event saat bot siap
     bot.ev.once(Events.ClientReady, async (m) => {
         consolefy.success(`${config.bot.name} by ${config.owner.name}, ready at ${m.user.id}`);
-        const botRestart = await db.get("bot.restart") || {};
+        const lastRestart = await Database.getLastRestart();
 
-        // Mulai ulang bot
-        if (botRestart?.jid && botRestart?.timestamp) {
-            const timeago = tools.general.convertMsToDuration(Date.now() - botRestart.timestamp);
-            await bot.core.sendMessage(botRestart.jid, {
+        if (lastRestart?.jid && lastRestart.timestamp) {
+            const timeago = tools.general.convertMsToDuration(Date.now() - lastRestart.timestamp);
+            await bot.core.sendMessage(lastRestart.jid, {
                 text: quote(`✅ Berhasil dimulai ulang! Membutuhkan waktu ${timeago}.`),
-                edit: botRestart.key
+                edit: JSON.parse(lastRestart.message_key)
             });
-            db.delete("bot.restart");
+            
+            await Database.deleteRestart();
         }
 
         // Tetapkan config pada bot
@@ -96,7 +99,7 @@ module.exports = (bot) => {
             id,
             jid: `${id}@s.whatsapp.net`,
             readyAt: bot.readyAt,
-            groupLink: config.system.requireBotGroupMembership ? `https://chat.whatsapp.com/${await bot.core.groupInviteCode(config.bot.groupJid) || "FxEYZl2UyzAEI2yhaH34Ye"}` : undefined
+            groupLink: config.system.requireBotGroupMembership ? `https://chat.whatsapp.com/${await bot.core.groupInviteCode(config.bot.groupJid)}` : undefined
         };
     });
 
@@ -112,35 +115,37 @@ module.exports = (bot) => {
         const isOwner = tools.general.isOwner(senderId);
         const isCmd = tools.general.isCmd(m.content, ctx.bot);
 
-        // Mengambil basis data
-        const botDb = await db.get("bot") || {};
-        const userDb = await db.get(`user.${senderId}`) || {};
-        const groupDb = await db.get(`group.${groupId}`) || {};
+        // Mengambil data dari database
+        const botMode = await Database.getBotMode();
+        const userDb = await Database.getUser(senderId);
+        const groupDb = isGroup ? await Database.getGroup(groupId) : null;
 
-        if ((botDb.mode === "group" && !isGroup) || (botDb.mode === "private" && isGroup) || (botDb.mode === "self" && !isOwner)) return; // Pengecekan mode bot (group, private, self)
+        if ((botMode === "group" && !isGroup) || (botMode === "private" && isGroup) || (botMode === "self" && !isOwner)) return;
 
-        isGroup ? consolefy.info(`Incoming message from group: ${groupId}, by: ${senderId}`) : consolefy.info(`Incoming message from: ${senderId}`); // Log pesan masuk
+        if (groupDb?.mute) return;
+
+        isGroup ? consolefy.info(`Pesan masuk dari grup: ${groupId}, oleh: ${senderId}`) : consolefy.info(`Pesan masuk dari: ${senderId}`);
 
         // Grup atau Pribadi
         if (isGroup || isPrivate) {
-            config.bot.dbSize = fs.existsSync("database.json") ? tools.general.formatSize(fs.statSync("database.json").size / 1024) : "N/A"; // Penangan pada ukuran basis data
 
-            // Penanganan basis data pengguna
-            const {
-                coin,
-                level,
-                ...otherUserDb
-            } = userDb || {};
-            const newUserDb = {
-                coin: (isOwner || userDb?.premium) ? 0 : tools.general.clamp(coin || 1000, 0, 10000),
-                level: tools.general.clamp(level || 0, 0, 100),
-                uid: userDb?.uid || tools.general.generateUID(senderId),
-                xp: userDb?.xp || 0,
-                ...otherUserDb
-            };
-            await db.set(`user.${senderId}`, newUserDb);
+            // Buat data user baru jika belum ada
+            if (!userDb) {
+                await Database.updateUser(senderId, {
+                    coin: isOwner && !userDb?.premium ? 0 : 1000,
+                    user_limit: isOwner && !userDb?.premium ? 0 : 10,
+                    level: 1,
+                    xp: 0,
+                    premium: false,
+                    banned: false,
+                    autolevelup: true,
+                    win_game: 0,
+                    registered: false,
+                    uid: tools.general.generateUID(senderId)
+                });
+            }
 
-            if (isCmd?.didyoumean) await ctx.reply(quote(`❎ Anda salah ketik, sepertinya ${monospace(isCmd?.prefix + isCmd?.didyoumean)}.`)); // Did you mean?
+            if (isCmd?.didyoumean) await ctx.reply(quote(`❎ Anda salah ketik, sepertinya ${monospace(isCmd?.prefix + isCmd?.didyoumean)}.`));
 
             // Perintah khusus Owner
             if (isOwner && m.content) {
@@ -169,46 +174,49 @@ module.exports = (bot) => {
                 }
             }
 
-            // Penanganan AFK (Pengguna yang disebutkan atau di-quote)
-            const userAFKJids = ctx.quoted?.senderJid ? [tools.general.getID(ctx.quoted.senderJid)] : m.message?.extendedTextMessage?.contextInfo?.mentionedJid?.map(jid => tools.general.getID(jid)) || [];
-            if (userAFKJids.length > 0) {
-                if (m.key.fromMe) return;
+            // Penanganan AFK
+            if (ctx.quoted?.senderJid || m.message?.extendedTextMessage?.contextInfo?.mentionedJid) {
+                const userAFKJids = ctx.quoted?.senderJid ? 
+                    [tools.general.getID(ctx.quoted.senderJid)] : 
+                    m.message?.extendedTextMessage?.contextInfo?.mentionedJid?.map(jid => tools.general.getID(jid)) || [];
 
-                for (const userAFKJid of userAFKJids) {
-                    const userAFK = await db.get(`user.${userAFKJid}.afk`) || {};
-                    if (userAFK?.reason && userAFK?.timestamp) {
-                        const timeago = tools.general.convertMsToDuration(Date.now() - userAFK.timestamp);
-                        await ctx.reply(quote(`📴 Dia sedang AFK ${userAFK.reason ? `dengan alasan "${userAFK.reason}"` : "tanpa alasan"} selama ${timeago}.`));
+                if (userAFKJids.length > 0) {
+                    if (m.key.fromMe) return;
+
+                    for (const userAFKJid of userAFKJids) {
+                        const userAFK = await Database.getUser(userAFKJid);
+                        if (userAFK?.afk_reason && userAFK?.afk_timestamp) {
+                            const timeago = tools.general.convertMsToDuration(Date.now() - userAFK.afk_timestamp);
+                            await ctx.reply(quote(`📴 Dia sedang AFK ${userAFK.afk_reason ? `dengan alasan "${userAFK.afk_reason}"` : "tanpa alasan"} selama ${timeago}.`));
+                        }
                     }
                 }
             }
 
-            // Penanganan AFK (Menghapus status AFK pengguna yang mengirim pesan)
-            const senderID = tools.general.getID(senderId);
-            const userAFK = await db.get(`user.${senderID}.afk`) || {};
-            if (userAFK?.reason && userAFK?.timestamp) {
-                const timeElapsed = Date.now() - userAFK.timestamp;
+            // Penanganan AFK pengirim
+            if (userDb?.afk_timestamp) {
+                const timeElapsed = Date.now() - userDb.afk_timestamp;
                 if (timeElapsed > 3000) {
                     const timeago = tools.general.convertMsToDuration(timeElapsed);
-                    await ctx.reply(quote(`📴 Anda telah keluar dari AFK ${userAFK.reason ? `dengan alasan "${userAFK.reason}"` : "tanpa alasan"} selama ${timeago}.`));
-                    await db.delete(`user.${senderID}.afk`);
+                    await ctx.reply(quote(`📴 Anda telah keluar dari AFK ${userDb.afk_reason ? `dengan alasan "${userDb.afk_reason}"` : "tanpa alasan"} selama ${timeago}.`));
+                    await Database.removeAfk(senderId);
                 }
             }
         }
 
         // Penanganan obrolan grup
-        if (isGroup) {
-            if (m.key.fromMe) return;
+        if (isGroup && !m.key.fromMe) {
+            const now = Date.now();
 
-            // Penanganan antilink 
-            if (groupDb?.option?.antilink && await tools.general.isUrl(m.content) && !await ctx.group().isSenderAdmin()) {
+            // Penanganan antilink
+            if (groupDb?.antilink && await tools.general.isUrl(m.content) && !await ctx.group().isSenderAdmin()) {
                 await ctx.reply(quote(`⛔ Jangan kirim tautan!`));
                 await ctx.deleteMessage(m.key);
-                if (!config.system.restrict && groupDb?.option?.autokick) await ctx.group().kick([ctx.sender.jid]);
+                if (!config.system.restrict && groupDb?.autokick) await ctx.group().kick([ctx.sender.jid]);
             }
 
             // Penanganan antinsfw
-            if (groupDb?.option?.antinsfw) {
+            if (groupDb?.antinsfw) {
                 const checkMedia = await tools.general.checkMedia(ctx.getMessageType(), "image");
                 if (checkMedia && !await ctx.group().isSenderAdmin()) {
                     const buffer = await ctx.msg.media.toBuffer();
@@ -221,22 +229,20 @@ module.exports = (bot) => {
                     if (result === "NSFW") {
                         await ctx.reply(`⛔ Jangan kirim NSFW!`);
                         await ctx.deleteMessage(m.key);
-                        if (!config.system.restrict && groupDb?.option?.autokick) await ctx.group().kick([ctx.sender.jid]);
+                        if (!config.system.restrict && groupDb?.autokick) await ctx.group().kick([ctx.sender.jid]);
                     }
                 }
             }
 
             // Penanganan antispam
-            const now = Date.now();
-            if (groupDb?.option?.antispam) {
+            if (groupDb?.antispam) {
                 const key = `group.${groupId}.spam.${senderId}`;
-                const {
-                    count = 0, lastMessageTime = 0
-                } = db.get(key) || {};
+                const spamData = await Database.getSpamCount(key);
+                const { count = 0, lastMessageTime = 0 } = spamData;
                 const timeDiff = now - lastMessageTime;
                 const newCount = timeDiff < 5000 ? count + 1 : 1;
 
-                db.set(key, {
+                await Database.updateSpamCount(key, {
                     count: newCount,
                     lastMessageTime: now
                 });
@@ -244,28 +250,28 @@ module.exports = (bot) => {
                 if (newCount > 5) {
                     await ctx.reply(quote(`⛔ Jangan spam!`));
                     await ctx.deleteMessage(m.key);
-                    if (!config.system.restrict && groupDb?.option?.autokick) await ctx.group().kick([ctx.sender.jid]);
-                    db.delete(key);
+                    if (!config.system.restrict && groupDb?.autokick) await ctx.group().kick([ctx.sender.jid]);
+                    await Database.deleteSpamCount(key);
                 }
             }
 
             // Penanganan antisticker
-            if (groupDb?.option?.antisticker) {
+            if (groupDb?.antisticker) {
                 const checkMedia = await tools.general.checkMedia(ctx.getMessageType(), "sticker");
                 if (checkMedia && !await ctx.group().isSenderAdmin()) {
                     await ctx.reply(`⛔ Jangan kirim stiker!`);
                     await ctx.deleteMessage(m.key);
-                    if (!config.system.restrict && groupDb?.option?.autokick) await ctx.group().kick([ctx.sender.jid]);
+                    if (!config.system.restrict && groupDb?.autokick) await ctx.group().kick([ctx.sender.jid]);
                 }
             }
 
             // Penanganan antitoxic
-            if (groupDb?.option?.antitoxic) {
+            if (groupDb?.antitoxic) {
                 const toxicRegex = /anj(k|g)|ajn?(g|k)|a?njin(g|k)|bajingan|b(a?n)?gsa?t|ko?nto?l|me?me?(k|q)|pe?pe?(k|q)|meki|titi(t|d)|pe?ler|tetek|toket|ngewe|go?blo?k|to?lo?l|idiot|(k|ng)e?nto?(t|d)|jembut|bego|dajj?al|janc(u|o)k|pantek|puki ?(mak)?|kimak|kampang|lonte|col(i|mek?)|pelacur|henceu?t|nigga|fuck|dick|bitch|tits|bastard|asshole|dontol|kontoi|ontol/i;
                 if (m.content && toxicRegex.test(m.content) && !await ctx.group().isSenderAdmin()) {
                     await ctx.reply(quote(`⛔ Jangan toxic!`));
                     await ctx.deleteMessage(m.key);
-                    if (!config.system.restrict && groupDb?.option?.autokick) await ctx.group().kick([ctx.sender.jid]);
+                    if (!config.system.restrict && groupDb?.autokick) await ctx.group().kick([ctx.sender.jid]);
                 }
             }
         }
@@ -273,24 +279,36 @@ module.exports = (bot) => {
         // Penanganan obrolan pribadi
         if (isPrivate && !m.key.fromMe) {
             // Penanganan menfess
-            const allMenfessDb = await db.get("menfess") || {};
-            if (!isCmd || isCmd?.didyoumean) {
-                const menfessEntries = Object.entries(allMenfessDb);
+            const allMenfessDb = await Database.getMenfess();
+            const activeMenfess = allMenfessDb.filter(m => m.status === 'active');
+            const menfessEntries = activeMenfess.map(m => [m.id, { from: m.from_user, to: m.to_user }]);
+            
+            if (!isCmd || isCmd.didyoumean) {
                 for (const [conversationId, menfessData] of menfessEntries) {
-                    const {
-                        from,
-                        to
-                    } = menfessData;
+                    const { from, to } = menfessData;
                     if (senderId === from || senderId === to) {
                         if (m.content.match(/\b(delete|stop)\b/i)) {
-                            await ctx.reply(quote("✅ Pesan menfess telah dihapus!"));
+                            await ctx.reply(quote("✅ Pesan menfess telah diakhiri!"));
                             await ctx.sendMessage(`${senderId === from ? to : from}@s.whatsapp.net`, {
-                                text: quote("✅ Pesan menfess telah dihapus!")
+                                text: quote("✅ Pesan menfess telah diakhiri!")
                             });
-                            await db.delete(`menfess.${conversationId}`);
+                            await Database.updateMenfess(conversationId, {
+                                status: 'done',
+                                last_message: new Date().toLocaleString('en-US', { 
+                                    timeZone: 'Asia/Jakarta',
+                                    hour12: false 
+                                }).replace(/(\d+)\/(\d+)\/(\d+),\s+/, '$3-$1-$2 ')
+                            });
                         } else {
-                            await ctx.core.sendMessage(`${senderId === from ? to : from}@s.whatsapp.net`, {
+                            await ctx.core.sendMessage(senderId === from ? `${to}@s.whatsapp.net` : `${from}@s.whatsapp.net`, {
                                 forward: m
+                            });
+                            // Update timestamp pesan terakhir menggunakan format 24 jam
+                            await Database.updateMenfess(conversationId, {
+                                last_message: new Date().toLocaleString('en-US', { 
+                                    timeZone: 'Asia/Jakarta',
+                                    hour12: false 
+                                }).replace(/(\d+)\/(\d+)\/(\d+),\s+/, '$3-$1-$2 ')
                             });
                         }
                     }

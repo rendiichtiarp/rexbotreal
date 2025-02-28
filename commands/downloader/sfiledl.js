@@ -9,7 +9,7 @@ module.exports = {
     name: "sfiledl",
     category: "downloader",
     permissions: {
-        coin: 10
+        limit: 1
     },
     code: async (ctx) => {
         const url = ctx.args[0] || null;

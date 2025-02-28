@@ -12,7 +12,7 @@ module.exports = {
     code: async (ctx) => {
         try {
             const groupId = ctx.isGroup() ? tools.general.getID(ctx.id) : null;
-            const introText = await db.get(`group.${groupId}.text.intro`) || quote("❎ Grup ini tidak memiliki intro.");
+            const introText = await Database.getGroupText("intro_text") || quote("❎ Grup ini tidak memiliki intro.");
 
             return await ctx.reply(introText);
         } catch (error) {

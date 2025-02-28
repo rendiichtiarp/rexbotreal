@@ -3,6 +3,7 @@ const {
     quote
 } = require("@mengkodingan/ckptw");
 
+
 module.exports = {
     name: "claim",
     category: "profile",
@@ -17,7 +18,7 @@ module.exports = {
         );
 
         const senderId = tools.general.getID(ctx.sender.jid);
-        const userDb = await db.get(`user.${senderId}`) || {};
+        const userDb = await Database.getUser(senderId);
 
         if (input === "list") {
             const listText = await tools.list.get("claim");
@@ -31,7 +32,9 @@ module.exports = {
         const requiredLevel = claimRewards[input].level || 0;
         if (userDb?.level < requiredLevel) return await ctx.reply(quote(`❎ Anda perlu mencapai level ${requiredLevel} untuk mengklaim hadiah ini. Level Anda saat ini adalah ${userDb?.level || 0}.`));
 
-        const lastClaimTime = userDb?.lastClaim?.[input] || 0;
+        // Cek waktu klaim terakhir berdasarkan tipe
+        const lastClaimField = `last_claim_${input}`;
+        const lastClaimTime = userDb?.[lastClaimField] || 0;
         const currentTime = Date.now();
         const timePassed = currentTime - lastClaimTime;
         const remainingTime = claimRewards[input].cooldown - timePassed;
@@ -41,10 +44,11 @@ module.exports = {
         try {
             const rewardCoin = (userDb?.coin || 0) + claimRewards[input].reward;
 
-            await Promise.all([
-                db.set(`user.${senderId}.coin`, rewardCoin),
-                db.set(`user.${senderId}.lastClaim.${input}`, currentTime)
-            ]);
+            // Update koin dan waktu klaim terakhir
+            await Database.updateUser(senderId, {
+                coin: rewardCoin,
+                [lastClaimField]: currentTime
+            });
 
             return await ctx.reply(quote(`✅ Anda berhasil mengklaim hadiah ${input} sebesar ${claimRewards[input].reward} koin! Koin saat ini: ${rewardCoin}.`));
         } catch (error) {

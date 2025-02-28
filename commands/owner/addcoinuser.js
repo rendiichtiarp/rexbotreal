@@ -2,6 +2,7 @@ const {
     quote
 } = require("@mengkodingan/ckptw");
 
+
 module.exports = {
     name: "addcoinuser",
     aliases: ["addcoin", "acu"],
@@ -12,6 +13,7 @@ module.exports = {
     code: async (ctx) => {
         const userId = ctx.args[0];
         const coinAmount = parseInt(ctx.args[1], 10);
+        const userDb = await Database.getUser(tools.general.getID(userId));
 
         const userJid = ctx.quoted?.senderJid || ctx.msg?.message?.extendedTextMessage?.contextInfo?.mentionedJid?.[0] || (userId ? `${userId}@s.whatsapp.net` : null);
         const senderJid = ctx.sender.jid;
@@ -27,7 +29,9 @@ module.exports = {
             const [result] = await ctx.core.onWhatsApp(userJid);
             if (!result.exists) return await ctx.reply(quote(`❎ Akun tidak ada di WhatsApp!`));
 
-            await db.add(`user.${tools.general.getID(userJid)}.coin`, coinAmount);
+            await Database.updateUser(tools.general.getID(userJid), {
+                coin: userDb?.coin + coinAmount
+            });
 
             await ctx.sendMessage(userJid, {
                 text: quote(`🎉 Anda telah menerima ${coinAmount} koin dari Owner!`)

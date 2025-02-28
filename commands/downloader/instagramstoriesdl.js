@@ -9,7 +9,7 @@ module.exports = {
     aliases: ["igstories", "igstoriesdl", "instagramstories"],
     category: "downloader",
     permissions: {
-        coin: 10
+        limit: 1
     },
     code: async (ctx) => {
         const input = ctx.args.join(" ") || null;

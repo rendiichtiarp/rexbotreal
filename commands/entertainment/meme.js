@@ -8,7 +8,7 @@ module.exports = {
     name: "meme",
     category: "entertainment",
     permissions: {
-        coin: 10
+        limit: 1
     },
     code: async (ctx) => {
         const apiUrl = tools.api.createUrl("https://candaan-api.vercel.app", "/api/image/random", {});

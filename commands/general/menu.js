@@ -40,8 +40,6 @@ module.exports = {
                 `${quote(`Waktu: ${moment.tz(config.system.timeZone).format("HH.mm.ss")}`)}\n` +
                 "\n" +
                 `${quote(`Uptime: ${tools.general.convertMsToDuration(Date.now() - config.bot.readyAt)}`)}\n` +
-                `${quote(`Database: ${config.bot.dbSize} (Simpl.DB - JSON)`)}\n` +
-                `${quote(`Library: @mengkodingan/ckptw`)}\n` +
                 "\n" +
                 `${italic("Jangan lupa berdonasi agar bot tetap online!")}\n` +
                 `${config.msg.readmore}\n`;

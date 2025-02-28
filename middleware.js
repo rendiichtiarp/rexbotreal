@@ -4,174 +4,218 @@ const {
     monospace,
     quote
 } = require("@mengkodingan/ckptw");
+const Database = require('./lib/database/queries');
 
 // Fungsi untuk mengecek apakah pengguna memiliki cukup koin sebelum menggunakan perintah tertentu
 async function checkCoin(requiredCoin, senderId) {
-    const userDb = await db.get(`user.${senderId}`) || {};
+    const userDb = await Database.getUser(senderId);
 
-    if (tools.general.isOwner(senderId) || userDb.premium) return false;
-    if ((userDb.coin || 0) < requiredCoin) return true;
+    if (tools.general.isOwner(senderId) || userDb?.premium) return false;
+    if (!userDb || (userDb?.coin || 0) < requiredCoin) return true;
 
-    await db.subtract(`user.${senderId}.coin`, requiredCoin);
+    await Database.updateUser(senderId, {
+        coin: userDb?.coin - requiredCoin
+    });
+    return false;
+}
+
+// Fungsi untuk mengecek apakah pengguna memiliki cukup koin sebelum menggunakan perintah tertentu
+async function checkLimit(requiredLimit, senderId) {
+    const userDb = await Database.getUser(senderId);
+
+    if (tools.general.isOwner(senderId) || userDb?.premium) return false;
+    if (!userDb || (userDb?.user_limit || 0) < requiredLimit) return true;
+
+    await Database.updateUser(senderId, {
+        user_limit: userDb?.user_limit - requiredLimit
+    });
     return false;
 }
 
 // Middleware utama bot
 module.exports = (bot) => {
     bot.use(async (ctx, next) => {
-        // Variabel umum
-        const isGroup = ctx.isGroup();
-        const isPrivate = !isGroup;
-        const senderJid = ctx.sender.jid;
-        const senderId = tools.general.getID(senderJid);
-        const groupJid = isGroup ? ctx.id : null;
-        const groupId = isGroup ? tools.general.getID(groupJid) : null;
-        const isOwner = tools.general.isOwner(senderId);
+        try {
+            // Variabel umum
+            const isGroup = ctx.isGroup();
+            const isPrivate = !isGroup;
+            const senderJid = ctx.sender.jid;
+            const senderId = tools.general.getID(senderJid);
+            const groupJid = isGroup ? ctx.id : null;
+            const groupId = isGroup ? tools.general.getID(groupJid) : null;
+            const isOwner = tools.general.isOwner(senderId);
 
-        // Mengambil data bot, pengguna, dan grup dari database
-        const botDb = await db.get("bot") || {};
-        const userDb = await db.get(`user.${senderId}`) || {};
-        const groupDb = await db.get(`group.${groupId}`) || {};
+            // Mengambil data dari database
+            const botMode = await Database.getBotMode();
+            const userDb = await Database.getUser(senderId);
+            const groupDb = isGroup ? await Database.getGroup(groupId) : null;
 
-        // Pengecekan mode bot (group, private, self) dan perintah unmute
-        if ((botDb.mode === "group" && !isGroup) || (botDb.mode === "private" && isGroup) || (botDb.mode === "self" && !isOwner)) return;
-        if (groupDb.mute && !["unmute", "ounmute"].includes(ctx.used.command)) return;
+            // Pengecekan mode bot dan mute grup
+            if (botMode === "group" && !isGroup) return;
+            if (botMode === "private" && isGroup) return;
+            if (botMode === "self" && !isOwner) return;
+            if (groupDb?.mute && ctx.used.command !== "unmute") return;
 
-        if (config.system.autoTypingOnCmd) await ctx.simulateTyping(); // Simulasi mengetik jika diaktifkan dalam konfigurasi
+            if (config.system.autoTypingOnCmd) await ctx.simulateTyping();
 
-        // Menambah XP pengguna dan menangani level-up
-        const xpGain = 10;
-        const xpToLevelUp = 100;
+            // Menangani XP dan Level
+            const xpGain = 10;
+            const xpToLevelUp = 100;
 
-        let newUserXp = (userDb?.xp || 0) + xpGain;
-        if (newUserXp >= xpToLevelUp) {
-            let newUserLevel = (userDb?.level || 0) + 1;
-            newUserXp -= xpToLevelUp;
+            let currentXp = (userDb?.xp || 0) + xpGain;
+            let currentLevel = userDb?.level || 0;
 
-            const profilePictureUrl = await ctx.core.profilePictureUrl(ctx.sender.jid, "image").catch(() => "https://i.pinimg.com/736x/70/dd/61/70dd612c65034b88ebf474a52ccc70c4.jpg");
+            if (currentXp >= xpToLevelUp) {
+                currentLevel += 1;
+                currentXp -= xpToLevelUp;
 
-            if (userDb?.autolevelup) await ctx.reply({
-                text: `${quote(`Selamat! Kamu telah naik ke level ${newUserLevel}!`)}\n` +
-                    `${config.msg.readmore}\n` +
-                    quote(tools.msg.generateNotes([`Terganggu? Ketik ${monospace(`${ctx.used.prefix}setprofile autolevelup`)} untuk menonaktifkan pesan autolevelup.`])),
-                contextInfo: {
-                    externalAdReply: {
-                        mediaType: 1,
-                        previewType: 0,
-                        mediaUrl: config.bot.website,
-                        title: config.msg.watermark,
-                        renderLargerThumbnail: true,
-                        thumbnailUrl: profilePictureUrl || config.bot.thumbnail,
-                        sourceUrl: config.bot.website
-                    }
+                const profilePictureUrl = await ctx.core.profilePictureUrl(ctx.sender.jid, "image")
+                    .catch(() => "https://i.pinimg.com/736x/70/dd/61/70dd612c65034b88ebf474a52ccc70c4.jpg");
+
+                if (userDb?.autolevelup) {
+                    await ctx.reply({
+                        text: `${quote(`Selamat! Kamu telah naik ke level ${currentLevel}!`)}\n` +
+                            `${config.msg.readmore}\n` +
+                            quote(tools.msg.generateNotes([`Terganggu? Ketik ${monospace(`${ctx.used.prefix}setprofile autolevelup`)} untuk menonaktifkan pesan autolevelup.`])),
+                        contextInfo: {
+                            externalAdReply: {
+                                mediaType: 1,
+                                previewType: 0,
+                                mediaUrl: config.bot.website,
+                                title: config.msg.watermark,
+                                renderLargerThumbnail: true,
+                                thumbnailUrl: profilePictureUrl || config.bot.thumbnail,
+                                sourceUrl: config.bot.website
+                            }
+                        }
+                    });
                 }
+            }
+
+            // Update XP dan Level user
+            await Database.updateUser(senderId, {
+                xp: currentXp,
+                level: currentLevel
             });
 
-            await db.set(`user.${senderId}.xp`, newUserXp);
-            await db.set(`user.${senderId}.level`, newUserLevel);
-        } else {
-            await db.set(`user.${senderId}.xp`, newUserXp);
-        }
-
-        // Pengecekan kondisi pengguna
-        const restrictions = [{
-                key: "banned",
-                condition: userDb.banned,
-                msg: config.msg.banned,
-                reaction: "🚫"
-            },
-            {
-                key: "cooldown",
-                condition: !isOwner && !userDb.premium && new Cooldown(ctx, config.system.cooldown).onCooldown,
-                msg: config.msg.cooldown,
-                reaction: "💤"
-            },
-            {
-                key: "requireBotGroupMembership",
-                condition: config.system.requireBotGroupMembership && ctx.used.command !== "botgroup" && !isOwner && !userDb.premium && !(await ctx.group(config.bot.groupJid).members()).some(member => tools.general.getID(member.id) === senderId),
-                msg: config.msg.botGroupMembership,
-                reaction: "🚫"
-            }
-        ];
-
-        for (const {
-                condition,
-                msg,
-                reaction,
-                key
-            }
-            of restrictions) {
-            if (condition) {
-                if (!userDb.hasSentMsg?.[key]) {
-                    await ctx.reply(msg);
-                    await db.set(`user.${senderId}.hasSentMsg.${key}`, true);
-                } else {
-                    await ctx.react(ctx.id, reaction);
+            // Pengecekan kondisi pengguna
+            const restrictions = [{
+                    condition: userDb?.banned,
+                    msg: config.msg.banned,
+                    reaction: "🚫",
+                    key: "has_sent_banned"
+                },
+                {
+                    condition: !isOwner && !userDb?.premium && new Cooldown(ctx, config.system.cooldown).onCooldown,
+                    msg: config.msg.cooldown,
+                    reaction: "🔄",
+                    key: "has_sent_cooldown"
+                },
+                {
+                    condition: config.system.requireBotGroupMembership && ctx.used.command !== "botgroup" && !isOwner && !userDb?.premium && !(await ctx.group(config.bot.groupJid).members()).some(member => tools.general.getID(member.id) === senderId),
+                    msg: config.msg.botGroupMembership,
+                    reaction: "🚫",
+                    key: "has_sent_requireBotGroupMembership"
+                },
+                {
+                    condition: !userDb?.registered && !["register", "daftar", "reg", "regist", "verif", "verify", "caradaftar"].includes(ctx.used.command),
+                    msg: config.msg.register,
+                    reaction: "📝",
+                    alwaysNotify: true
                 }
-                return;
+            ];
+
+            for (const {
+                    condition,
+                    msg,
+                    reaction,
+                    key,
+                    alwaysNotify
+                }
+                of restrictions) {
+                if (condition) {
+                    if (alwaysNotify || !userDb?.[key]) {
+                        await ctx.reply(msg);
+                        if (!alwaysNotify && key) {
+                            await Database.updateUser(senderId, {
+                                [key]: true
+                            });
+                        }
+                    } else {
+                        await ctx.react(ctx.id, reaction);
+                    }
+                    return;
+                }
             }
+
+            // Pengecekan izin
+            const command = [...ctx.bot.cmd.values()].find(cmd => [cmd.name, ...(cmd.aliases || [])].includes(ctx.used.command));
+            if (!command) return next();
+            const {
+                permissions = {}
+            } = command;
+            const permissionChecks = [{
+                    key: "admin",
+                    condition: isGroup && !await ctx.group().isSenderAdmin(),
+                    msg: config.msg.admin
+                },
+                {
+                    key: "botAdmin",
+                    condition: isGroup && !await ctx.group().isBotAdmin(),
+                    msg: config.msg.botAdmin
+                },
+                {
+                    key: "coin",
+                    condition: permissions.coin && config.system.useCoin && await checkCoin(permissions.coin, senderId),
+                    msg: config.msg.coin
+                },
+                {
+                    key: "limit",
+                    condition: permissions.limit && config.system.useLimit && await checkLimit(permissions.limit, senderId),
+                    msg: config.msg.limit
+                },
+                {
+                    key: "group",
+                    condition: !isGroup,
+                    msg: config.msg.group
+                },
+                {
+                    key: "owner",
+                    condition: !isOwner,
+                    msg: config.msg.owner
+                },
+                {
+                    key: "premium",
+                    condition: !isOwner && !userDb?.premium,
+                    msg: config.msg.premium
+                },
+                {
+                    key: "private",
+                    condition: isGroup,
+                    msg: config.msg.private
+                },
+                {
+                    key: "restrict",
+                    condition: config.system.restrict,
+                    msg: config.msg.restrict
+                }
+            ];
+
+            for (const {
+                    key,
+                    condition,
+                    msg
+                }
+                of permissionChecks) {
+                if (permissions[key] && condition) {
+                    await ctx.reply(msg);
+                    return;
+                }
+            }
+
+            await next();
+        } catch (error) {
+            console.error("Middleware error:", error);
         }
-
-        // Pengecekan izin
-        const command = [...ctx.bot.cmd.values()].find(cmd => [cmd.name, ...(cmd.aliases || [])].includes(ctx.used.command));
-        if (!command) return next();
-        const {
-            permissions = {}
-        } = command;
-        const permissionChecks = [{
-                key: "admin",
-                condition: isGroup && !await ctx.group().isSenderAdmin(),
-                msg: config.msg.admin
-            },
-            {
-                key: "botAdmin",
-                condition: isGroup && !await ctx.group().isBotAdmin(),
-                msg: config.msg.botAdmin
-            },
-            {
-                key: "coin",
-                condition: permissions.coin && config.system.useCoin && await checkCoin(permissions.coin, senderId),
-                msg: config.msg.coin
-            },
-            {
-                key: "group",
-                condition: !isGroup,
-                msg: config.msg.group
-            },
-            {
-                key: "owner",
-                condition: !isOwner,
-                msg: config.msg.owner
-            },
-            {
-                key: "premium",
-                condition: !isOwner && !userDb.premium,
-                msg: config.msg.premium
-            },
-            {
-                key: "private",
-                condition: isGroup,
-                msg: config.msg.private
-            },
-            {
-                key: "restrict",
-                condition: config.system.restrict,
-                msg: config.msg.restrict
-            }
-        ];
-
-        for (const {
-                key,
-                condition,
-                msg
-            }
-            of permissionChecks) {
-            if (permissions[key] && condition) {
-                await ctx.reply(msg);
-                return;
-            }
-        }
-
-        await next(); // Lanjut ke proses berikutnya jika semua kondisi pengguna dan izin terpenuhi
     });
 };

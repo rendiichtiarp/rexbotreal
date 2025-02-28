@@ -10,7 +10,7 @@ module.exports = {
     aliases: ["texttospeechgoogle", "ttsgoogle"],
     category: "tool",
     permissions: {
-        coin: 10
+        limit: 1
     },
     code: async (ctx) => {
         let input = ctx.quoted?.conversation || ctx.quoted?.extendedTextMessage?.text || Object.values(ctx.quoted || {}).find(msg => msg?.caption || msg?.text)?.caption || ctx.args.slice(ctx.args[0]?.length === 2 ? 1 : 0).join(" ") || null;

@@ -25,8 +25,10 @@ module.exports = {
         try {
             const [result] = await ctx.core.onWhatsApp(userJid);
             if (!result.exists) return await ctx.reply(quote(`❎ Akun tidak ada di WhatsApp!`));
-
-            await db.set(`user.${tools.general.getID(userJid)}.premium`, false);
+            
+            await Database.updateUser(tools.general.getID(userJid), {
+                premium: false
+            });
 
             await ctx.sendMessage(userJid, {
                 text: quote(`🎉 Anda telah dihapus sebagai pengguna Premium oleh Owner!`)

@@ -7,7 +7,7 @@ module.exports = {
     name: "mixtral",
     category: "ai-chat",
     permissions: {
-        coin: 10
+        limit: 1
     },
     code: async (ctx) => {
         const input = ctx.args.join(" ") || null;
@@ -18,7 +18,7 @@ module.exports = {
         );
 
         try {
-            const senderUid = await db.get(`user.${tools.general.getID(ctx.sender.jid)}.uid`) || "guest";
+            const senderUid = await Database.getUser(tools.general.getID(ctx.sender.jid), "uid") || "guest";
             const apiUrl = tools.api.createUrl("fasturl", "/aistream/mixtral", {
                 ask: input,
                 style: `You are a WhatsApp bot named ${config.bot.name}, owned by ${config.owner.name}. Be friendly, informative, and engaging.`, // Dapat diubah sesuai keinginan Anda

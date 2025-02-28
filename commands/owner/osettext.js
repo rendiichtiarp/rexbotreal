@@ -26,17 +26,17 @@ module.exports = {
         }
 
         try {
-            let setKey;
-
             switch (key.toLowerCase()) {
                 case "price":
-                    setKey = `bot.text.price`;
+                case "donate":
+                    await Database.updateBotSettings({
+                        [key.toLowerCase()]: text
+                    });
                     break;
                 default:
                     return await ctx.reply(quote(`❎ Key '${key}' tidak valid!`));
             }
-
-            await db.set(setKey, text);
+            
             return await ctx.reply(quote(`✅ Pesan untuk key '${key}' berhasil disimpan!`));
         } catch (error) {
             consolefy.error(`Error: ${error}`);

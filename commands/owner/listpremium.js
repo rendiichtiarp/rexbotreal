@@ -11,22 +11,19 @@ module.exports = {
     },
     code: async (ctx) => {
         try {
-            const users = (await db.toJSON()).user;
-            const premiumUsers = [];
+            const users = await Database.getAllUsers();
+            const premiumUsers = users.filter(user => user.premium === 1 || user.premium === true);
 
-            for (const userId in users) {
-                if (users[userId].premium === true) premiumUsers.push(userId);
+            if (premiumUsers.length === 0) {
+                return await ctx.reply(quote("❎ Tidak ada pengguna yang premium."));
             }
 
             let resultText = "";
             let userMentions = [];
 
-            premiumUsers.forEach((userId) => {
-                resultText += `${quote(`@${userId}`)}\n`;
-            });
-
-            premiumUsers.forEach((userId) => {
-                userMentions.push(`${userId}@s.whatsapp.net`);
+            premiumUsers.forEach((user) => {
+                resultText += `${quote(`@${user.id}`)}\n`;
+                userMentions.push(`${user.id}@s.whatsapp.net`);
             });
 
             return await ctx.reply({

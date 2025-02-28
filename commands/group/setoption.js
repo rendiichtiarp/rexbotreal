@@ -28,16 +28,16 @@ module.exports = {
 
         if (ctx.args[0] === "status") {
             const groupId = ctx.isGroup() ? tools.general.getID(ctx.id) : null;
-            const groupOption = await db.get(`group.${groupId}.option`) || {};
+            const group = await Database.getGroup(groupId);
 
             return await ctx.reply(
-                `${quote(`Antilink: ${groupOption.antilink ? "Aktif" : "Nonaktif"}`)}\n` +
-                `${quote(`Antinsfw: ${groupOption.antinsfw ? "Aktif" : "Nonaktif"}`)}\n` +
-                `${quote(`Antispam: ${groupOption.antispam ? "Aktif" : "Nonaktif"}`)}\n` +
-                `${quote(`Antisticker: ${groupOption.antisticker ? "Aktif" : "Nonaktif"}`)}\n` +
-                `${quote(`Antitoxic: ${groupOption.antitoxic ? "Aktif" : "Nonaktif"}`)}\n` +
-                `${quote(`Autokick: ${groupOption.autokick ? "Aktif" : "Nonaktif"}`)}\n` +
-                `${quote(`Welcome: ${groupOption.welcome ? "Aktif" : "Nonaktif"}`)}\n` +
+                `${quote(`Antilink: ${group?.antilink ? "Aktif" : "Nonaktif"}`)}\n` +
+                `${quote(`Antinsfw: ${group?.antinsfw ? "Aktif" : "Nonaktif"}`)}\n` +
+                `${quote(`Antispam: ${group?.antispam ? "Aktif" : "Nonaktif"}`)}\n` +
+                `${quote(`Antisticker: ${group?.antisticker ? "Aktif" : "Nonaktif"}`)}\n` +
+                `${quote(`Antitoxic: ${group?.antitoxic ? "Aktif" : "Nonaktif"}`)}\n` +
+                `${quote(`Autokick: ${group?.autokick ? "Aktif" : "Nonaktif"}`)}\n` +
+                `${quote(`Welcome: ${group?.welcome ? "Aktif" : "Nonaktif"}`)}\n` +
                 "\n" +
                 config.msg.footer
             );
@@ -45,39 +45,26 @@ module.exports = {
 
         try {
             const groupId = ctx.isGroup() ? tools.general.getID(ctx.id) : null;
-            let setKey;
-
+            const group = await Database.getGroup(groupId);
+            
             switch (input.toLowerCase()) {
                 case "antilink":
-                    setKey = `group.${groupId}.option.antilink`;
-                    break;
                 case "antinsfw":
-                    setKey = `group.${groupId}.option.antinsfw`;
-                    break;
                 case "antispam":
-                    setKey = `group.${groupId}.option.antispam`;
-                    break;
                 case "antisticker":
-                    setKey = `group.${groupId}.option.antisticker`;
-                    break;
                 case "antitoxic":
-                    setKey = `group.${groupId}.option.antitoxic`;
-                    break;
                 case "autokick":
-                    setKey = `group.${groupId}.option.autokick`;
-                    break;
                 case "welcome":
-                    setKey = `group.${groupId}.option.welcome`;
+                    // Toggle nilai boolean
+                    await Database.updateGroup(groupId, {
+                        [input.toLowerCase()]: !group?.[input.toLowerCase()]
+                    });
                     break;
                 default:
                     return await ctx.reply(quote(`❎ Key '${input}' tidak valid!`));
             }
 
-            const currentStatus = await db.get(setKey);
-            const newStatus = !currentStatus;
-
-            await db.set(setKey, newStatus);
-            const statusText = newStatus ? "diaktifkan" : "dinonaktifkan";
+            const statusText = !group?.[input.toLowerCase()] ? "diaktifkan" : "dinonaktifkan";
             return await ctx.reply(quote(`✅ Fitur '${input}' berhasil ${statusText}!`));
         } catch (error) {
             consolefy.error(`Error: ${error}`);

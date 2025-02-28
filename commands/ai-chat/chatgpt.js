@@ -8,7 +8,7 @@ module.exports = {
     aliases: ["ai", "chatai", "gpt", "openai"],
     category: "ai-chat",
     permissions: {
-        coin: 10
+        limit: 1
     },
     code: async (ctx) => {
         const input = ctx.args.join(" ") || null;
@@ -27,7 +27,7 @@ module.exports = {
 
         try {
             const style = `You are a WhatsApp bot named ${config.bot.name}, owned by ${config.owner.name}. Be friendly, informative, and engaging.`; // Dapat diubah sesuai keinginan Anda
-            const senderUid = await db.get(`user.${tools.general.getID(ctx.sender.jid)}.uid`) || "guest";
+            const senderUid = await Database.getUser(tools.general.getID(ctx.sender.jid), "uid") || "guest";
 
             if (checkMedia || checkQuotedMedia) {
                 const buffer = await ctx.msg.media.toBuffer() || await ctx.quoted?.media.toBuffer();

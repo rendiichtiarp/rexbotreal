@@ -7,11 +7,11 @@ module.exports = {
     name: "iqtest",
     category: "entertainment",
     permissions: {
-        coin: 10
+        limit: 1
     },
     code: async (ctx) => {
         const senderId = tools.general.getID(ctx.sender.jid);
-        const winGame = await db.get(`user.${senderId}.winGame`) || 0;
+        const winGame = await Database.getUser(senderId, "win_game") || 0;
 
         let iqScore;
         let feedback;

@@ -2,6 +2,7 @@ const {
     quote
 } = require("@mengkodingan/ckptw");
 
+
 module.exports = {
     name: "leaderboard",
     aliases: ["lb"],
@@ -10,15 +11,15 @@ module.exports = {
     code: async (ctx) => {
         try {
             const senderId = tools.general.getID(ctx.sender.jid);
-            const users = (await db.toJSON()).user;
+            const users = await Database.getAllUsers();
 
-            const leaderboardData = Object.entries(users)
-                .map(([id, data]) => ({
-                    id,
-                    level: data.level || 0,
-                    winGame: data.winGame || 0
+            const leaderboardData = users
+                .map(user => ({
+                    id: user.id,
+                    level: user.level || 0,
+                    win_game: user.win_game || 0
                 }))
-                .sort((a, b) => b.winGame - a.winGame || b.level - a.level);
+                .sort((a, b) => b.win_game - a.win_game || b.level - a.level);
 
             const userRank = leaderboardData.findIndex(user => user.id === senderId) + 1;
             const topUsers = leaderboardData.slice(0, 10);
@@ -26,13 +27,13 @@ module.exports = {
             let resultText = "";
 
             topUsers.forEach((user, index) => {
-                resultText += quote(`${index + 1}. @${user.id} - Menang: ${user.winGame}, Level: ${user.level}\n`);
+                resultText += quote(`${index + 1}. @${user.id} - Menang: ${user.win_game}, Level: ${user.level}\n`);
                 userMentions.push(`${user.id}@s.whatsapp.net`);
             });
 
             if (userRank > 10) {
                 const userStats = leaderboardData[userRank - 1];
-                resultText += quote(`${userRank}. @${senderId} - Menang: ${userStats.winGame}, Level: ${userStats.level}\n`);
+                resultText += quote(`${userRank}. @${senderId} - Menang: ${userStats.win_game}, Level: ${userStats.level}\n`);
                 userMentions.push(`${senderId}@s.whatsapp.net`);
             }
 

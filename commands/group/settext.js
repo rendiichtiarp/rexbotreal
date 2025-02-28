@@ -29,23 +29,18 @@ module.exports = {
 
         try {
             const groupId = ctx.isGroup() ? tools.general.getID(ctx.id) : null;
-            let setKey;
+            const validKeys = ["welcome", "goodbye", "intro"];
+            const keyLower = key.toLowerCase();
 
-            switch (key.toLowerCase()) {
-                case "goodbye":
-                    setKey = `group.${groupId}.text.goodbye`;
-                    break;
-                case "intro":
-                    setKey = `group.${groupId}.text.intro`;
-                    break;
-                case "welcome":
-                    setKey = `group.${groupId}.text.welcome`;
-                    break;
-                default:
-                    return await ctx.reply(quote(`❎ Key '${key}' tidak valid!`));
+            if (!validKeys.includes(keyLower)) {
+                return await ctx.reply(quote(`❎ Key '${key}' tidak valid!`));
             }
 
-            await db.set(setKey, text);
+            // Update text settings grup di database
+            await Database.updateGroup(groupId, {
+                [`${keyLower}_text`]: text
+            });
+
             return await ctx.reply(quote(`✅ Pesan untuk key '${key}' berhasil disimpan!`));
         } catch (error) {
             consolefy.error(`Error: ${error}`);

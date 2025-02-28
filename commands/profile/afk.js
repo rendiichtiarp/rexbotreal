@@ -2,15 +2,18 @@ const {
     quote
 } = require("@mengkodingan/ckptw");
 
+
 module.exports = {
     name: "afk",
     category: "profile",
     permissions: {},
     code: async (ctx) => {
         const input = ctx.args.join(" ") || null;
+        const senderId = tools.general.getID(ctx.sender.jid);
 
         try {
-            await db.set(`user.${tools.general.getID(ctx.sender.jid)}.afk`, {
+            // Update status AFK user di database
+            await Database.updateAfk(senderId, {
                 reason: input,
                 timestamp: Date.now()
             });

@@ -9,7 +9,7 @@ module.exports = {
     aliases: ["ppcp"],
     category: "entertainment",
     permissions: {
-        coin: 10
+        limit: 1
     },
     code: async (ctx) => {
         const apiUrl = tools.api.createUrl("otinxsandip", "/dp");

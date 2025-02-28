@@ -2,6 +2,7 @@ const {
     quote
 } = require("@mengkodingan/ckptw");
 
+
 module.exports = {
     name: "addpremuser",
     aliases: ["addprem", "apu"],
@@ -15,6 +16,7 @@ module.exports = {
         const userJid = ctx.quoted?.senderJid || ctx.msg?.message?.extendedTextMessage?.contextInfo?.mentionedJid?.[0] || (userId ? `${userId}@s.whatsapp.net` : null);
         const senderJid = ctx.sender.jid;
         const senderId = tools.general.getID(senderJid);
+        const userDb = await Database.getUser(tools.general.getID(userId));
 
         if (!userJid) return await ctx.reply({
             text: `${quote(tools.msg.generateInstruction(["send"], ["text"]))}\n` +
@@ -26,7 +28,9 @@ module.exports = {
             const [result] = await ctx.core.onWhatsApp(userJid);
             if (!result.exists) return await ctx.reply(quote(`❎ Akun tidak ada di WhatsApp.`));
 
-            await db.set(`user.${tools.general.getID(userJid)}.premium`, true);
+            await Database.updateUser(tools.general.getID(userJid), {
+                premium: true
+            });
 
             await ctx.sendMessage(userJid, {
                 text: quote(`🎉 Anda telah ditambahkan sebagai pengguna Premium oleh Owner!`)

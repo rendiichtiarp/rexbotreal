@@ -9,17 +9,21 @@ const CFonts = require("cfonts");
 const fs = require("fs");
 const http = require("http");
 const path = require("path");
-const SimplDB = require("simpl.db");
-
+const { testConnection } = require('./lib/database/connection');
+const Database = require('./lib/database/queries');
 // Inisialisasi Consolefy untuk logging
 const c = new Consolefy({
     tag: pkg.name
 });
 
-// Inisialisasi SimplDB untuk Database
-const dbFile = path.join(__dirname, "database.json");
-if (!fs.existsSync(dbFile)) fs.writeFileSync(dbFile, "{}", "utf8");
-const db = new SimplDB();
+// Test koneksi database MySQL
+testConnection()
+    .then(() => {
+        c.success("Koneksi MySQL berhasil!");
+    })
+    .catch((error) => {
+        c.error("Gagal terhubung ke MySQL:", error);
+    });
 
 // Hapus folder autentikasi jika kosong (untuk bot dengan adapter default)
 if (config.bot.authAdapter.adapter === "default") {
@@ -37,8 +41,9 @@ Object.assign(global, {
     config,
     tools,
     consolefy: c,
-    db
+    Database,
 });
+
 
 c.log("Starting..."); // Logging proses awal
 

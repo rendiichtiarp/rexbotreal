@@ -10,7 +10,7 @@ module.exports = {
     aliases: ["hd", "hdr"],
     category: "tool",
     permissions: {
-        coin: 10
+        limit: 1
     },
     code: async (ctx) => {
         const msgType = ctx.getMessageType();

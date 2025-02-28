@@ -8,7 +8,7 @@ module.exports = {
     aliases: ["bb"],
     category: "ai-chat",
     permissions: {
-        coin: 10
+        limit: 1
     },
     code: async (ctx) => {
         const input = ctx.args.join(" ") || null;

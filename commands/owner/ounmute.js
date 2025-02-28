@@ -12,7 +12,9 @@ module.exports = {
     code: async (ctx) => {
         try {
             const groupId = ctx.isGroup() ? tools.general.getID(ctx.id) : null;
-            await db.set(`group.${groupId}.mute`, false);
+            await Database.updateGroup(groupId, {
+                mute: false
+            });
 
             return await ctx.reply(quote(`✅ Berhasil me-unmute grup ini dari bot!`));
         } catch (error) {

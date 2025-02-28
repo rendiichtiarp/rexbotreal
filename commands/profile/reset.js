@@ -21,11 +21,32 @@ module.exports = {
                 const senderId = tools.general.getID(ctx.sender.jid);
 
                 if (userAnswer === "y") {
-                    db.delete(`user.${senderId}`);
-                    await ctx.reply(quote("✅ Data Anda berhasil direset. Semua data telah dihapus!"));
-                    collector.stop();
+                    try {
+                        // Hapus data user dari database
+                        await Database.deleteUser(senderId);
+                        
+                        // Buat data baru dengan nilai default
+                        await Database.updateUser(senderId, {
+                            limit: 100,
+                            user_limit: 10,
+                            level: 0,
+                            xp: 0,
+                            premium: false,
+                            banned: false,
+                            autolevelup: true,
+                            win_game: 0,
+                            registered: false
+                        });
+
+                        await ctx.reply(quote("✅ Data Anda berhasil direset ke pengaturan awal!"));
+                        collector.stop();
+                    } catch (error) {
+                        consolefy.error(`Error saat reset data:`, error);
+                        await ctx.reply(quote(`⚠️ Gagal mereset data: ${error.message}`));
+                        collector.stop();
+                    }
                 } else if (userAnswer === "n") {
-                    await ctx.reply(quote("❌ Proses reset data telah dibatalkan."));
+                    await ctx.reply(quote("❎ Proses reset data telah dibatalkan."));
                     collector.stop();
                 }
             });

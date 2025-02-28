@@ -26,7 +26,9 @@ module.exports = {
             const [result] = await ctx.core.onWhatsApp(user);
             if (!result.exists) return await ctx.reply(quote(`❎ Akun tidak ada di WhatsApp!`));
 
-            await db.set(`user.${tools.general.getID(user)}.banned`, false);
+            await Database.updateUser(tools.general.getID(user), {
+                banned: false
+            });
 
             await ctx.sendMessage(user, {
                 text: quote(`🎉 Anda telah diunbanned oleh Owner!`)

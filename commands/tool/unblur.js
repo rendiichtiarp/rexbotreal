@@ -7,7 +7,7 @@ module.exports = {
     name: "unblur",
     category: "tool",
     permissions: {
-        coin: 10
+        limit: 1
     },
     code: async (ctx) => {
         const msgType = ctx.getMessageType();

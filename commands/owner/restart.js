@@ -6,6 +6,7 @@ const {
 } = require("child_process");
 const util = require("util");
 
+
 module.exports = {
     name: "restart",
     aliases: ["r"],
@@ -18,7 +19,7 @@ module.exports = {
 
         try {
             const waitMsg = await ctx.reply(config.msg.wait);
-            await db.set(`bot.restart`, {
+            await Database.updateRestart({
                 jid: ctx.id,
                 key: waitMsg.key,
                 timestamp: Date.now()

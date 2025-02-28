@@ -7,7 +7,7 @@ module.exports = {
     name: "sindy",
     category: "ai-chat",
     permissions: {
-        coin: 10
+        limit: 1
     },
     code: async (ctx) => {
         const input = ctx.args.join(" ") || null;
@@ -18,7 +18,7 @@ module.exports = {
         );
 
         try {
-            const senderUid = await db.get(`user.${tools.general.getID(ctx.sender.jid)}.uid`) || "guest";
+            const senderUid = await Database.getUser(tools.general.getID(ctx.sender.jid), "uid") || "guest";
             const apiUrl = tools.api.createUrl("diibot", "/api/ai/sindy", {
                 query: input,
                 user: senderUid
