@@ -21,8 +21,8 @@ module.exports = {
 
             const game = {
                 coin: {
-                    answered: 5,
-                    allAnswered: 50
+                    answered: 20,
+                    allAnswered: 100
                 },
                 timeout: 90000,
                 senderId: tools.general.getID(ctx.sender.jid),
@@ -36,7 +36,7 @@ module.exports = {
                 `${quote(`Soal: ${result.soal}`)}\n` +
                 `${quote(`Jumlah jawaban: ${game.answers.size}`)}\n` +
                 `${quote(`Batas waktu ${tools.general.convertMsToDuration(game.timeout)}`)}\n` +
-                `${quote("Ketik 'surrender' untuk menyerah.")}\n` +
+                `${quote("Ketik 's' untuk menyerah.")}\n` +
                 "\n" +
                 config.msg.footer
             );
@@ -69,7 +69,7 @@ module.exports = {
                         await ctx.reply(quote(`🎉 Selamat! Semua jawaban telah terjawab! Setiap anggota yang menjawab mendapat ${game.coin.allAnswered} koin.`));
                         return collector.stop();
                     }
-                } else if (userAnswer === "surrender") {
+                } else if (userAnswer === "s") {
                     const answer = [...game.answers].map(tools.general.ucword).join(", ").replace(/, ([^,]*)$/, ", dan $1");
                     session.delete(ctx.id);
                     await ctx.reply(

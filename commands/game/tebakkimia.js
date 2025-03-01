@@ -18,7 +18,7 @@ module.exports = {
             const result = tools.general.getRandomElement((await axios.get(apiUrl)).data);
 
             const game = {
-                coin: 5,
+                coin: 20,
                 timeout: 60000,
                 senderId: tools.general.getID(ctx.sender.jid),
                 answer: result.unsur.toLowerCase()
@@ -30,8 +30,8 @@ module.exports = {
                 `${quote(`Lambang: ${result.lambang}`)}\n` +
                 `${quote(`Bonus: ${game.coin} Koin`)}\n` +
                 `${quote(`Batas waktu: ${tools.general.convertMsToDuration(game.timeout)}`)}\n` +
-                `${quote("Ketik 'hint' untuk bantuan.")}\n` +
-                `${quote("Ketik 'surrender' untuk menyerah.")}\n` +
+                `${quote("Ketik 'h' untuk bantuan.")}\n` +
+                `${quote("Ketik 's' untuk menyerah.")}\n` +
                 "\n" +
                 config.msg.footer
             );
@@ -55,14 +55,14 @@ module.exports = {
                         }
                     );
                     return collector.stop();
-                } else if (userAnswer === "hint") {
+                } else if (userAnswer === "h") {
                     const clue = game.answer.replace(/[aiueo]/g, "_");
                     await ctx.sendMessage(ctx.id, {
                         text: monospace(clue.toUpperCase())
                     }, {
                         quoted: m
                     });
-                } else if (userAnswer === "surrender") {
+                } else if (userAnswer === "s") {
                     session.delete(ctx.id);
                     await ctx.reply(
                         `${quote("🏳️ Anda menyerah!")}\n` +

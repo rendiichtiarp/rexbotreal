@@ -7,7 +7,7 @@ const {
 } = require("wa-sticker-formatter");
 
 module.exports = {
-    name: "bratgif",
+    name: "abrat",
     aliases: ["bratg", "bratv", "bratvid", "bratvideo", "sbratgif", "sbratvideo", "sbratvid", "stickerbratgif", "stickerbratvideo", "stickerbratvid", "stikerbratgif", "stikerbratvideo", "stikerbratvid"],
     category: "maker",
     permissions: {

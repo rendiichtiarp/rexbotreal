@@ -42,8 +42,20 @@ module.exports = {
         if (remainingTime > 0) return await ctx.reply(quote(`⏳ Anda telah mengklaim hadiah ${input}. Tunggu ${tools.general.convertMsToDuration(remainingTime)} untuk mengklaim lagi.`));
 
         try {
-            const rewardCoin = (userDb?.coin || 0) + claimRewards[input].reward;
+            if (input === 'limit') {
+                const newLimit = (userDb?.limit || 0) + claimRewards[input].reward;
+                
+                // Update limit dan waktu klaim terakhir
+                await Database.updateUser(senderId, {
+                    user_limit: newLimit,
+                    [lastClaimField]: currentTime
+                });
 
+                return await ctx.reply(quote(`✅ Anda berhasil mengklaim ${claimRewards[input].reward} limit! Total limit saat ini: ${newLimit}.`));
+            }
+
+            const rewardCoin = (userDb?.coin || 0) + claimRewards[input].reward;
+            
             // Update koin dan waktu klaim terakhir
             await Database.updateUser(senderId, {
                 coin: rewardCoin,
@@ -60,6 +72,11 @@ module.exports = {
 
 // Daftar hadiah klaim yang tersedia (Dapat diubah sesuai keinginan Anda)
 const claimRewards = {
+    limit: {
+        reward: 10,
+        cooldown: 24 * 60 * 60 * 1000, // 24 jam (100 koin)
+        level: 1 // Level 1 untuk klaim daily
+    },
     daily: {
         reward: 100,
         cooldown: 24 * 60 * 60 * 1000, // 24 jam (100 koin)

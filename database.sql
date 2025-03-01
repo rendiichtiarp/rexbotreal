@@ -24,6 +24,7 @@ CREATE TABLE IF NOT EXISTS users (
     last_claim_weekly BIGINT DEFAULT 0,
     last_claim_monthly BIGINT DEFAULT 0,
     last_claim_yearly BIGINT DEFAULT 0,
+    last_claim_limit BIGINT DEFAULT 0,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 );

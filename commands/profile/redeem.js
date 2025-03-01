@@ -4,7 +4,7 @@ const {
 
 module.exports = {
     name: "redeem",
-    aliases: ["claim", "tukar"],
+    aliases: ["tukar"],
     category: "profile",
     permissions: {},
     code: async (ctx) => {

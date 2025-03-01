@@ -52,5 +52,8 @@
     "baileys-firebase": "^1.0.1",
     "baileys-mongodb": "^1.0.9",
     "baileys-mysql": "^1.0.4"
+  },
+  "devDependencies": {
+    "semver-auto": "^1.5.1"
   }
 }
