@@ -8,7 +8,6 @@ CREATE TABLE IF NOT EXISTS users (
     age INT DEFAULT NULL,
     registered BOOLEAN DEFAULT false,
     coin INT DEFAULT 0,
-    user_limit INT DEFAULT 0,
     xp INT DEFAULT 0,
     level INT DEFAULT 0,
     premium BOOLEAN DEFAULT false,
@@ -24,7 +23,6 @@ CREATE TABLE IF NOT EXISTS users (
     last_claim_weekly BIGINT DEFAULT 0,
     last_claim_monthly BIGINT DEFAULT 0,
     last_claim_yearly BIGINT DEFAULT 0,
-    last_claim_limit BIGINT DEFAULT 0,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 );
@@ -92,7 +90,7 @@ ALTER TABLE group_settings ADD INDEX idx_mute (mute);
 CREATE TABLE IF NOT EXISTS redeem_codes (
     id INT AUTO_INCREMENT PRIMARY KEY,
     code VARCHAR(20) UNIQUE NOT NULL,
-    reward_type ENUM('coin', 'limit', 'premium') NOT NULL,
+    reward_type ENUM('coin', 'premium') NOT NULL,
     reward_amount INT DEFAULT 0,
     max_claims INT NOT NULL DEFAULT 1,
     current_claims INT NOT NULL DEFAULT 0,

@@ -24,7 +24,7 @@ module.exports = {
             return await ctx.reply(quote(`✅ Berhasil mengubah nama grup!`));
         } catch (error) {
             consolefy.error(`Error: ${error}`);
-            return await ctx.reply(quote(`⚠️ Terjadi kesalahan: ${error.message}`));
+            return await ctx.reply(quote(`❎ Terjadi kesalahan: ${error.message}`));
         }
     }
 };

@@ -44,7 +44,7 @@ module.exports = {
             return await ctx.reply(quote(`✅ Pesan untuk key '${key}' berhasil disimpan!`));
         } catch (error) {
             consolefy.error(`Error: ${error}`);
-            return await ctx.reply(quote(`⚠️ Terjadi kesalahan: ${error.message}`));
+            return await ctx.reply(quote(`❎ Terjadi kesalahan: ${error.message}`));
         }
     }
 };

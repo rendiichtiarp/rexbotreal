@@ -9,7 +9,9 @@ module.exports = {
     name: "toaudio",
     aliases: ["toaud", "tomp3"],
     category: "converter",
-    permissions: {},
+    permissions: {
+        coin: 5
+    },
     code: async (ctx) => {
         if (!await tools.general.checkQuotedMedia(ctx.quoted, ["video"])) return await ctx.reply(quote(tools.msg.generateInstruction(["reply"], ["video"])));
 
@@ -25,7 +27,7 @@ module.exports = {
             });
         } catch (error) {
             consolefy.error(`Error: ${error}`);
-            return await ctx.reply(quote(`⚠️ Terjadi kesalahan: ${error.message}`));
+            return await ctx.reply(quote(`❎ Terjadi kesalahan: ${error.message}`));
         }
     }
 };

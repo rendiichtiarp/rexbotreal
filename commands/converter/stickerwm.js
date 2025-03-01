@@ -10,7 +10,9 @@ module.exports = {
     name: "stickerwm",
     aliases: ["swm", "stikerwm"],
     category: "converter",
-    permissions: {},
+    permissions: {
+        coin: 5
+    },
     code: async (ctx) => {
         const input = ctx.args.join(" ") || null;
 
@@ -36,7 +38,7 @@ module.exports = {
             return await ctx.reply(await result.toMessage());
         } catch (error) {
             consolefy.error(`Error: ${error}`);
-            return await ctx.reply(quote(`⚠️ Terjadi kesalahan: ${error.message}`));
+            return await ctx.reply(quote(`❎ Terjadi kesalahan: ${error.message}`));
         }
     }
 };

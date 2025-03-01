@@ -22,7 +22,7 @@ module.exports = {
             const game = {
                 coin: {
                     answered: 20,
-                    allAnswered: 100
+                    allAnswered: 60
                 },
                 timeout: 90000,
                 senderId: tools.general.getID(ctx.sender.jid),
@@ -92,8 +92,11 @@ module.exports = {
                 }
             });
         } catch (error) {
+            if (session.has(ctx.id)) {
+                session.delete(ctx.id);
+            }
             consolefy.error(`Error: ${error}`);
-            return await ctx.reply(quote(`⚠️ Terjadi kesalahan: ${error.message}`));
+            return await ctx.reply(quote(`❎ Terjadi kesalahan: ${error.message}`));
         }
     }
 };

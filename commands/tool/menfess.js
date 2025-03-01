@@ -8,7 +8,7 @@ module.exports = {
     aliases: ["conf", "confes", "confess", "menf", "menfes"],
     category: "tool",
     permissions: {
-        limit: 1,
+        coin: 5,
         private: true
     },
     code: async (ctx) => {
@@ -74,7 +74,7 @@ module.exports = {
             return await ctx.reply(quote(`✅ Pesan berhasil terkirim! Pesan yang Anda kirim akan diteruskan ke orang tersebut. Jika ingin berhenti, cukup ketik 'delete' atau 'stop'.`));
         } catch (error) {
             consolefy.error(`Error: ${error}`);
-            return await ctx.reply(quote(`⚠️ Terjadi kesalahan: ${error.message}`));
+            return await ctx.reply(quote(`❎ Terjadi kesalahan: ${error.message}`));
         }
     }
 };

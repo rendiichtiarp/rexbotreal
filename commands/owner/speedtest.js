@@ -9,7 +9,7 @@ module.exports = {
     },
     code: async (ctx) => {
         try {
-            const msg = await ctx.reply(config.msg.wait);
+            const msg = await ctx.reply(quote(`📊 *SPEEDTEST*\n\nMenjalankan speedtest...\nMohon tunggu sekitar 30 detik.`));
             
             // Fungsi untuk mengukur ping
             async function measurePing(attempts = 5) {
@@ -73,7 +73,9 @@ module.exports = {
 
             // Jalankan test
             const ping = await measurePing();
+            await ctx.editMessage(msg.key, quote(`📊 *SPEEDTEST*\n\nMengukur download speed...`));
             const downloadSpeed = await measureDownload();
+            await ctx.editMessage(msg.key, quote(`📊 *SPEEDTEST*\n\nMengukur upload speed...`));
             const uploadSpeed = await measureUpload();
 
             // Fungsi untuk menentukan kualitas koneksi
@@ -86,29 +88,33 @@ module.exports = {
             }
 
             const output = [
-                "*SPEEDTEST RESULTS*",
-                "",
-                "*Connection Details*",
-                `Latency: ${ping} ms`,
-                `Download: ${downloadSpeed} Mbps`,
-                `Upload: ${uploadSpeed} Mbps`,
-                "",
-                "*Quality Assessment*",
-                `Download: ${getQuality(downloadSpeed)}`,
-                `Upload: ${getQuality(uploadSpeed)}`,
-                "",
-                "*Additional Info*",
-                `Server: Cloudflare Speed Test`,
-                `Time: ${new Date().toLocaleString('id-ID')}`,
-                "",
-                "_Powered by Cloudflare Speed Test_"
-            ].join("\n");
+                `📊 *SPEEDTEST RESULTS*`,
+                ``,
+                `🌐 *Server Information*`,
+                `◦ Provider: Cloudflare Speed Test`,
+                `◦ Location: Global CDN`,
+                ``,
+                `📡 *Connection Details*`,
+                `◦ Latency: ${ping} ms`,
+                `◦ Download: ${downloadSpeed} Mbps`,
+                `◦ Upload: ${uploadSpeed} Mbps`,
+                ``,
+                `📈 *Quality Assessment*`,
+                `◦ Download: ${getQuality(downloadSpeed)}`,
+                `◦ Upload: ${getQuality(uploadSpeed)}`,
+                ``,
+                `⏰ *Test Information*`,
+                `◦ Time: ${new Date().toLocaleString('id-ID')}`,
+                `◦ Method: Multi-stream test`,
+                ``,
+                `_Powered by Cloudflare Speed Test_`
+            ].join('\n');
 
-            await ctx.editMessage(msg.key, (output));
+            await ctx.editMessage(msg.key, quote(output));
 
         } catch (error) {
             consolefy.error(`Error: ${error}`);
-            return await ctx.reply(quote(`⚠️ Terjadi kesalahan: ${error.message}`));
+            return await ctx.reply(quote(`❎ Terjadi kesalahan: ${error.message}`));
         }
     }
 };

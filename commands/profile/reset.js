@@ -27,8 +27,6 @@ module.exports = {
                         
                         // Buat data baru dengan nilai default
                         await Database.updateUser(senderId, {
-                            limit: 100,
-                            user_limit: 10,
                             level: 0,
                             xp: 0,
                             premium: false,
@@ -42,7 +40,7 @@ module.exports = {
                         collector.stop();
                     } catch (error) {
                         consolefy.error(`Error saat reset data:`, error);
-                        await ctx.reply(quote(`⚠️ Gagal mereset data: ${error.message}`));
+                        await ctx.reply(quote(`❎ Gagal mereset data: ${error.message}`));
                         collector.stop();
                     }
                 } else if (userAnswer === "n") {
@@ -54,7 +52,7 @@ module.exports = {
             collector.on("end", async () => {});
         } catch (error) {
             consolefy.error(`Error: ${error}`);
-            return await ctx.reply(quote(`⚠️ Terjadi kesalahan: ${error.message}`));
+            return await ctx.reply(quote(`❎ Terjadi kesalahan: ${error.message}`));
         }
     }
 };

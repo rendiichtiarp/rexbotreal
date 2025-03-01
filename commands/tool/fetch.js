@@ -12,7 +12,7 @@ module.exports = {
     aliases: ["get"],
     category: "tool",
     permissions: {
-        limit: 1
+        coin: 5
     },
     code: async (ctx) => {
         const url = ctx.args[0] || null;
@@ -76,7 +76,7 @@ module.exports = {
             }
         } catch (error) {
             consolefy.error(`Error: ${error}`);
-            return await ctx.reply(quote(`⚠️ Terjadi kesalahan: ${error.message}`));
+            return await ctx.reply(quote(`❎ Terjadi kesalahan: ${error.message}`));
         }
     }
 };

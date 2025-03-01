@@ -19,19 +19,6 @@ async function checkCoin(requiredCoin, senderId) {
     return false;
 }
 
-// Fungsi untuk mengecek apakah pengguna memiliki cukup koin sebelum menggunakan perintah tertentu
-async function checkLimit(requiredLimit, senderId) {
-    const userDb = await Database.getUser(senderId);
-
-    if (tools.general.isOwner(senderId) || userDb?.premium) return false;
-    if (!userDb || (userDb?.user_limit || 0) < requiredLimit) return true;
-
-    await Database.updateUser(senderId, {
-        user_limit: userDb?.user_limit - requiredLimit
-    });
-    return false;
-}
-
 // Fungsi untuk delay random dengan variasi lebih natural
 const randomDelay = () => {
     return new Promise(resolve => {
@@ -188,11 +175,6 @@ module.exports = (bot) => {
                     key: "coin",
                     condition: permissions.coin && config.system.useCoin && await checkCoin(permissions.coin, senderId),
                     msg: config.msg.coin
-                },
-                {
-                    key: "limit",
-                    condition: permissions.limit && config.system.useLimit && await checkLimit(permissions.limit, senderId),
-                    msg: config.msg.limit
                 },
                 {
                     key: "group",

@@ -8,7 +8,7 @@ module.exports = {
     aliases: ["gh", "ghs", "github", "githubs"],
     category: "search",
     permissions: {
-        limit: 1
+        coin: 5
     },
     code: async (ctx) => {
         const input = ctx.args.join(" ") || null;
@@ -44,7 +44,7 @@ module.exports = {
         } catch (error) {
             consolefy.error(`Error: ${error}`);
             if (error.status !== 200) return await ctx.reply(config.msg.notFound);
-            return await ctx.reply(quote(`⚠️ Terjadi kesalahan: ${error.message}`));
+            return await ctx.reply(quote(`❎ Terjadi kesalahan: ${error.message}`));
         }
     }
 };

@@ -10,7 +10,7 @@ module.exports = {
     aliases: ["harilibur", "libur"],
     category: "tool",
     permissions: {
-        limit: 1
+        coin: 5
     },
     code: async (ctx) => {
         const month = new Date().getMonth() + 1;
@@ -37,7 +37,7 @@ module.exports = {
         } catch (error) {
             consolefy.error(`Error: ${error}`);
             if (error.status !== 200) return await ctx.reply(config.msg.notFound);
-            return await ctx.reply(quote(`⚠️ Terjadi kesalahan: ${error.message}`));
+            return await ctx.reply(quote(`❎ Terjadi kesalahan: ${error.message}`));
         }
     }
 };

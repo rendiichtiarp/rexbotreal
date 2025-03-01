@@ -19,7 +19,7 @@ module.exports = {
             return await ctx.reply(quote(`✅ Berhasil me-mute grup ini dari bot!`));
         } catch (error) {
             consolefy.error(`Error: ${error}`);
-            return await ctx.reply(quote(`⚠️ Terjadi kesalahan: ${error.message}`));
+            return await ctx.reply(quote(`❎ Terjadi kesalahan: ${error.message}`));
         }
     }
 };

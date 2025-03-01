@@ -38,9 +38,6 @@ module.exports = {
                 case "coin":
                     updateData.coin = (userDb?.coin || 0) + redeemData.reward_amount;
                     break;
-                case "limit":
-                    updateData.user_limit = (userDb?.user_limit || 0) + redeemData.reward_amount;
-                    break;
                 case "premium":
                     updateData.premium = true;
                     break;
@@ -49,8 +46,7 @@ module.exports = {
             await Database.updateUser(senderId, updateData);
 
             return await ctx.reply(quote(
-                `✅ Selamat! Anda mendapatkan:\n` +
-                `🎁 ${redeemData.reward_amount} ${redeemData.reward_type}`
+                `✅ Selamat! Anda mendapatkan: 🎁 ${redeemData.reward_amount} ${redeemData.reward_type}`
             ));
         } catch (error) {
             return await ctx.reply(quote(`❎ ${error.message}`));

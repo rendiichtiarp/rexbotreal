@@ -1,0 +1,105 @@
+const {
+    monospace,
+    quote
+} = require("@mengkodingan/ckptw");
+const axios = require("axios");
+const mime = require("mime-types");
+
+const session = new Map();
+
+module.exports = {
+    name: "tebakheroml",
+    category: "game",
+    permissions: {},
+    code: async (ctx) => {
+        if (session.has(ctx.id)) return await ctx.reply(quote(`🎮 Sesi permainan sedang berjalan!`));
+
+        try {
+            const apiUrl = tools.api.createUrl("siputzx", "/api/games/tebakheroml");
+            const { data } = (await axios.get(apiUrl)).data;
+
+            const game = {
+                coin: 20,
+                timeout: 60000,
+                senderId: tools.general.getID(ctx.sender.jid),
+                answer: data.name.toLowerCase()
+            };
+
+            session.set(ctx.id, true);
+
+            // Kirim audio terlebih dahulu
+            await ctx.reply({
+                audio: {
+                    url: data.audio,
+                },
+                mimetype: mime.lookup("mp3"),
+            });
+
+            // Kirim pesan petunjuk
+            await ctx.reply(
+                `${quote(`Bonus: ${game.coin} Koin`)}\n` +
+                `${quote(`Batas waktu: ${tools.general.convertMsToDuration(game.timeout)}`)}\n` +
+                `${quote("Ketik 'h' untuk bantuan.")}\n` +
+                `${quote("Ketik 's' untuk menyerah.")}\n` +
+                "\n" +
+                config.msg.footer
+            );
+
+            const collector = ctx.MessageCollector({
+                time: game.timeout
+            });
+
+            collector.on("collect", async (m) => {
+                const userAnswer = m.content.toLowerCase();
+
+                if (userAnswer === game.answer) {
+                    session.delete(ctx.id);
+                    
+                    await Database.addGameReward(game.senderId, game.coin);
+                    
+                    await ctx.sendMessage(
+                        ctx.id, {
+                            text: `${quote("💯 Benar!")}\n` +
+                                quote(`+${game.coin} Koin`)
+                        }, {
+                            quoted: m
+                        }
+                    );
+                    return collector.stop();
+                } else if (userAnswer === "h") {
+                    const clue = game.answer.replace(/[aiueo]/g, "_");
+                    await ctx.sendMessage(
+                        ctx.id, {
+                            text: monospace(clue.toUpperCase())
+                        }, {
+                            quoted: m
+                        }
+                    );
+                } else if (userAnswer === "s") {
+                    session.delete(ctx.id);
+                    await ctx.reply(
+                        `${quote("🏳️ Anda menyerah!")}\n` +
+                        quote(`Jawabannya adalah ${tools.general.ucword(game.answer)}.`)
+                    );
+                    return collector.stop();
+                }
+            });
+
+            collector.on("end", async () => {
+                if (session.has(ctx.id)) {
+                    session.delete(ctx.id);
+                    return await ctx.reply(
+                        `${quote("⏱ Waktu habis!")}\n` +
+                        quote(`Jawabannya adalah ${tools.general.ucword(game.answer)}.`)
+                    );
+                }
+            });
+        } catch (error) {
+            if (session.has(ctx.id)) {
+                session.delete(ctx.id);
+            }
+            consolefy.error(`Error: ${error}`);
+            return await ctx.reply(quote(`❎ Terjadi kesalahan: ${error.message}`));
+        }
+    }
+};

@@ -12,7 +12,9 @@ module.exports = {
     name: "tovideo",
     aliases: ["togif", "tomp4", "tovid"],
     category: "converter",
-    permissions: {},
+    permissions: {
+        coin: 5
+    },
     code: async (ctx) => {
         if (!await tools.general.checkQuotedMedia(ctx.quoted, ["sticker"])) return await ctx.reply(quote(tools.msg.generateInstruction(["reply"], ["sticker"])));
 
@@ -31,7 +33,7 @@ module.exports = {
             });
         } catch (error) {
             consolefy.error(`Error: ${error}`);
-            return await ctx.reply(quote(`⚠️ Terjadi kesalahan: ${error.message}`));
+            return await ctx.reply(quote(`❎ Terjadi kesalahan: ${error.message}`));
         }
     }
 };

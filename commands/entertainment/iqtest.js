@@ -7,7 +7,7 @@ module.exports = {
     name: "iqtest",
     category: "entertainment",
     permissions: {
-        limit: 1
+        coin: 5
     },
     code: async (ctx) => {
         const senderId = tools.general.getID(ctx.sender.jid);

@@ -3,8 +3,8 @@ const {
 } = require("@mengkodingan/ckptw");
 
 module.exports = {
-    name: "profile",
-    aliases: ["me", "prof", "profil"],
+    name: "me",
+    aliases: ["me"],
     category: "profile",
     permissions: {},
     code: async (ctx) => {
@@ -55,7 +55,7 @@ module.exports = {
             });
         } catch (error) {
             consolefy.error(`Error: ${error}`);
-            return await ctx.reply(quote(`⚠️ Terjadi kesalahan: ${error.message}`));
+            return await ctx.reply(quote(`❎ Terjadi kesalahan: ${error.message}`));
         }
     }
 };

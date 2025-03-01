@@ -10,7 +10,9 @@ module.exports = {
     name: "sticker",
     aliases: ["s", "stiker"],
     category: "converter",
-    permissions: {},
+    permissions: {
+        coin: 5
+    },
     code: async (ctx) => {
         const msgType = ctx.getMessageType();
         const [checkMedia, checkQuotedMedia] = await Promise.all([
@@ -34,7 +36,7 @@ module.exports = {
             return await ctx.reply(await result.toMessage());
         } catch (error) {
             consolefy.error(`Error: ${error}`);
-            return await ctx.reply(quote(`⚠️ Terjadi kesalahan: ${error.message}`));
+            return await ctx.reply(quote(`❎ Terjadi kesalahan: ${error.message}`));
         }
     }
 };

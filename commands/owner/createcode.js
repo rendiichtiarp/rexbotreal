@@ -18,7 +18,7 @@ module.exports = {
             `${quote(tools.msg.generateCommandExample(ctx.used, "ULTAH2024 coin 1000 0 0"))}\n` +
             quote(tools.msg.generateNotes([
                 "Format: <kode> <tipe> <jumlah> [max_klaim] [masa_berlaku]",
-                "Tipe hadiah: coin, limit, premium",
+                "Tipe hadiah: coin, premium",
                 "Max klaim 0 = unlimited",
                 "Masa berlaku 0 = unlimited"
             ]))
@@ -30,7 +30,7 @@ module.exports = {
                 throw new Error("Kode harus 4-20 karakter (huruf kapital & angka)!");
             }
 
-            if (!["coin", "limit", "premium"].includes(type)) {
+            if (!["coin", "premium"].includes(type)) {
                 throw new Error("Tipe hadiah tidak valid!");
             }
 
@@ -49,10 +49,19 @@ module.exports = {
                 throw new Error("Masa berlaku tidak valid!");
             }
 
-            // Hitung tanggal kadaluarsa (jika 0 maka set ke tahun 2099)
-            const expiredAt = expireDaysNum === 0 
-                ? new Date('2099-12-31') 
-                : new Date(Date.now() + (expireDaysNum * 24 * 60 * 60 * 1000));
+            // Hitung tanggal kadaluarsa
+            let expiredAt;
+            if (expireDaysNum === 0) {
+                // Set ke tahun 2030 untuk unlimited
+                expiredAt = new Date('2030-12-31 23:59:59');
+            } else {
+                // Set tanggal kadaluarsa sesuai jumlah hari
+                expiredAt = new Date();
+                expiredAt.setDate(expiredAt.getDate() + expireDaysNum);
+            }
+            
+            // Format tanggal ke format MySQL YYYY-MM-DD HH:mm:ss
+            const formattedDate = expiredAt.toISOString().slice(0, 19).replace('T', ' ');
 
             // Simpan kode redeem
             await Database.createRedeemCode({
@@ -60,7 +69,7 @@ module.exports = {
                 reward_type: type,
                 reward_amount: rewardAmount,
                 max_claims: maxClaimsNum === 0 ? 999999 : maxClaimsNum, // Jika 0 set ke angka besar
-                expired_at: expiredAt,
+                expired_at: formattedDate,
                 created_by: tools.general.getID(ctx.sender.jid)
             });
 

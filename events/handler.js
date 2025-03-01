@@ -70,7 +70,7 @@ async function handleUserEvent(bot, m, type) {
     } catch (error) {
         consolefy.error(`Error: ${error}`);
         await bot.core.sendMessage(id, {
-            text: quote(`⚠️ Terjadi kesalahan: ${error.message}`)
+            text: quote(`❎ Terjadi kesalahan: ${error.message}`)
         });
     }
 }
@@ -133,7 +133,6 @@ module.exports = (bot) => {
             if (!userDb) {
                 await Database.updateUser(senderId, {
                     coin: isOwner && !userDb?.premium ? 0 : 1000,
-                    user_limit: isOwner && !userDb?.premium ? 0 : 10,
                     level: 1,
                     xp: 0,
                     premium: false,
@@ -157,7 +156,7 @@ module.exports = (bot) => {
                         await ctx.reply(monospace(util.inspect(result)));
                     } catch (error) {
                         consolefy.error(`Error: ${error}`);
-                        await ctx.reply(quote(`⚠️ Terjadi kesalahan: ${error.message}`));
+                        await ctx.reply(quote(`❎ Terjadi kesalahan: ${error.message}`));
                     }
                 }
 
@@ -169,7 +168,7 @@ module.exports = (bot) => {
                         await ctx.reply(monospace(output.stdout || output.stderr));
                     } catch (error) {
                         consolefy.error(`Error: ${error}`);
-                        await ctx.reply(quote(`⚠️ Terjadi kesalahan: ${error.message}`));
+                        await ctx.reply(quote(`❎ Terjadi kesalahan: ${error.message}`));
                     }
                 }
             }

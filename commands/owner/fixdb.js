@@ -35,7 +35,6 @@ module.exports = {
                     // Validasi dan perbaiki data user
                     const cleanData = {
                         coin: Math.max(0, user.coin || 0),
-                        user_limit: Math.max(0, user.user_limit || 10),
                         level: tools.general.clamp(user.level || 0, 0, 100),
                         xp: Math.max(0, user.xp || 0),
                         premium: Boolean(user.premium),
@@ -107,7 +106,7 @@ module.exports = {
             return await ctx.editMessage(waitMsg.key, quote(`✅ Basis data berhasil dibersihkan untuk ${input}!`));
         } catch (error) {
             consolefy.error(`Error: ${error}`);
-            return await ctx.reply(quote(`⚠️ Terjadi kesalahan: ${error.message}`));
+            return await ctx.reply(quote(`❎ Terjadi kesalahan: ${error.message}`));
         }
     }
 };

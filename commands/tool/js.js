@@ -11,7 +11,7 @@ module.exports = {
     aliases: ["javascript"],
     category: "tool",
     permissions: {
-        limit: 1
+        coin: 5
     },
     code: async (ctx) => {
         const script = ctx.args.join(" ") || null;
@@ -67,7 +67,7 @@ module.exports = {
             await ctx.reply(monospace(output));
         } catch (error) {
             consolefy.error(`Error: ${error}`);
-            return await ctx.reply(quote(`⚠️ Terjadi kesalahan: ${error.message}`));
+            return await ctx.reply(quote(`❎ Terjadi kesalahan: ${error.message}`));
         }
     }
 };
