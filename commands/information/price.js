@@ -1,6 +1,8 @@
 const {
     quote
 } = require("@mengkodingan/ckptw");
+const Database = require('../../lib/database/queries');
+const { version } = require('../../package.json');
 
 module.exports = {
     name: "price",
@@ -12,17 +14,17 @@ module.exports = {
             const senderJid = ctx.sender.jid;
             const senderId = tools.general.getID(senderJid);
 
-            const customText = await Database.getBotText("price") || null;
-            const text = customText ?
-                customText
-                .replace(/%tag%/g, `@${senderId}`)
-                .replace(/%name%/g, config.bot.name)
-                .replace(/%prefix%/g, ctx.used.prefix)
-                .replace(/%command%/g, ctx.used.command)
-                .replace(/%watermark%/g, config.msg.watermark)
-                .replace(/%watermark%/g, config.msg.watermark)
-                .replace(/%footer%/g, config.msg.footer)
-                .replace(/%readmore%/g, config.msg.readmore) :
+            const settings = await Database.getBotSettings();
+            const text = settings?.price ? 
+                settings.price
+                    .replace(/%tag%/g, `@${senderId}`)
+                    .replace(/%name%/g, config.bot.name)
+                    .replace(/%version%/g, version)
+                    .replace(/%prefix%/g, ctx.used.prefix)
+                    .replace(/%command%/g, ctx.used.command)
+                    .replace(/%watermark%/g, config.msg.watermark)
+                    .replace(/%footer%/g, config.msg.footer)
+                    .replace(/%readmore%/g, config.msg.readmore) :
                 quote("❎ Bot ini tidak memiliki harga.");
 
             return await ctx.reply({
