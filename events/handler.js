@@ -132,7 +132,7 @@ module.exports = (bot) => {
             // Buat data user baru jika belum ada
             if (!userDb) {
                 await Database.updateUser(senderId, {
-                    coin: isOwner && !userDb?.premium ? 0 : 1000,
+                    coin: isOwner && !userDb?.premium ? 0 : 200,
                     level: 1,
                     xp: 0,
                     premium: false,

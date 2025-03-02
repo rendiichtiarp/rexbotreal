@@ -119,3 +119,25 @@ ALTER TABLE redeem_codes ADD INDEX idx_code (code);
 ALTER TABLE redeem_codes ADD INDEX idx_expired_at (expired_at);
 ALTER TABLE redeem_codes ADD INDEX idx_claims (current_claims, max_claims);
 ALTER TABLE redeem_history ADD INDEX idx_user_claims (user_id, code_id);
+
+-- Tabel untuk inventori
+CREATE TABLE IF NOT EXISTS inventories (
+    inv_id INT AUTO_INCREMENT PRIMARY KEY,
+    user_id VARCHAR(255) NOT NULL,
+    item_id VARCHAR(100) NOT NULL,
+    item_name VARCHAR(255) NOT NULL,
+    item_tier ENUM('trash', 'common', 'uncommon', 'rare', 'epic', 'legendary') NOT NULL,
+    quantity INT DEFAULT 1,
+    sell_price INT NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+    UNIQUE KEY unique_user_item (user_id, item_id),
+    CONSTRAINT valid_quantity CHECK (quantity > 0),
+    CONSTRAINT valid_sell_price CHECK (sell_price >= 0)
+);
+
+-- Index untuk optimasi query inventori
+ALTER TABLE inventories ADD INDEX idx_user_items (user_id, item_tier);
+ALTER TABLE inventories ADD INDEX idx_item_search (item_name);
+ALTER TABLE inventories ADD INDEX idx_tier_sort (item_tier, item_name);

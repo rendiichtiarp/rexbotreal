@@ -61,23 +61,23 @@ module.exports = {
 // Daftar hadiah klaim yang tersedia
 const claimRewards = {
     daily: {
-        reward: 100,
-        cooldown: 24 * 60 * 60 * 1000, // 24 jam (100 koin)
+        reward: 50,         // Dari 100 menjadi 50 coin
+        cooldown: 24 * 60 * 60 * 1000, // 24 jam
         level: 1 // Level 1 untuk klaim daily
     },
     weekly: {
-        reward: 500,
-        cooldown: 7 * 24 * 60 * 60 * 1000, // 7 hari (500 koin)
+        reward: 250,        // Dari 500 menjadi 250 coin
+        cooldown: 7 * 24 * 60 * 60 * 1000, // 7 hari
         level: 15 // Level 15 untuk klaim weekly
     },
     monthly: {
-        reward: 2000,
-        cooldown: 30 * 24 * 60 * 60 * 1000, // 30 hari (2000 koin)
+        reward: 1000,       // Dari 2000 menjadi 1000 coin
+        cooldown: 30 * 24 * 60 * 60 * 1000, // 30 hari
         level: 50 // Level 50 untuk klaim monthly
     },
     yearly: {
-        reward: 10000,
-        cooldown: 365 * 24 * 60 * 60 * 1000, // 365 hari (10000 koin)
+        reward: 5000,       // Dari 10000 menjadi 5000 coin
+        cooldown: 365 * 24 * 60 * 60 * 1000, // 365 hari
         level: 75 // Level 75 untuk klaim yearly
     }
 };

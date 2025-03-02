@@ -17,11 +17,7 @@ function getGreeting() {
 
 module.exports = {
     name: "menu",
-    aliases: ["help", "list", "listmenu", "allmenu",
-        "chat", "image", "misc", "converter", "downloader",
-        "entertainment", "game", "group", "maker", "profile",
-        "search", "tool", "owner", "information"
-    ],
+    aliases: ["help", "list", "listmenu", "allmenu"],
     category: "general",
     permissions: {},
     code: async (ctx) => {
@@ -34,7 +30,8 @@ module.exports = {
                 "converter": "🔄 Media Converter",
                 "downloader": "📥 Content Downloader",
                 "entertainment": "🎮 Entertainment",
-                "game": "🎲 Mini Games",
+                "game": "🎲 Games",
+                "minigames": "🎲 MiniGames",
                 "group": "👥 Group Management",
                 "maker": "🎨 Content Creator",
                 "profile": "👤 User Profile",
@@ -53,7 +50,6 @@ module.exports = {
             let categoryInput = isAllMenu ? null : ctx.used.command === 'menu' ? ctx.args[0]?.toLowerCase() : ctx.used.command;
 
             const header = [
-                `${config.bot.name}`,
                 `${getGreeting()}, ${userDb?.name || "Pengguna"}!`,
                 ``,
                 `📅 *Tanggal:* ${moment.tz(config.system.timeZone).locale("id").format("dddd, DD MMMM YYYY")}`,
@@ -81,7 +77,7 @@ module.exports = {
                         }));
 
                     if (categoryCommands.length > 0) {
-                        text += `*${tag[category]}*\n\n`;
+                        text += `*${tag[category]}*\n`;
                         
                         categoryCommands.forEach(cmd => {
                             let permissionsText = "";
@@ -161,11 +157,11 @@ module.exports = {
                         .filter(command => command.category === category).length;
                     const displayCategory = category.replace('ai-', '');
                     
-                    text += `◦ \`${displayCategory}\` ${tag[category]}\n   ↳ ${commandCount} perintah\n`;
+                    text += `◦ \`menu ${displayCategory}\` ${tag[category]}\n   ↳ ${commandCount} perintah\n`;
                 }
             }
 
-            text += config.msg.footer;
+            text += `\n${config.msg.footer}`;
 
             return await ctx.reply({
                 text,

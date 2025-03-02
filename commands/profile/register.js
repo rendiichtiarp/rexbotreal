@@ -7,7 +7,9 @@ module.exports = {
     name: "register",
     aliases: ["daftar", "reg", "regist", "verif", "verify"],
     category: "profile",
-    permissions: {},
+    permissions: {
+        private: true
+    },
     code: async (ctx) => {
         // Pisahkan tanggal lahir (elemen terakhir) dari nama
         const birthDate = ctx.args[ctx.args.length - 1];
@@ -78,9 +80,9 @@ module.exports = {
 
             return await ctx.reply(quote(
                 `✅ ${isUpdate ? 'Data berhasil diperbarui' : 'Pendaftaran berhasil'}!\n\n` +
-                `Nama: ${name}\n` +
-                `Tanggal Lahir: ${day}/${month}/${year}\n` +
-                `Umur: ${age} tahun`
+                `> Nama: ${name}\n` +
+                `> Tanggal Lahir: ${day}/${month}/${year}\n` +
+                `> Umur: ${age} tahun`
             ));
         } catch (error) {
             consolefy.error(`Error: ${error}`);

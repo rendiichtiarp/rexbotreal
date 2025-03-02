@@ -1,6 +1,7 @@
 const {
     quote
 } = require("@mengkodingan/ckptw");
+const axios = require("axios");
 const mime = require("mime-types");
 
 module.exports = {
@@ -22,14 +23,14 @@ module.exports = {
         if (!isUrl) return await ctx.reply(config.msg.urlInvalid);
 
         try {
-            const result = tools.api.createUrl("https://ytdownloader.nvlgroup.my.id", "/download", {
+            const apiUrl = tools.api.createUrl("agatz", "/api/ytmp4", {
                 url,
-                resolution: "720"
             });
+            const result = (await axios.get(apiUrl)).data.data;
 
             return await ctx.reply({
                 video: {
-                    url: result
+                    url: result.downloadUrl
                 },
                 mimetype: mime.lookup("mp4")
             });

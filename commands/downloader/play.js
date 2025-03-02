@@ -115,14 +115,15 @@ module.exports = {
                     config.msg.footer
                 );
 
-                const downloadResult = tools.api.createUrl("https://ytdownloader.nvlgroup.my.id", "/audio", {
+                const apiUrl = tools.api.createUrl("agatz", "/api/ytmp3", {
                     url: searchResult.url,
-                    bitrate: "128"
                 });
+                const result = (await axios.get(apiUrl)).data;
+                const audio = result.data.find(audio => audio.quality === "192kbps") || result.data.find(audio => audio.quality === "128kbps");
 
                 return await ctx.reply({
                     audio: {
-                        url: downloadResult
+                        url: audio.downloadUrl
                     },
                     mimetype: mime.lookup("mp3")
                 });

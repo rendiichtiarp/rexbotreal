@@ -27,7 +27,8 @@ module.exports = {
                         
                         // Buat data baru dengan nilai default
                         await Database.updateUser(senderId, {
-                            level: 0,
+                            coin: 200,
+                            level: 1,
                             xp: 0,
                             premium: false,
                             banned: false,

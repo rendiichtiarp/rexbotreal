@@ -4,7 +4,7 @@ const {
 
 module.exports = {
     name: "me",
-    aliases: ["me"],
+    aliases: ["me", "profile"],
     category: "profile",
     permissions: {},
     code: async (ctx) => {

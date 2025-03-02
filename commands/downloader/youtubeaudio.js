@@ -1,6 +1,7 @@
 const {
     quote
 } = require("@mengkodingan/ckptw");
+const axios = require("axios");
 const mime = require("mime-types");
 
 module.exports = {
@@ -22,14 +23,16 @@ module.exports = {
         if (!isUrl) return await ctx.reply(config.msg.urlInvalid);
 
         try {
-            const result = tools.api.createUrl("https://ytdownloader.nvlgroup.my.id", "/audio", {
+            const apiUrl = tools.api.createUrl("agatz", "/api/ytmp3", {
                 url,
-                bitrate: "128"
             });
+            const result = (await axios.get(apiUrl)).data;
+            // Ambil kualitas tertinggi (192kbps) atau 128kbps jika tidak ada
+            const audio = result.data.find(audio => audio.quality === "192kbps") || result.data.find(audio => audio.quality === "128kbps");
 
             return await ctx.reply({
                 audio: {
-                    url: result
+                    url: audio.downloadUrl
                 },
                 mimetype: mime.lookup("mp3")
             });

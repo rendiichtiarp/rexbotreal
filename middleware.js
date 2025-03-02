@@ -66,36 +66,32 @@ module.exports = (bot) => {
             if (config.system.autoTypingOnCmd) await ctx.simulateTyping();
 
             // Menangani XP dan Level
-            const xpGain = 10;
-            const xpToLevelUp = 100;
+            const xpGain = Math.floor(Math.random() * 5) + 1; // Random 1-5 XP per pesan
+            const currentLevel = userDb?.level || 0;
+
+            // Rumus XP yang dibutuhkan untuk level up:
+            // Level 1: 100 XP
+            // Level 2: 200 XP
+            // Level 3: 300 XP
+            // Level 4: 400 XP dst
+            const xpToLevelUp = (currentLevel + 1) * 100;
 
             let currentXp = (userDb?.xp || 0) + xpGain;
-            let currentLevel = userDb?.level || 0;
 
             if (currentXp >= xpToLevelUp) {
-                currentLevel += 1;
+                // Level up
                 currentXp -= xpToLevelUp;
+                currentLevel += 1;
 
-                const profilePictureUrl = await ctx.core.profilePictureUrl(ctx.sender.jid, "image")
-                    .catch(() => "https://i.pinimg.com/736x/70/dd/61/70dd612c65034b88ebf474a52ccc70c4.jpg");
-
+                // Kirim pesan level up jika autolevelup aktif
                 if (userDb?.autolevelup) {
-                    await ctx.reply({
-                        text: `${quote(`Selamat! Kamu telah naik ke level ${currentLevel}!`)}\n` +
-                            `${config.msg.readmore}\n` +
-                            quote(tools.msg.generateNotes([`Terganggu? Ketik ${monospace(`${ctx.used.prefix}setprofile autolevelup`)} untuk menonaktifkan pesan autolevelup.`])),
-                        contextInfo: {
-                            externalAdReply: {
-                                mediaType: 1,
-                                previewType: 0,
-                                mediaUrl: config.bot.website,
-                                title: config.msg.watermark,
-                                renderLargerThumbnail: true,
-                                thumbnailUrl: profilePictureUrl || config.bot.thumbnail,
-                                sourceUrl: config.bot.website
-                            }
-                        }
-                    });
+                    await ctx.reply(
+                        `${quote("🎉 Level Up!")}\n` +
+                        `${quote(`Level: ${currentLevel - 1} → ${currentLevel}`)}\n` +
+                        `${quote(`XP: ${currentXp}/${xpToLevelUp}`)}\n` +
+                        `${quote(`${config.msg.readmore}\n` +
+                            quote(tools.msg.generateNotes([`Terganggu? Ketik ${monospace(`${ctx.used.prefix}setprofile autolevelup`)} untuk menonaktifkan pesan autolevelup.`])))}`
+                    );
                 }
             }
 
