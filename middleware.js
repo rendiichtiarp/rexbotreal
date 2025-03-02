@@ -66,7 +66,7 @@ module.exports = (bot) => {
             if (config.system.autoTypingOnCmd) await ctx.simulateTyping();
 
             // Menangani XP dan Level
-            const xpGain = Math.floor(Math.random() * 5) + 1; // Random 1-5 XP per pesan
+            const xpGain = Math.floor(Math.random() * 15) + 5; // Random 5-20 XP per pesan
             const currentLevel = userDb?.level || 0;
 
             // Rumus XP yang dibutuhkan untuk level up:
