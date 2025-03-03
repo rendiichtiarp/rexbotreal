@@ -56,7 +56,15 @@ module.exports = {
             let text = `${quote(`INVENTORY LIST`)}\n\n`;
 
             // Kelompokkan dan urutkan item berdasarkan tier
-            const tierOrder = ['legendary', 'epic', 'rare', 'uncommon', 'common', 'trash'];
+            const tierOrder = ['legenda', 'epik', 'sangat_langka', 'langka', 'umum', 'sampah'];
+            const tierNames = {
+                'legenda': 'LEGENDA',
+                'epik': 'EPIK', 
+                'sangat_langka': 'SANGAT LANGKA',
+                'langka': 'LANGKA',
+                'umum': 'UMUM',
+                'sampah': 'SAMPAH'
+            };
             const grouped = inventory.reduce((acc, item) => {
                 if (!acc[item.item_tier]) acc[item.item_tier] = [];
                 acc[item.item_tier].push(item);
@@ -70,7 +78,7 @@ module.exports = {
             for (const tier of tierOrder) {
                 const items = grouped[tier];
                 if (items) {
-                    text += quote(`[ ${tier.toUpperCase()} ]`);
+                    text += quote(`[ ${tierNames[tier]} ]`);
                     items.forEach(item => {
                         totalItems += item.quantity;
                         totalValue += (item.sell_price * item.quantity);

@@ -12,7 +12,7 @@ module.exports = {
         const [itemId, quantityStr] = ctx.args;
 
         try {
-            if (!itemId || isNaN(itemId)) return await ctx.reply(
+            if (!itemId) return await ctx.reply(
                     `${quote(tools.msg.generateInstruction(["send"], ["text"]))}\n` +
                     `${quote(tools.msg.generateCommandExample(ctx.used, `<item_id> <jumlah>`))}\n` +
                     `${quote(`atau`)}\n` +
@@ -51,12 +51,12 @@ module.exports = {
                 
                 // Kelompokkan berdasarkan tier untuk tampilan yang lebih rapi
                 const tierEmoji = {
-                    trash: "🗑️",
-                    common: "⭐",
-                    uncommon: "⭐⭐",
-                    rare: "⭐⭐⭐",
-                    epic: "🌟",
-                    legendary: "👑"
+                    sampah: "🗑️",
+                    umum: "⭐",
+                    langka: "⭐⭐",
+                    sangat_langka: "⭐⭐⭐",
+                    epik: "🌟",
+                    legenda: "👑"
                 };
 
                 const grouped = inventory.reduce((acc, item) => {
@@ -65,7 +65,7 @@ module.exports = {
                     return acc;
                 }, {});
 
-                const tierOrder = ['legendary', 'epic', 'rare', 'uncommon', 'common', 'trash'];
+                const tierOrder = ['legenda', 'epik', 'sangat_langka', 'langka', 'umum', 'sampah'];
                 
                 for (const tier of tierOrder) {
                     const items = grouped[tier];

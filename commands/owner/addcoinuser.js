@@ -13,30 +13,45 @@ module.exports = {
     code: async (ctx) => {
         const userId = ctx.args[0];
         const coinAmount = parseInt(ctx.args[1], 10);
-        const userDb = await Database.getUser(tools.general.getID(userId));
+        
+        // Validasi input coin
+        if (!coinAmount || isNaN(coinAmount)) {
+            return await ctx.reply(quote("❎ Jumlah coin tidak valid!"));
+        }
 
-        const userJid = ctx.quoted?.senderJid || ctx.msg?.message?.extendedTextMessage?.contextInfo?.mentionedJid?.[0] || (userId ? `${userId}@s.whatsapp.net` : null);
-        const senderJid = ctx.sender.jid;
-        const senderId = tools.general.getID(senderJid);
-
-        if (!userJid && isNaN(coinAmount)) return await ctx.reply({
-            text: `${quote(tools.msg.generateInstruction(["send"], ["text"]))}\n` +
-                quote(tools.msg.generateCommandExample(ctx.used, `@${senderId} 4`)),
-            mentions: [senderJid]
-        });
+        const userJid = ctx.quoted?.senderJid || 
+                       ctx.msg?.message?.extendedTextMessage?.contextInfo?.mentionedJid?.[0] || 
+                       (userId ? `${userId}@s.whatsapp.net` : null);
+        
+        if (!userJid) {
+            return await ctx.reply({
+                text: `${quote(tools.msg.generateInstruction(["send"], ["text"]))}\n` +
+                    quote(tools.msg.generateCommandExample(ctx.used, `@user 100`)),
+                mentions: [ctx.sender.jid]
+            });
+        }
 
         try {
             const [result] = await ctx.core.onWhatsApp(userJid);
             if (!result.exists) return await ctx.reply(quote(`❎ Akun tidak ada di WhatsApp!`));
 
-            await Database.updateUser(tools.general.getID(userJid), {
-                coin: userDb?.coin + coinAmount
+            // Bersihkan ID dari karakter khusus
+            const targetId = tools.general.getID(userJid).replace(/[^\d]/g, '');
+            const userDb = await Database.getUser(targetId);
+            
+            // Pastikan nilai coin selalu valid
+            const currentCoin = userDb?.coin || 0;
+            const newCoin = currentCoin + coinAmount;
+
+            await Database.updateUser(targetId, {
+                coin: newCoin
             });
 
             await ctx.sendMessage(userJid, {
-                text: quote(`🎉 Anda telah menerima ${coinAmount} koin dari Owner!`)
+                text: quote(`🎉 Anda telah menerima ${coinAmount} coin dari Owner!`)
             });
-            return await ctx.reply(quote(`✅ Berhasil menambahkan ${coinAmount} koin kepada pengguna!`));
+            
+            return await ctx.reply(quote(`✅ Berhasil menambahkan ${coinAmount} coin kepada pengguna!`));
         } catch (error) {
             consolefy.error(`Error: ${error}`);
             return await ctx.reply(quote(`❎ Terjadi kesalahan: ${error.message}`));

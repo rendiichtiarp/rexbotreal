@@ -58,16 +58,11 @@ module.exports = (bot) => {
             if (botMode === "self" && !isOwner) return;
             if (groupDb?.mute && ctx.used.command !== "unmute") return;
 
-            // Terapkan random delay untuk non-premium user saat mengirim pesan
-            if (!isOwner && !userDb?.premium) {
-                await randomDelay();
-            }
-
             if (config.system.autoTypingOnCmd) await ctx.simulateTyping();
 
             // Menangani XP dan Level
             const xpGain = Math.floor(Math.random() * 15) + 5; // Random 5-20 XP per pesan
-            const currentLevel = userDb?.level || 0;
+            let currentLevel = userDb?.level || 0;
 
             // Rumus XP yang dibutuhkan untuk level up:
             // Level 1: 100 XP
@@ -112,6 +107,7 @@ module.exports = (bot) => {
                     condition: !isOwner && !userDb?.premium && new Cooldown(ctx, config.system.cooldown).onCooldown,
                     msg: config.msg.cooldown,
                     reaction: "🔄",
+                    afterCooldown: "✅",
                     key: "has_sent_cooldown"
                 },
                 {
@@ -132,6 +128,7 @@ module.exports = (bot) => {
                     condition,
                     msg,
                     reaction,
+                    afterCooldown,
                     key,
                     alwaysNotify
                 }
@@ -146,9 +143,22 @@ module.exports = (bot) => {
                         }
                     } else {
                         await ctx.react(ctx.id, reaction);
+                        if (afterCooldown) {
+                            setTimeout(async () => {
+                                await ctx.react(ctx.id, afterCooldown);
+                                setTimeout(async () => {
+                                    await ctx.react(ctx.id, "");
+                                }, 2000);
+                            }, config.system.cooldown);
+                        }
                     }
                     return;
                 }
+            }
+
+            // Terapkan random delay untuk non-premium user setelah pemeriksaan cooldown
+            if (!isOwner && !userDb?.premium) {
+                await randomDelay();
             }
 
             // Pengecekan izin

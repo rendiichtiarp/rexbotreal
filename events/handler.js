@@ -280,7 +280,7 @@ module.exports = (bot) => {
             // Penanganan menfess
             const allMenfessDb = await Database.getMenfess();
             const activeMenfess = allMenfessDb.filter(m => m.status === 'active');
-            const menfessEntries = activeMenfess.map(m => [m.id, { from: m.from_user, to: m.to_user }]);
+            const menfessEntries = activeMenfess.map(m => [m.menfess_id, { from: m.from_user, to: m.to_user }]);
             
             if (!isCmd || isCmd.didyoumean) {
                 for (const [conversationId, menfessData] of menfessEntries) {
