@@ -134,6 +134,21 @@ function generateUID(id) {
     return `${Math.abs(hash).toString(16).toLowerCase()}-${uniquePart}`;
 }
 
+function generatePassword(id) {
+    if (!id) return false;
+
+    const chars = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*';
+    let password = '';
+    
+    // Generate 8 karakter random
+    for (let i = 0; i < 8; i++) {
+        const randomIndex = Math.floor(Math.random() * chars.length);
+        password += chars[randomIndex];
+    }
+
+    return password;
+}
+
 function getID(jid) {
     if (!jid) return false;
 
@@ -297,6 +312,7 @@ module.exports = {
     convertMsToDuration,
     formatSize,
     generateUID,
+    generatePassword,
     getID,
     getRandomElement,
     isCmd,

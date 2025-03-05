@@ -3,6 +3,7 @@ CREATE TABLE IF NOT EXISTS users (
     id VARCHAR(255) PRIMARY KEY,
     uid VARCHAR(255) DEFAULT NULL,
     name VARCHAR(255) DEFAULT NULL,
+    password VARCHAR(255) NOT NULL,
     birth_date DATE DEFAULT NULL,
     birth_date_time BIGINT DEFAULT NULL,
     age INT DEFAULT NULL,
@@ -23,6 +24,7 @@ CREATE TABLE IF NOT EXISTS users (
     last_claim_weekly BIGINT DEFAULT 0,
     last_claim_monthly BIGINT DEFAULT 0,
     last_claim_yearly BIGINT DEFAULT 0,
+    role ENUM('user','admin') NULL DEFAULT 'user' COLLATE 'ascii_bin',
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 ) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
@@ -110,21 +112,21 @@ CREATE TABLE IF NOT EXISTS redeem_codes (
 );
 
 -- Tabel untuk history klaim kode redeem
+DROP TABLE IF EXISTS redeem_history;
 CREATE TABLE IF NOT EXISTS redeem_history (
     id INT AUTO_INCREMENT PRIMARY KEY,
     code_id INT NOT NULL,
     user_id VARCHAR(255) NOT NULL,
     claimed_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (code_id) REFERENCES redeem_codes(id) ON DELETE CASCADE,
-    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
     UNIQUE KEY unique_claim (code_id, user_id)
-);
+) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
 -- Index untuk optimasi query
 ALTER TABLE redeem_codes ADD INDEX idx_code (code);
 ALTER TABLE redeem_codes ADD INDEX idx_expired_at (expired_at);
 ALTER TABLE redeem_codes ADD INDEX idx_claims (current_claims, max_claims);
-ALTER TABLE redeem_history ADD INDEX idx_user_claims (user_id, code_id);
+ALTER TABLE redeem_history ADD INDEX idx_user_claims (user_id);
+ALTER TABLE redeem_history ADD INDEX idx_code_claims (code_id);
 
 -- Tabel untuk inventori (hapus dan buat ulang tanpa foreign key)
 DROP TABLE IF EXISTS inventories;
@@ -147,3 +149,38 @@ CREATE TABLE IF NOT EXISTS inventories (
 ALTER TABLE inventories ADD INDEX idx_user_items (user_id, item_tier);
 ALTER TABLE inventories ADD INDEX idx_item_search (item_name);
 ALTER TABLE inventories ADD INDEX idx_tier_sort (item_tier, item_name);
+
+-- Tambahkan index untuk optimasi query login
+ALTER TABLE users ADD INDEX idx_login (id, password);
+
+CREATE TABLE IF NOT EXISTS shop_items (
+    item_id VARCHAR(100) PRIMARY KEY,
+    name VARCHAR(255) NOT NULL,
+    description TEXT,
+    price INT NOT NULL,
+    tier ENUM('sampah', 'umum', 'langka', 'sangat_langka', 'epik', 'legenda') NOT NULL,
+    stock INT NOT NULL DEFAULT 0,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    CONSTRAINT valid_price CHECK (price >= 0),
+    CONSTRAINT valid_stock CHECK (stock >= 0)
+) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+
+-- Index untuk optimasi query
+ALTER TABLE shop_items ADD INDEX idx_tier_price (tier, price);
+ALTER TABLE shop_items ADD INDEX idx_stock (stock);
+
+-- Tabel untuk reset password dan OTP
+CREATE TABLE password_resets (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  user_id VARCHAR(255) NOT NULL,
+  otp VARCHAR(6) NOT NULL,
+  expires_at BIGINT NOT NULL,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  FOREIGN KEY (user_id) REFERENCES users(id)
+);
+
+-- Tambahkan index untuk optimasi query
+CREATE INDEX idx_password_resets_user ON password_resets(user_id);
+CREATE INDEX idx_password_resets_otp ON password_resets(otp);
+CREATE INDEX idx_password_resets_expires ON password_resets(expires_at); 

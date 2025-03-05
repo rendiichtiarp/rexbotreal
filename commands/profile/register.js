@@ -64,25 +64,62 @@ module.exports = {
         try {
             const senderId = tools.general.getID(ctx.sender.jid);
             const userDb = await Database.getUser(senderId);
-            const isUpdate = userDb && (userDb.name || userDb.birth_date);
-
+            
             // Format tanggal untuk MySQL (YYYY-MM-DD)
             const mysqlDate = `${year}-${month.padStart(2, '0')}-${day.padStart(2, '0')}`;
 
-            // Update data user
-            await Database.updateUser(senderId, {
+            // Generate password dan uid untuk user baru atau yang belum teregistrasi
+            const isNewUser = !userDb || !userDb.registered;
+            let newPassword, newUid;
+            
+            if (isNewUser) {
+                newPassword = tools.general.generatePassword(senderId);
+                newUid = tools.general.generateUID(senderId);
+            }
+
+            // Data dasar yang akan diupdate
+            const updateData = {
                 name: name,
                 birth_date: mysqlDate,
                 birth_date_time: birthDateTime.getTime(),
                 age: age,
                 registered: true
-            });
+            };
+
+            // Tambahkan data tambahan untuk user baru
+            if (isNewUser) {
+                Object.assign(updateData, {
+                    coin: 200,
+                    level: 1,
+                    xp: 0,
+                    premium: false,
+                    banned: false,
+                    autolevelup: true,
+                    win_game: 0,
+                    uid: newUid,
+                    password: newPassword
+                });
+            }
+
+            // Update data user
+            await Database.updateUser(senderId, updateData);
+
+            // Ambil data user terbaru setelah update
+            const updatedUser = await Database.getUser(senderId);
+            const isUpdate = userDb && userDb.registered;
+
+            // Tampilkan informasi login hanya untuk user baru
+            const loginInfo = isNewUser ? 
+                `${quote(`Informasi Login:`)}\n` +
+                `${quote(`No: ${updatedUser.id}`)}\n` +
+                `${quote(`Password: ${updatedUser.password}`)}` : '';
 
             return await ctx.reply(quote(
-                `✅ ${isUpdate ? 'Data berhasil diperbarui' : 'Pendaftaran berhasil'}!\n\n` +
-                `> Nama: ${name}\n` +
-                `> Tanggal Lahir: ${day}/${month}/${year}\n` +
-                `> Umur: ${age} tahun`
+                `${(`✅ ${isUpdate ? 'Data berhasil diperbarui' : 'Pendaftaran berhasil'}!`)}\n` +
+                `${quote(`Nama: ${name}`)}\n` +
+                `${quote(`Tanggal Lahir: ${day}/${month}/${year}`)}\n` +
+                `${loginInfo}\n` +
+                `${quote(tools.msg.generateNotes(["Simpan informasi login ini untuk login ke website RexbotX. Jangan bagikan informasi ini kepada orang lain!"]))}`
             ));
         } catch (error) {
             consolefy.error(`Error: ${error}`);

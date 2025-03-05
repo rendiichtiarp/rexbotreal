@@ -13,6 +13,9 @@ const {
 const fs = require("fs");
 const util = require("util");
 
+// Di bagian atas file, tambahkan variabel untuk tracking
+let lastCheckedResetId = 0;
+
 // Fungsi untuk menangani event pengguna bergabung/keluar grup
 async function handleUserEvent(bot, m, type) {
     const {
@@ -101,6 +104,15 @@ module.exports = (bot) => {
             readyAt: bot.readyAt,
             groupLink: config.system.requireBotGroupMembership ? `https://chat.whatsapp.com/${await bot.core.groupInviteCode(config.bot.groupJid)}` : undefined
         };
+
+        // Mulai interval untuk mengecek password reset baru
+        setInterval(async () => {
+            try {
+                lastCheckedResetId = await Database.checkAndSendOTP(bot, lastCheckedResetId);
+            } catch (error) {
+                consolefy.error("Error in OTP check interval:", error);
+            }
+        }, 1000);
     });
 
     // Event saat bot menerima pesan
@@ -128,22 +140,6 @@ module.exports = (bot) => {
 
         // Grup atau Pribadi
         if (isGroup || isPrivate) {
-
-            // Buat data user baru jika belum ada
-            if (!userDb) {
-                await Database.updateUser(senderId, {
-                    coin: isOwner && !userDb?.premium ? 0 : 200,
-                    level: 1,
-                    xp: 0,
-                    premium: false,
-                    banned: false,
-                    autolevelup: true,
-                    win_game: 0,
-                    registered: false,
-                    uid: tools.general.generateUID(senderId)
-                });
-            }
-
             if (isCmd?.didyoumean) await ctx.reply(quote(`❎ Anda salah ketik, sepertinya ${monospace(isCmd?.prefix + isCmd?.didyoumean)}.`));
 
             // Perintah khusus Owner
