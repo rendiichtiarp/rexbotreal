@@ -9,7 +9,7 @@ module.exports = {
     aliases: ["p"],
     category: "downloader",
     permissions: {
-        coin: 5
+        coin: 10
     },
     code: async (ctx) => {
         const input = ctx.args.join(" ") || null;
@@ -115,15 +115,14 @@ module.exports = {
                     config.msg.footer
                 );
 
-                const apiUrl = tools.api.createUrl("agatz", "/api/ytmp3", {
-                    url: searchResult.url,
+                const downloadApiUrl = tools.api.createUrl("cloud", "/api/download/ytmp3", {
+                    url: searchResult.url
                 });
-                const result = (await axios.get(apiUrl)).data;
-                const audio = result.data.find(audio => audio.quality === "192kbps") || result.data.find(audio => audio.quality === "128kbps");
+                const downloadResult = (await axios.get(downloadApiUrl)).data.metadata.download_url;
 
                 return await ctx.reply({
                     audio: {
-                        url: audio.downloadUrl
+                        url: downloadResult
                     },
                     mimetype: mime.lookup("mp3")
                 });
@@ -131,7 +130,7 @@ module.exports = {
         } catch (error) {
             consolefy.error(`Error: ${error}`);
             if (error.status !== 200) return await ctx.reply(config.msg.notFound);
-            return await ctx.reply(quote(`❎ Terjadi kesalahan: ${error.message}`));
+            return await ctx.reply(quote(`⚠️ Terjadi kesalahan: ${error.message}`));
         }
     }
 };

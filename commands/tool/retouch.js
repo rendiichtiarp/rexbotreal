@@ -20,8 +20,8 @@ module.exports = {
 
         try {
             const buffer = await ctx.msg.media.toBuffer() || await ctx.quoted?.media.toBuffer();
-            const uploadUrl = await tools.general.upload(buffer);
-            const result = tools.api.createUrl("fasturl", "/aiimage/imgretouch", {
+            const uploadUrl = await tools.general.upload(buffer, "image");
+            const result = tools.api.createUrl("fast", "/aiimage/imgretouch", {
                 url: uploadUrl
             });
 

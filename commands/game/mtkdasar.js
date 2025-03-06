@@ -31,8 +31,8 @@ module.exports = {
             const result = generateMathQuestion();
             
             const game = {
-                coin: 20,
-                timeout: 90000,
+                startTime: Date.now(),
+                timeout: 60000,
                 senderId: tools.general.getID(ctx.sender.jid),
                 answer: result.answer
             };
@@ -40,8 +40,8 @@ module.exports = {
             session.set(ctx.id, true);
 
             await ctx.reply(
-                `${quote(`Soal: ${result.question}`)}\n` +
-                `${quote(`Bonus: ${game.coin} Koin`)}\n` +
+                `${quote(`Soal:  ${result.question}`)}\n` +
+                `${quote(`Bonus: 20 Koin (Akan berkurang berdasarkan waktu)`)}\n` +
                 `${quote(`Batas waktu: ${tools.general.convertMsToDuration(game.timeout)}`)}\n` +
                 `${quote("Ketik 's' untuk menyerah.")}\n` +
                 "\n" +
@@ -58,12 +58,13 @@ module.exports = {
                 if (userAnswer === game.answer) {
                     session.delete(ctx.id);
                     
-                    await Database.addGameReward(game.senderId, game.coin);
+                    const earnedCoin = tools.general.calculateTimeBasedCoin(game.startTime, Date.now());
+                    await Database.addGameReward(game.senderId, earnedCoin);
                     
                     await ctx.sendMessage(
                         ctx.id, {
                             text: `${quote("💯 Benar!")}\n` +
-                                quote(`+${game.coin} Koin`)
+                                quote(`+${earnedCoin} Koin (Waktu: ${tools.general.convertMsToDuration(Date.now() - game.startTime)})`)
                         }, {
                             quoted: m
                         }

@@ -215,8 +215,8 @@ module.exports = (bot) => {
                 const checkMedia = await tools.general.checkMedia(ctx.getMessageType(), "image");
                 if (checkMedia && !await ctx.group().isSenderAdmin()) {
                     const buffer = await ctx.msg.media.toBuffer();
-                    const uploadUrl = await tools.general.upload(buffer);
-                    const apiUrl = tools.api.createUrl("fasturl", "/tool/imagechecker", {
+                    const uploadUrl = await tools.general.upload(buffer, "image");
+                    const apiUrl = tools.api.createUrl("fast", "/tool/imagechecker", {
                         url: uploadUrl
                     });
                     const result = (await axios.get(apiUrl)).data.result.status;
@@ -324,7 +324,7 @@ module.exports = (bot) => {
                 .setOrg(config.owner.organization)
                 .setNumber(config.owner.id).build();
             let rejectionMessage = await bot.core.sendMessage(call.from, {
-                text: `Saat ini, kami tidak dapat menerima panggilan ${call.isVideo ? 'video' : 'suara'}.\n` +
+                text: `Saat ini, kami tidak dapat menerima panggilan ${call.isVideo ? "video" : "suara"}.\n` +
                     `Jika Anda memerlukan bantuan, silakan menghubungi Owner.`,
                 mentions: [call.from]
             });

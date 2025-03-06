@@ -18,7 +18,7 @@ module.exports = {
             const result = tools.general.getRandomElement((await axios.get(apiUrl)).data);
 
             const game = {
-                coin: 20,
+                startTime: Date.now(),
                 timeout: 60000,
                 senderId: tools.general.getID(ctx.sender.jid),
                 answer: result.jawaban.toLowerCase()
@@ -28,7 +28,7 @@ module.exports = {
 
             await ctx.reply(
                 `${quote(`Soal: ${result.soal}`)}\n` +
-                `${quote(`Bonus: ${game.coin} Koin`)}\n` +
+                `${quote(`Bonus: 20 Koin (Akan berkurang berdasarkan waktu)`)}\n` +
                 `${quote(`Batas waktu: ${tools.general.convertMsToDuration(game.timeout)}`)}\n` +
                 `${quote("Ketik 'h' untuk bantuan.")}\n` +
                 `${quote("Ketik 's' untuk menyerah.")}\n` +
@@ -46,13 +46,14 @@ module.exports = {
                 if (userAnswer === game.answer) {
                     session.delete(ctx.id);
                     
-                    await Database.addGameReward(game.senderId, game.coin);
+                    const earnedCoin = tools.general.calculateTimeBasedCoin(game.startTime, Date.now());
+                    await Database.addGameReward(game.senderId, earnedCoin);
                     
                     await ctx.sendMessage(
                         ctx.id, {
                             text: `${quote("💯 Benar!")}\n` +
                                 `${quote(result.deskripsi)}\n` +
-                                quote(`+${game.coin} Koin`)
+                                quote(`+${earnedCoin} Koin (Waktu: ${tools.general.convertMsToDuration(Date.now() - game.startTime)})`)
                         }, {
                             quoted: m
                         }

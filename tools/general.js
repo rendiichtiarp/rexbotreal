@@ -1,12 +1,8 @@
 // Impor modul dan dependensi yang diperlukan
 const api = require("./api.js");
 const axios = require("axios");
-const cheerio = require("cheerio");
 const didyoumean = require("didyoumean");
-const FormData = require("form-data");
-const {
-    fromBuffer
-} = require("file-type");
+const uploader = require("@zanixongroup/uploader");
 
 async function checkMedia(msgType, requiredMedia) {
     if (!msgType || !requiredMedia) return false;
@@ -279,30 +275,44 @@ function ucword(text) {
     return text.toLowerCase().replace(/\b(\w)/g, (s) => s.toUpperCase());
 }
 
-async function upload(buffer) {
+async function upload(buffer, type, host) {
+    const hosts = {
+        any: ["FastUrl", "Litterbox", "Catbox", "Uguu"],
+        image: ["Pomf", "Quax", "Ryzen", "Shojib", "Erhabot", "TmpErhabot"],
+        video: ["Pomf", "Quax", "Videy", "Ryzen", "TmpErhabot"],
+        audio: ["Pomf", "Quax", "Ryzen", "TmpErhabot"]
+    };
+
     try {
-        const {
-            ext
-        } = await fromBuffer(buffer);
+        if (host) {
+            if (!hosts[type] || !hosts[type].includes(host)) return `Host '${host}' tidak mendukung tipe '${type}'`;
+            return await uploader[host](buffer);
+        }
 
-        let form = new FormData();
-        form.append("file", buffer, `tmp.${ext}`);
-
-        const apiUrl = api.createUrl("https://uploader.nyxs.pw", "/upload", {});
-        const response = await axios.post(apiUrl, form, {
-            headers: {
-                ...form.getHeaders()
+        for (const h of (hosts[type] || hosts.any)) {
+            try {
+                const url = await uploader[h](buffer);
+                if (url) return url;
+            } catch (err) {
+                continue;
             }
-        });
-
-        const $ = cheerio.load(response.data);
-        const url = $("a").attr("href");
-
-        return url;
+        }
     } catch (error) {
-        consolefy.error(`Error: ${error}`);
+        consolefy.error(`Error: ${error.message}`);
         return null;
     }
+}
+
+function calculateTimeBasedCoin(startTime, endTime, baseCoin = 20) {
+    const timeElapsed = endTime - startTime;
+    const maxTime = 60000; // 60 detik dalam milidetik
+    
+    // Semakin lama menjawab, semakin berkurang coinnya
+    const timeRatio = timeElapsed / maxTime;
+    const reduction = Math.floor(baseCoin * timeRatio); // Pengurangan berdasarkan waktu
+    const calculatedCoin = Math.max(1, baseCoin - reduction); // Minimal 1 coin
+    
+    return calculatedCoin;
 }
 
 module.exports = {
@@ -321,5 +331,6 @@ module.exports = {
     parseFlag,
     translate,
     ucword,
-    upload
+    upload,
+    calculateTimeBasedCoin
 };

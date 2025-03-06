@@ -1,4 +1,4 @@
-// Daftar API gratis, gunakan dengan bijak!
+// Daftar API gratis
 const APIs = {
     agatz: {
         baseURL: "https://api.agatz.xyz"
@@ -12,14 +12,14 @@ const APIs = {
     bk9: {
         baseURL: "https://bk9.fun"
     },
+    cloud: {
+        baseURL: "https://rest.cloudkuimages.xyz"
+    },
     diibot: {
         baseURL: "https://api.diioffc.web.id"
     },
-    fasturl: {
+    fast: {
         baseURL: "https://fastrestapis.fasturl.cloud"
-    },
-    nasirxml: {
-        baseURL: "https://api.nasirxml.my.id"
     },
     nyxs: {
         baseURL: "https://api.nyxs.pw"
@@ -29,9 +29,6 @@ const APIs = {
     },
     siputzx: {
         baseURL: "https://api.siputzx.my.id"
-    },
-    skyzo: {
-        baseURL: "https://api.simplebot.my.id"
     },
     vapis: {
         baseURL: "https://vapis.my.id"

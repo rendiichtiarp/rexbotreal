@@ -9,7 +9,7 @@ module.exports = {
     aliases: ["ytmp4", "ytv", "ytvideo"],
     category: "downloader",
     permissions: {
-        coin: 5
+        coin: 10
     },
     code: async (ctx) => {
         const url = ctx.args[0] || null;
@@ -23,21 +23,21 @@ module.exports = {
         if (!isUrl) return await ctx.reply(config.msg.urlInvalid);
 
         try {
-            const apiUrl = tools.api.createUrl("agatz", "/api/ytmp4", {
-                url,
+            const apiUrl = tools.api.createUrl("cloud", "/api/download/ytmp3", {
+                url
             });
-            const result = (await axios.get(apiUrl)).data.data;
+            const result = (await axios.get(apiUrl)).data.metadata.download_url;
 
             return await ctx.reply({
                 video: {
-                    url: result.downloadUrl
+                    url: result
                 },
                 mimetype: mime.lookup("mp4")
             });
         } catch (error) {
             consolefy.error(`Error: ${error}`);
             if (error.status !== 200) return await ctx.reply(config.msg.notFound);
-            return await ctx.reply(quote(`❎ Terjadi kesalahan: ${error.message}`));
+            return await ctx.reply(quote(`⚠️ Terjadi kesalahan: ${error.message}`));
         }
     }
 };

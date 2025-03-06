@@ -22,8 +22,8 @@ module.exports = {
 
         try {
             const buffer = await ctx.msg.media.toBuffer() || await ctx.quoted?.media.toBuffer();
-            const uploadUrl = await tools.general.upload(buffer);
-            const apiUrl = tools.api.createUrl("fasturl", "/aiimage/imagetoprompt", {
+            const uploadUrl = await tools.general.upload(buffer, "image");
+            const apiUrl = tools.api.createUrl("fast", "/aiimage/imagetoprompt", {
                 url: uploadUrl
             });
             const result = (await axios.get(apiUrl)).data.result;

@@ -19,7 +19,7 @@ module.exports = {
             const { data } = (await axios.get(apiUrl)).data;
 
             const game = {
-                coin: 20,
+                startTime: Date.now(),
                 timeout: 60000,
                 senderId: tools.general.getID(ctx.sender.jid),
                 answer: data.name.toLowerCase()
@@ -33,17 +33,14 @@ module.exports = {
                     url: data.audio,
                 },
                 mimetype: mime.lookup("mp3"),
+                caption:
+                    `${quote(`Bonus: 20 Koin (Akan berkurang berdasarkan waktu)`)}\n` +
+                    `${quote(`Batas waktu: ${tools.general.convertMsToDuration(game.timeout)}`)}\n` +
+                    `${quote("Ketik 'h' untuk bantuan.")}\n` +
+                    `${quote("Ketik 's' untuk menyerah.")}\n` +
+                    "\n" +
+                    config.msg.footer,
             });
-
-            // Kirim pesan petunjuk
-            await ctx.reply(
-                `${quote(`Bonus: ${game.coin} Koin`)}\n` +
-                `${quote(`Batas waktu: ${tools.general.convertMsToDuration(game.timeout)}`)}\n` +
-                `${quote("Ketik 'h' untuk bantuan.")}\n` +
-                `${quote("Ketik 's' untuk menyerah.")}\n` +
-                "\n" +
-                config.msg.footer
-            );
 
             const collector = ctx.MessageCollector({
                 time: game.timeout
@@ -55,12 +52,13 @@ module.exports = {
                 if (userAnswer === game.answer) {
                     session.delete(ctx.id);
                     
-                    await Database.addGameReward(game.senderId, game.coin);
+                    const earnedCoin = tools.general.calculateTimeBasedCoin(game.startTime, Date.now());
+                    await Database.addGameReward(game.senderId, earnedCoin);
                     
                     await ctx.sendMessage(
                         ctx.id, {
                             text: `${quote("💯 Benar!")}\n` +
-                                quote(`+${game.coin} Koin`)
+                                quote(`+${earnedCoin} Koin (Waktu: ${tools.general.convertMsToDuration(Date.now() - game.startTime)})`)
                         }, {
                             quoted: m
                         }
