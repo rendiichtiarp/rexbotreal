@@ -4,6 +4,16 @@ const axios = require("axios");
 const didyoumean = require("didyoumean");
 const uploader = require("@zanixongroup/uploader");
 
+function formatBotName(botName) {
+    if (!botName) return null;
+
+    let words = botName.match(/[A-Z]?[a-z]+|[A-Z]+(?![a-z])|[a-z]+/g) || [];
+    let abbreviation = words.map(word => word[0] + word.slice(1).replace(/[aeiou0-9]/gi, "")).join("").slice(0, 5);
+
+    return abbreviation.toLowerCase();
+}
+
+
 async function checkMedia(msgType, requiredMedia) {
     if (!msgType || !requiredMedia) return false;
 
@@ -65,12 +75,6 @@ async function checkQuotedMedia(quoted, requiredMedia) {
     });
 }
 
-function clamp(value, min, max) {
-    if (!value || !min || !max) return value;
-
-    return Math.max(min, Math.min(max, value));
-}
-
 function convertMsToDuration(ms) {
     if (ms < 1000) return "kurang satu detik";
 
@@ -117,7 +121,7 @@ function formatSize(byteCount) {
 }
 
 function generateUID(id) {
-    if (!id) return false;
+    if (!id) return null;
 
     let hash = 0;
     for (let i = 0; i < id.length; i++) {
@@ -127,7 +131,7 @@ function generateUID(id) {
 
     const uniquePart = id.split("").reverse().join("").charCodeAt(0).toString(16);
 
-    return `${Math.abs(hash).toString(16).toLowerCase()}-${uniquePart}`;
+    return `${Math.abs(hash).toString(16).toLowerCase()}-${uniquePart}_${formatBotName(config.bot.name)}`;
 }
 
 function generatePassword(id) {
@@ -146,7 +150,7 @@ function generatePassword(id) {
 }
 
 function getID(jid) {
-    if (!jid) return false;
+    if (!jid) return null;
 
     return jid.split("@")[0].split(":")[0];
 }
@@ -159,6 +163,8 @@ function getRandomElement(arr) {
 }
 
 function isCmd(content, config) {
+    if (!content || !config) return null;
+
     const prefixRegex = new RegExp(config.prefix, "i");
 
     if (!prefixRegex.test(content)) return false;
@@ -200,18 +206,21 @@ function isCmd(content, config) {
 }
 
 function isOwner(id) {
+    if (!id) return null;
     if (config.system.selfOwner) return config.bot.id === id || config.owner.id === id || config.owner.co.includes(id);
 
     return config.owner.id === id || config.owner.co.includes(id);
 }
 
 function isUrl(url) {
+    if (!url) return null;
+
     const urlRegex = /(https?:\/\/[^\s]+)/g;
     return urlRegex.test(url);
 }
 
 function parseFlag(argsString, customRules = {}) {
-    if (!argsString) return false;
+    if (!argsString) return null;
 
     const options = {};
     let input = [];
@@ -251,7 +260,7 @@ function parseFlag(argsString, customRules = {}) {
 }
 
 async function translate(text, to) {
-    if (!text || !to) return value;
+    if (!text || !to) return null;
 
     const apiUrl = api.createUrl("nyxs", "/tools/translate", {
         text,
@@ -276,6 +285,8 @@ function ucword(text) {
 }
 
 async function upload(buffer, type, host) {
+    if (!buffer || !type) return null;
+
     const hosts = {
         any: ["FastUrl", "Litterbox", "Catbox", "Uguu"],
         image: ["Pomf", "Quax", "Ryzen", "Shojib", "Erhabot", "TmpErhabot"],
@@ -318,7 +329,6 @@ function calculateTimeBasedCoin(startTime, endTime, baseCoin = 20) {
 module.exports = {
     checkMedia,
     checkQuotedMedia,
-    clamp,
     convertMsToDuration,
     formatSize,
     generateUID,

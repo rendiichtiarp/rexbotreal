@@ -5,7 +5,6 @@ const mime = require("mime-types");
 
 module.exports = {
     name: "carbon",
-    aliases: ["carbonify"],
     category: "maker",
     permissions: {
         coin: 5
@@ -19,8 +18,8 @@ module.exports = {
         );
 
         try {
-            const result = tools.api.createUrl("siputzx", "/api/m/carbonify", {
-                input
+            const result = tools.api.createUrl("archive", "/maker/carbon", {
+                text: input
             });
 
             return await ctx.reply({
