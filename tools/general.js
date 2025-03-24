@@ -7,10 +7,8 @@ const uploader = require("@zanixongroup/uploader");
 function formatBotName(botName) {
     if (!botName) return null;
 
-    let words = botName.match(/[A-Z]?[a-z]+|[A-Z]+(?![a-z])|[a-z]+/g) || [];
-    let abbreviation = words.map(word => word[0] + word.slice(1).replace(/[aeiou0-9]/gi, "")).join("").slice(0, 5);
-
-    return abbreviation.toLowerCase();
+     botName = botName.toLowerCase();
+     return botName.replace(/[aiueo0-9\W_]/g, "");
 }
 
 

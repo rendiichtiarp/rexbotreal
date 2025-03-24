@@ -4,11 +4,10 @@ const {
 const mime = require("mime-types");
 
 module.exports = {
-    name: "removebg",
-    aliases: ["rbg"],
+    name: "toanime",
     category: "tool",
     permissions: {
-        coin: 5
+        coin: 10
     },
     code: async (ctx) => {
         const msgType = ctx.getMessageType();
@@ -22,7 +21,7 @@ module.exports = {
         try {
             const buffer = await ctx.msg.media.toBuffer() || await ctx.quoted?.media.toBuffer();
             const uploadUrl = await tools.general.upload(buffer, "image");
-            const result = tools.api.createUrl("fast", "/aiimage/removebg", {
+            const result = tools.api.createUrl("fast", "/aiimage/toanime", {
                 url: uploadUrl
             });
 
@@ -35,7 +34,7 @@ module.exports = {
         } catch (error) {
             consolefy.error(`Error: ${error}`);
             if (error.status !== 200) return await ctx.reply(config.msg.notFound);
-            return await ctx.reply(quote(`❎ Terjadi kesalahan: ${error.message}`));
+            return await ctx.reply(quote(`⚠️ Terjadi kesalahan: ${error.message}`));
         }
     }
 };

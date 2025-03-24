@@ -1,38 +1,38 @@
 const {
+    monospace,
     quote
 } = require("@mengkodingan/ckptw");
 const axios = require("axios");
 const mime = require("mime-types");
 
 module.exports = {
-    name: "youtubevideo",
-    aliases: ["ytmp4", "ytv", "ytvideo"],
-    category: "downloader",
+    name: "wallpaper",
+    category: "tool",
     permissions: {
         coin: 10
     },
     code: async (ctx) => {
-        const url = ctx.args[0] || null;
+        const input = ctx.args.join(" ") || null;
 
-        if (!url) return await ctx.reply(
+        if (!input) return await ctx.reply(
             `${quote(tools.msg.generateInstruction(["send"], ["text"]))}\n` +
-            quote(tools.msg.generateCommandExample(ctx.used, "https://example.com/"))
+            quote(tools.msg.generateCommandExample(ctx.used, "moon"))
         );
 
-        const isUrl = await tools.general.isUrl(url);
-        if (!isUrl) return await ctx.reply(config.msg.urlInvalid);
-
         try {
-            const apiUrl = tools.api.createUrl("fast", "/downup/ytmp4", {
-                url
+            const apiUrl = tools.api.createUrl("diibot", "/api/search/wallpaper", {
+                query: input
             });
-            const result = (await axios.get(apiUrl)).data.result.media;
+            const result = tools.general.getRandomElement((await axios.get(apiUrl)).data.data).imageUrl;
 
             return await ctx.reply({
-                video: {
+                image: {
                     url: result
                 },
-                mimetype: mime.lookup("mp4")
+                mimetype: mime.lookup("png"),
+                caption: `${quote(`Kueri: ${input}`)}\n` +
+                    "\n" +
+                    config.msg.footer
             });
         } catch (error) {
             consolefy.error(`Error: ${error}`);
