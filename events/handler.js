@@ -219,10 +219,10 @@ module.exports = (bot) => {
                     const apiUrl = tools.api.createUrl("fast", "/tool/imagechecker", {
                         url: uploadUrl
                     });
-                    const result = (await axios.get(apiUrl)).data.result.status;
+                    const result = (await axios.get(apiUrl)).data.result.status.toLowerCase();
 
-                    if (result === "NSFW") {
-                        await ctx.reply(`⛔ Jangan kirim NSFW!`);
+                    if (result === "nsfw") {
+                        await ctx.reply(quote(`⛔ Jangan kirim NSFW!`));
                         await ctx.deleteMessage(m.key);
                         if (!config.system.restrict && groupDb?.autokick) await ctx.group().kick([ctx.sender.jid]);
                     }
@@ -254,7 +254,7 @@ module.exports = (bot) => {
             if (groupDb?.antisticker) {
                 const checkMedia = await tools.general.checkMedia(ctx.getMessageType(), "sticker");
                 if (checkMedia && !await ctx.group().isSenderAdmin()) {
-                    await ctx.reply(`⛔ Jangan kirim stiker!`);
+                    await ctx.reply(quote(`⛔ Jangan kirim stiker!`));
                     await ctx.deleteMessage(m.key);
                     if (!config.system.restrict && groupDb?.autokick) await ctx.group().kick([ctx.sender.jid]);
                 }

@@ -4,11 +4,11 @@ const {
 const axios = require("axios");
 
 module.exports = {
-    name: "steamsearch",
-    aliases: ["steam", "steams"],
+    name: "bingsearch",
+    aliases: ["bing", "bings"],
     category: "search",
     permissions: {
-        coin: 5
+        coin: 10
     },
     code: async (ctx) => {
         const input = ctx.args.join(" ") || null;
@@ -19,17 +19,15 @@ module.exports = {
         );
 
         try {
-            const apiUrl = tools.api.createUrl("fast", "/search/steam", {
-                query: input
+            const apiUrl = tools.api.createUrl("fast", "/search/bingsearch", {
+                ask: input
             });
             const result = (await axios.get(apiUrl)).data.result;
 
             const resultText = result.map((r) =>
-                `${quote(`Nama: ${r.name}`)}\n` +
-                `${quote(`Harga: ${r.price}`)}\n` +
-                `${quote(`Skor: ${r.score}`)}\n` +
-                `${quote(`Platform: ${r.platform}`)}` +
-                 `${quote(`URL: ${r.url}`)}`
+                `${quote(`Judul: ${r.title}`)}\n` +
+                `${quote(`Deskripsi: ${r.description}`)}\n` +
+                `${quote(`URL: ${r.link}`)}`
             ).join(
                 "\n" +
                 `${quote("─────")}\n`
@@ -42,7 +40,7 @@ module.exports = {
         } catch (error) {
             consolefy.error(`Error: ${error}`);
             if (error.status !== 200) return await ctx.reply(config.msg.notFound);
-            return await ctx.reply(quote(`❎ Terjadi kesalahan: ${error.message}`));
+            return await ctx.reply(quote(`⚠️ Terjadi kesalahan: ${error.message}`));
         }
     }
 };
