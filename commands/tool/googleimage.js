@@ -21,10 +21,10 @@ module.exports = {
         );
 
         try {
-            const apiUrl = tools.api.createUrl("fast", "/search/gimage", {
-                ask: input
+            const apiUrl = tools.api.createUrl("vapis", "/api/gimage", {
+                q: input
             });
-            const result = tools.general.getRandomElement((await axios.get(apiUrl)).data.data).image;
+            const result = tools.general.getRandomElement((await axios.get(apiUrl)).data.data).url;
 
             return await ctx.reply({
                 image: {

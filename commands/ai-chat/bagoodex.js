@@ -18,10 +18,13 @@ module.exports = {
         );
 
         try {
-            const apiUrl = tools.api.createUrl("fast", "/aiexperience/bagoodex", {
-                ask: input
+            const senderUid = await Database.getUser(tools.general.getID(ctx.sender.jid), "uid") || "guest";
+            const apiUrl = tools.api.createUrl("fast", "/aillm/bagoodex", {
+                ask: input,
+                style: `You are a WhatsApp bot named ${config.bot.name}, owned by ${config.owner.name}. Be friendly, informative, and engaging.`, // Dapat diubah sesuai keinginan Anda
+                sessionId: senderUid
             });
-            const result = (await axios.get(apiUrl)).data.result.content;
+            const result = (await axios.get(apiUrl)).data.result;
 
             return await ctx.reply(result);
         } catch (error) {
