@@ -216,8 +216,7 @@ module.exports = (bot) => {
                 }
                 of permissionChecks) {
                 if (permissions[key] && condition) {
-                    await ctx.reply(msg);
-                    return;
+                    return await ctx.reply(msg);
                 }
             }
 
