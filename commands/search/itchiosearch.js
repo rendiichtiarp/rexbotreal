@@ -4,8 +4,8 @@ const {
 const axios = require("axios");
 
 module.exports = {
-    name: "googlesearch",
-    aliases: ["google", "googles"],
+    name: "itchiosearch",
+    aliases: ["itchio", "itchios"],
     category: "search",
     permissions: {
         coin: 10
@@ -19,14 +19,16 @@ module.exports = {
         );
 
         try {
-            const apiUrl = tools.api.createUrl("fast", "/search/gsearch", {
-                ask: input
+            const apiUrl = tools.api.createUrl("fast", "/search/itchio", {
+                name: input
             });
             const result = (await axios.get(apiUrl)).data.result;
 
             const resultText = result.map((r) =>
-                `${quote(`Judul: ${r.title}`)}\n` +
+                `${quote(`Nama: ${r.title}`)}\n` +
                 `${quote(`Deskripsi: ${r.description}`)}\n` +
+                `${quote(`Genre: ${r.genre}`)}\n` +
+                `${quote(`Platform: ${r.platform}`)}` +
                 `${quote(`URL: ${r.link}`)}`
             ).join(
                 "\n" +

@@ -8,7 +8,7 @@ module.exports = {
     aliases: ["steam", "steams"],
     category: "search",
     permissions: {
-        coin: 5
+        coin: 10
     },
     code: async (ctx) => {
         const input = ctx.args.join(" ") || null;
@@ -28,7 +28,8 @@ module.exports = {
                 `${quote(`Nama: ${r.name}`)}\n` +
                 `${quote(`Harga: ${r.price}`)}\n` +
                 `${quote(`Skor: ${r.score}`)}\n` +
-                `${quote(`Platform: ${r.platform}`)}`
+                `${quote(`Platform: ${r.platform}`)}` +
+                `${quote(`URL: ${r.url}`)}`
             ).join(
                 "\n" +
                 `${quote("─────")}\n`
@@ -41,7 +42,7 @@ module.exports = {
         } catch (error) {
             consolefy.error(`Error: ${error}`);
             if (error.status !== 200) return await ctx.reply(config.msg.notFound);
-            return await ctx.reply(quote(`❎ Terjadi kesalahan: ${error.message}`));
+            return await ctx.reply(quote(`⚠️ Terjadi kesalahan: ${error.message}`));
         }
     }
 };

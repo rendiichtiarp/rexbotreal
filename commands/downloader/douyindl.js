@@ -5,8 +5,8 @@ const axios = require("axios");
 const mime = require("mime-types");
 
 module.exports = {
-    name: "threadsdl",
-    aliases: ["threads"],
+    name: "douyindl",
+    aliases: ["douyin"],
     category: "downloader",
     permissions: {
         coin: 10
@@ -23,30 +23,20 @@ module.exports = {
         if (!isUrl) return await ctx.reply(config.msg.urlInvalid);
 
         try {
-            const apiUrl = tools.api.createUrl("vapis", "/api/threads", {
+            const apiUrl = tools.api.createUrl("agatz", "/api/douyin", {
                 url
             });
-            const result = (await axios.get(apiUrl)).data.data.media;
+            const result = JSON.parse((await axios.get(apiUrl)).data.data);
 
-            for (const media of result) {
-                const mediaType = media.type.toLowerCase();
-
-                if (mediaType === "video" && media.videoUrl) {
-                    await ctx.reply({
-                        video: {
-                            url: media.videoUrl
-                        },
-                        mimetype: mime.lookup("mp4")
-                    });
-                } else if (mediaType === "image" && media.url) {
-                    await ctx.reply({
-                        image: {
-                            url: media.url
-                        },
-                        mimetype: mime.lookup("png")
-                    });
-                }
-            }
+            return await ctx.reply({
+                video: {
+                    url: result.Video_HD || result.Video
+                },
+                mimetype: mime.lookup("mp4"),
+                caption: `${quote(`URL: ${url}`)}\n` +
+                    "\n" +
+                    config.msg.footer
+            });
         } catch (error) {
             consolefy.error(`Error: ${error}`);
             if (error.status !== 200) return await ctx.reply(config.msg.notFound);

@@ -6,11 +6,11 @@ const axios = require("axios");
 const mime = require("mime-types");
 
 module.exports = {
-    name: "googleimage",
-    aliases: ["gimage"],
+    name: "bingimage",
+    aliases: ["bimage"],
     category: "tool",
     permissions: {
-        coin: 5
+        coin: 10
     },
     code: async (ctx) => {
         const input = ctx.args.join(" ") || null;
@@ -21,10 +21,10 @@ module.exports = {
         );
 
         try {
-            const apiUrl = tools.api.createUrl("fast", "/search/gimage", {
+            const apiUrl = tools.api.createUrl("fast", "/search/bingimage", {
                 ask: input
             });
-            const result = tools.general.getRandomElement((await axios.get(apiUrl)).data.data).image;
+            const result = tools.general.getRandomElement((await axios.get(apiUrl)).data.data).imageUrl;
 
             return await ctx.reply({
                 image: {
@@ -38,7 +38,7 @@ module.exports = {
         } catch (error) {
             consolefy.error(`Error: ${error}`);
             if (error.status !== 200) return await ctx.reply(config.msg.notFound);
-            return await ctx.reply(quote(`❎ Terjadi kesalahan: ${error.message}`));
+            return await ctx.reply(quote(`⚠️ Terjadi kesalahan: ${error.message}`));
         }
     }
 };

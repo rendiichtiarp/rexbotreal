@@ -1,13 +1,14 @@
 const {
     quote
 } = require("@mengkodingan/ckptw");
+const axios = require("axios");
 const mime = require("mime-types");
 
 module.exports = {
     name: "flux",
     category: "ai-image",
     permissions: {
-        coin: 5
+        coin: 10
     },
     code: async (ctx) => {
         const input = ctx.args.join(" ") || null;
@@ -18,10 +19,10 @@ module.exports = {
         );
 
         try {
-            const result = tools.api.createUrl("fast", "/aiimage/flux/schnell", {
-                prompt: input,
-                size: "1024x1024"
+            const apiUrl = tools.api.createUrl("bk9", "/ai/fluximg", {
+                q: input
             });
+            const result = (await axios.get(apiUrl)).data.BK9[0];
 
             return await ctx.reply({
                 image: {
@@ -35,7 +36,7 @@ module.exports = {
         } catch (error) {
             consolefy.error(`Error: ${error}`);
             if (error.status !== 200) return await ctx.reply(config.msg.notFound);
-            return await ctx.reply(quote(`❎ Terjadi kesalahan: ${error.message}`));
+            return await ctx.reply(quote(`⚠️ Terjadi kesalahan: ${error.message}`));
         }
     }
 };
