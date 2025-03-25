@@ -27,6 +27,8 @@ async function handleUserEvent(bot, m, type) {
         const groupId = tools.general.getID(id);
         const groupDb = await Database.getGroup(groupId);
 
+        if (groupDb?.mute) return;
+
         if (groupDb?.welcome) {
             const metadata = await bot.core.groupMetadata(id);
 
@@ -134,7 +136,7 @@ module.exports = (bot) => {
 
         if ((botMode === "group" && !isGroup) || (botMode === "private" && isGroup) || (botMode === "self" && !isOwner)) return;
 
-        if (groupDb?.mute) return;
+        if (groupDb?.mute && !isOwner) return;
 
         isGroup ? consolefy.info(`Pesan masuk dari grup: ${groupId}, oleh: ${senderId}`) : consolefy.info(`Pesan masuk dari: ${senderId}`);
 
