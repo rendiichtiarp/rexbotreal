@@ -11,7 +11,7 @@ async function checkCoin(requiredCoin, senderId) {
     const userDb = await Database.getUser(senderId);
 
     if (tools.general.isOwner(senderId) || userDb?.premium) return false;
-    if ((userDb?.coin || 0) < requiredCoin) return true;
+    if (!userDb || (userDb?.coin || 0) < requiredCoin) return true;
 
     await Database.updateUser(senderId, {
         coin: userDb?.coin - requiredCoin
@@ -56,7 +56,7 @@ module.exports = (bot) => {
             if (botMode === "group" && !isGroup) return;
             if (botMode === "private" && isGroup) return;
             if (botMode === "self" && !isOwner) return;
-            if (groupDb.mute && !["unmute", "ounmute"].includes(ctx.used.command) && !isOwner) return;
+            if (groupDb?.mute && ctx.used.command !== "unmute") return;
 
             if (config.system.autoTypingOnCmd) await ctx.simulateTyping();
 

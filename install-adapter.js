@@ -3,7 +3,7 @@ require("./config.js");
 const pkg = require("./package.json");
 const {
     execSync
-} = require("node:child_process");
+} = require("child_process");
 
 // Buat consolefy
 const consolefy = new Consolefy({

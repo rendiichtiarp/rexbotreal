@@ -1,13 +1,11 @@
 const axios = require("axios");
 const {
-    bold,
     quote
 } = require("@mengkodingan/ckptw");
 const mime = require("mime-types");
 const {
-     Sticker,
-     StickerTypes
- } = require("wa-sticker-formatter");
+    format
+} = require("util");
 
 module.exports = {
     name: "fetch",
@@ -55,19 +53,13 @@ module.exports = {
             }
 
             if (/webp/.test(contentType)) {
-                const sticker = new Sticker(response?.data, {
-                    pack: config.sticker.packname,
-                    author: config.sticker.author,
-                    type: StickerTypes.FULL,
-                    categories: ["🌕"],
-                    id: ctx.id,
-                    quality: 50
+                return await ctx.reply({
+                    sticker: response?.data
                 });
-                return await ctx.reply(await sticker.toMessage());
             }
 
             if (!/utf-8|json|html|plain/.test(contentType)) {
-                const fileName = /filename/i.test(response?.headers?.["content-disposition"]) ? response?.headers?.["content-disposition"]?.match(/filename=(.*)/)?.[1]?.replace(/["";]/g, "") : "";
+                let fileName = /filename/i.test(response?.headers?.["content-disposition"]) ? response?.headers?.["content-disposition"]?.match(/filename=(.*)/)?.[1]?.replace(/["";]/g, "") : "";
                 return await ctx.reply({
                     document: response?.data,
                     fileName,
@@ -75,29 +67,16 @@ module.exports = {
                 });
             }
 
-            let text = response?.data;
-            let json;
+            let text = response?.data?.toString() || response?.data;
+            text = format(text);
             try {
-                json = JSON.parse(text);
-             } catch (err) {
-                 json = null;
+                return await ctx.reply(text.slice(0, 65536));
+            } catch (e) {
+                return await ctx.reply(format(e));
             }
-            return await ctx.reply(json ? walkJSON(json) : text);
         } catch (error) {
-            console.error(`Error: ${error}`);
+            consolefy.error(`Error: ${error}`);
             return await ctx.reply(quote(`❎ Terjadi kesalahan: ${error.message}`));
         }
     }
 };
-
-function walkJSON(json, depth = 0, array = []) {
-    for (const key in json) {
-        array.push(`${"┊".repeat(depth)}${depth > 0 ? " " : ""}${bold(key)}:`);
-        if (typeof json[key] === "object" && json[key] !== null) {
-            walkJSON(json[key], depth + 1, array);
-        } else {
-            array[array.length - 1] += ` ${json[key]}`;
-        }
-    }
-    return array.join("\n");
-}

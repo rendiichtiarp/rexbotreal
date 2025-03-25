@@ -9,9 +9,9 @@ const Database = require('../lib/database/queries');
 const axios = require("axios");
 const {
     exec
-} = require("node:child_process");
-const fs = require("node:fs");
-const util = require("node:util");
+} = require("child_process");
+const fs = require("fs");
+const util = require("util");
 
 // Di bagian atas file, tambahkan variabel untuk tracking
 let lastCheckedResetId = 0;

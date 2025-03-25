@@ -4,8 +4,8 @@ const {
 const Database = require('../../lib/database/queries');
 
 module.exports = {
-    name: "transfer",
-    aliases: ["tf"],
+    name: "givecoin",
+    aliases: ["gc", "gcoin"],
     category: "profile",
     permissions: {},
     code: async (ctx) => {

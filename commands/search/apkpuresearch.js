@@ -4,11 +4,11 @@ const {
 const axios = require("axios");
 
 module.exports = {
-    name: "itchiosearch",
-    aliases: ["itchio", "itchios"],
+    name: "apkpuresearch",
+    aliases: ["apkpure", "apkpures"],
     category: "search",
     permissions: {
-        coin: 10
+        coin: 5
     },
     code: async (ctx) => {
         const input = ctx.args.join(" ") || null;
@@ -19,15 +19,15 @@ module.exports = {
         );
 
         try {
-            const apiUrl = tools.api.createUrl("fast", "/search/itchio", {
-                name: input
+            const apiUrl = tools.api.createUrl("vapis", "/api/apkpure", {
+                q: input
             });
-            const result = (await axios.get(apiUrl)).data.result;
+            const result = (await axios.get(apiUrl)).data.data;
 
             const resultText = result.map((r) =>
                 `${quote(`Nama: ${r.title}`)}\n` +
-                `${quote(`Deskripsi: ${r.description}`)}\n` +
-                `${quote(`Pengembang: ${r.author}`)}\n` +
+                `${quote(`Pengembang: ${r.developer}`)}\n` +
+                `${quote(`Rating: ${r.rating}`)}\n` +
                 `${quote(`URL: ${r.link}`)}`
             ).join(
                 "\n" +
@@ -41,7 +41,7 @@ module.exports = {
         } catch (error) {
             consolefy.error(`Error: ${error}`);
             if (error.status !== 200) return await ctx.reply(config.msg.notFound);
-            return await ctx.reply(quote(`⚠️ Terjadi kesalahan: ${error.message}`));
+            return await ctx.reply(quote(`❎ Terjadi kesalahan: ${error.message}`));
         }
     }
 };

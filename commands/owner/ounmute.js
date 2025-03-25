@@ -6,8 +6,8 @@ module.exports = {
     name: "ounmute",
     category: "owner",
     permissions: {
-         group: true,
-         owner: true
+        admin: true,
+        group: true
     },
     code: async (ctx) => {
         try {
