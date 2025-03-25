@@ -3,7 +3,7 @@ const {
 } = require("@mengkodingan/ckptw");
 const {
     exec
-} = require("child_process");
+} = require("node:child_process");
 const util = require("node:util");
 
 

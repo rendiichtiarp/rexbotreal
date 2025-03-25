@@ -260,12 +260,11 @@ function parseFlag(argsString, customRules = {}) {
 async function translate(text, to) {
     if (!text || !to) return null;
 
-    const apiUrl = api.createUrl("nyxs", "/tools/translate", {
-        text,
-        to
-    });
-
     try {
+        const apiUrl = api.createUrl("nyxs", "/tools/translate", {
+            text,
+            to
+        });
         const {
             data
         } = await axios.get(apiUrl);
