@@ -2,7 +2,7 @@ const {
     quote
 } = require("@mengkodingan/ckptw");
 const axios = require("axios");
-const os = require("node:os");
+const os = require("os");
 
 module.exports = {
     name: "server",

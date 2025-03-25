@@ -19,9 +19,15 @@ module.exports = {
             const data = response.data.data;
             
             // Memilih fakta secara acak dari array info
-            const result = tools.general.getRandomElement((await axios.get(apiUrl)).data.data.info).tahukah_anda;
+            const randomFact = tools.general.getRandomElement(data.info);
 
-            return await ctx.reply(quote(`Tahukah Anda? ${result}`));
+            // Mengirim pesan dengan format yang sesuai
+            return await ctx.reply({
+                image: {
+                    url: randomFact.image_link
+                },
+                text: quote(`Tahukah Anda? ${randomFact.tahukah_anda}`)
+            });
         } catch (error) {
             consolefy.error(`Error: ${error}`);
             if (error.status !== 200) return await ctx.reply(config.msg.notFound);

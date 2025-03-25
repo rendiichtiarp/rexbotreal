@@ -4,7 +4,7 @@ const {
 } = require("@mengkodingan/ckptw");
 const {
     spawn
-} = require("node:child_process");
+} = require("child_process");
 
 module.exports = {
     name: "js",
