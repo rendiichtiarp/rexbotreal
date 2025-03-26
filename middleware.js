@@ -88,8 +88,7 @@ module.exports = (bot) => {
                 contextInfo: {
                     externalAdReply: {
                         title: config.msg.watermark,
-                        previewType: "PHOTO",
-                        mediaType: 1,
+                        mediaType: "VIDEO",
                         thumbnailUrl: profilePictureUrl,
                         mediaUrl: config.bot.website,
                         sourceUrl: config.bot.website,
