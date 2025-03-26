@@ -1,6 +1,6 @@
 {
   "name": "rexbotx",
-  "version": "1.1.20+rebuild",
+  "version": "1.1.24+rebuild",
   "description": "WhatsApp Bot",
   "main": "index.js",
   "directories": {

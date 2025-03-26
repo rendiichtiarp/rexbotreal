@@ -29,7 +29,7 @@ module.exports = {
             for (const groupId of groupIds) {
                 await delay(500);
                 try {
-                    const fakeText = {
+                    const fakeQuotedText = {
                         key: {
                             fromMe: false,
                             participant: "13135550002@s.whatsapp.net",
@@ -46,7 +46,7 @@ module.exports = {
                     await ctx.sendMessage(groupId, {
                         text: input
                     }, {
-                        quoted: fakeText
+                        quoted: fakeQuotedText
                     });
                 } catch (error) {
                     consolefy.error(`Error: ${error}`);

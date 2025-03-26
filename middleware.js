@@ -79,15 +79,24 @@ module.exports = (bot) => {
                 currentLevel += 1;
 
                 // Kirim pesan level up jika autolevelup aktif
-                if (userDb?.autolevelup) {
-                    await ctx.reply(
-                        `${quote("🎉 Level Up!")}\n` +
-                        `${quote(`Level: ${currentLevel - 1} → ${currentLevel}`)}\n` +
-                        `${quote(`XP: ${currentXp}/${xpToLevelUp}`)}\n` +
-                        `${quote(`${config.msg.readmore}\n` +
-                            quote(tools.msg.generateNotes([`Terganggu? Ketik ${monospace(`${ctx.used.prefix}setprofile autolevelup`)} untuk menonaktifkan pesan autolevelup.`])))}`
-                    );
+                const profilePictureUrl = await ctx.core.profilePictureUrl(ctx.sender.jid, "image").catch(() => "https://i.pinimg.com/736x/70/dd/61/70dd612c65034b88ebf474a52ccc70c4.jpg");
+
+            if (userDb?.autolevelup) await ctx.reply({
+                text: `${quote(`Selamat! Kamu telah naik ke level ${currentLevel}!`)}\n` +
+                    `${config.msg.readmore}\n` +
+                    quote(tools.msg.generateNotes([`Terganggu? Ketik ${monospace(`${ctx.used.prefix}setprofile autolevelup`)} untuk menonaktifkan pesan autolevelup.`])),
+                contextInfo: {
+                    externalAdReply: {
+                        title: config.msg.watermark,
+                        previewType: "PHOTO",
+                        mediaType: 1,
+                        thumbnailUrl: profilePictureUrl,
+                        mediaUrl: config.bot.website,
+                        sourceUrl: config.bot.website,
+                        renderLargerThumbnail: true
+                    }
                 }
+            });
             }
 
             // Update XP dan Level user

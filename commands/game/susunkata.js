@@ -48,12 +48,13 @@ module.exports = {
                     session.delete(ctx.id);
                     
                     const earnedCoin = tools.general.calculateTimeBasedCoin(game.startTime, Date.now());
-                    await Database.addGameReward(game.senderId, earnedCoin);
+                    const validCoin = Number.isFinite(earnedCoin) ? Math.max(0, Math.floor(earnedCoin)) : 20;
+                    await Database.addGameReward(game.senderId, validCoin);
                     
                     await ctx.sendMessage(
                         ctx.id, {
                             text: `${quote("💯 Benar!")}\n` +
-                                quote(`+${earnedCoin} Koin (Waktu: ${tools.general.convertMsToDuration(Date.now() - game.startTime)})`)
+                                quote(`+${validCoin} Koin (Waktu: ${tools.general.convertMsToDuration(Date.now() - game.startTime)})`)
                         }, {
                             quoted: m
                         }

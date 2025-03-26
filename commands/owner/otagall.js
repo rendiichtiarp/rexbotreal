@@ -10,7 +10,7 @@ module.exports = {
         owner: true
     },
     code: async (ctx) => {
-        const input = ctx.args.join(" ") || quote("👋 Saya tidak tahu harus mengetik apa...");
+        const input = ctx.args.join(" ") || quote("👋 Halo, Dunia!");
 
         try {
             const members = await ctx.group().members();
@@ -22,11 +22,11 @@ module.exports = {
                 };
             });
 
-            const mentionText = mentions.map(m => m.tag).join(" ");
+            const resultText = mentions.map(m => m.tag).join(" ");
             return await ctx.reply({
                 text: `${input}\n` +
                     `${config.msg.readmore}─────\n` +
-                    `${mentionText}`,
+                    resultText,
                 mentions: mentions.map(m => m.mention)
             });
         } catch (error) {

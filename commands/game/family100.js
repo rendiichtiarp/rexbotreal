@@ -55,10 +55,11 @@ module.exports = {
                     game.participants.add(participantId);
 
                     const earnedCoin = tools.general.calculateTimeBasedCoin(game.startTime, Date.now());
-                    await Database.addGameReward(participantId, earnedCoin);
+                    const validCoin = Number.isFinite(earnedCoin) ? Math.max(0, Math.floor(earnedCoin)) : 20;
+                    await Database.addGameReward(participantId, validCoin);
                     
                     await ctx.sendMessage(ctx.id, {
-                        text: `${quote(`✅ ${tools.general.ucword(userAnswer)} benar! (+${earnedCoin} Koin)`)}\n` +
+                        text: `${quote(`✅ ${tools.general.ucword(userAnswer)} benar! (+${validCoin} Koin)`)}\n` +
                               quote(`Jawaban tersisa: ${game.answers.size}`)
                     }, {
                         quoted: m

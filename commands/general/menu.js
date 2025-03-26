@@ -168,14 +168,12 @@ module.exports = {
                 contextInfo: {
                     mentionedJid: [ctx.sender.jid],
                     externalAdReply: {
-                        mediaType: 1,
-                        previewType: 0,
-                        mediaUrl: config.bot.website,
                         title: config.msg.watermark,
-                        body: null,
-                        renderLargerThumbnail: true,
+                        mediaType: 1,
                         thumbnailUrl: config.bot.thumbnail,
-                        sourceUrl: config.bot.website
+                        mediaUrl: config.bot.website,
+                        sourceUrl: config.bot.website,
+                        renderLargerThumbnail: true
                     }
                 },
                 mentions: [ctx.sender.jid]
