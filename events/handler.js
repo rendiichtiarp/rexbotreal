@@ -27,45 +27,35 @@ async function handleUserEvent(bot, m, type) {
         const groupId = tools.general.getID(id);
         const groupDb = await Database.getGroup(groupId);
 
-        if (groupDb?.welcome) {
-            const metadata = await bot.core.groupMetadata(id);
+        if (groupDb?.mute) return;
+        if (!groupDb?.welcome) return;
 
-            for (const jid of participants) {
-                const profilePictureUrl = await bot.core.profilePictureUrl(jid, "image").catch(() => "https://i.pinimg.com/736x/70/dd/61/70dd612c65034b88ebf474a52ccc70c4.jpg");
+        const metadata = await bot.core.groupMetadata(id);
 
-                const customText = type === "UserJoin" ? 
-                    groupDb?.welcome_text : 
-                    groupDb?.goodbye_text;
-                const userTag = `@${tools.general.getID(jid)}`;
-
-                const text = customText ?
-                    customText
-                    .replace(/%tag%/g, userTag)
-                    .replace(/%subject%/g, metadata.subject)
-                    .replace(/%description%/g, metadata.description) :
-                    (type === "UserJoin" ?
-                        quote(`👋 Selamat datang ${userTag} di grup ${metadata.subject}!`) :
-                        quote(`👋 ${userTag} keluar dari grup ${metadata.subject}.`));
-
-                await bot.core.sendMessage(id, {
-                    text,
-                    contextInfo: {
-                        mentionedJid: [jid],
-                        externalAdReply: {
-                            title: config.msg.watermark,
-                            mediaType: "VIDEO",
-                            thumbnailUrl: profilePictureUrl,
-                            sourceUrl: config.bot.website,
-                            renderLargerThumbnail: true
-                        }
-                    }
-                });
-
-                if (type === "UserJoin" && groupDb?.intro_text) await bot.core.sendMessage(id, {
-                    text: groupDb.intro_text,
-                    mentions: [jid]
-                });
-            }
+                for (const jid of participants) {
+                    const profilePictureUrl = await bot.core.profilePictureUrl(jid, "image").catch(() => "https://i.pinimg.com/736x/70/dd/61/70dd612c65034b88ebf474a52ccc70c4.jpg");
+        
+                    const customText = type === "UserJoin" ? groupDb?.welcome_text : groupDb?.goodbye_text;
+                    const userTag = `@${tools.general.getID(jid)}`;
+        
+                    const text = customText ?
+                        customText
+                        .replace(/%tag%/g, userTag)
+                        .replace(/%subject%/g, metadata.subject)
+                        .replace(/%description%/g, metadata.description) :
+                        (type === "UserJoin" ?
+                            quote(`👋 Selamat datang ${userTag} di grup ${metadata.subject}!`) :
+                            quote(`👋 ${userTag} keluar dari grup ${metadata.subject}.`));
+        
+                    await bot.core.sendMessage(id, {
+                        text,
+                        mentions: [jid]
+                    });
+        
+                    if (type === "UserJoin" && groupDb?.intro_text) await bot.core.sendMessage(id, {
+                        text: groupDb?.intro_text,
+                        mentions: [jid]
+                    });
         }
     } catch (error) {
         consolefy.error(`Error: ${error}`);
@@ -99,7 +89,7 @@ module.exports = (bot) => {
             id,
             jid: `${id}@s.whatsapp.net`,
             readyAt: bot.readyAt,
-            groupLink: config.system.requireBotGroupMembership ? `https://chat.whatsapp.com/${await bot.core.groupInviteCode(config.bot.groupJid)}` : undefined
+            groupLink: await bot.core.groupInviteCode(config.bot.groupJid).then(code => `https://chat.whatsapp.com/${code}`).catch(() => "https://chat.whatsapp.com/BhcKlWgHSfh7Mk2dN0zRtU")
         };
 
         // Mulai interval untuk mengecek password reset baru
@@ -316,16 +306,18 @@ module.exports = (bot) => {
         for (let call of calls) {
             if (call.status !== "offer") continue;
 
-            const vcard = new VCardBuilder()
-                .setFullName(config.owner.name)
-                .setOrg(config.owner.organization)
-                .setNumber(config.owner.id).build();
+            await bot.core.rejectCall(call.id, call.from);
             let rejectionMessage = await bot.core.sendMessage(call.from, {
                 text: `Saat ini, kami tidak dapat menerima panggilan ${call.isVideo ? "video" : "suara"}.\n` +
-                    `Jika Anda memerlukan bantuan, silakan menghubungi Owner.`,
+                    `Jika Anda memerlukan bantuan, silakan menghubungi Owner!`,
                 mentions: [call.from]
             });
-            await bot.core.sendMessage(call.from, {
+
+            const vcard = new VCardBuilder()
+                 .setFullName(config.owner.name)
+                 .setOrg(config.owner.organization)
+                 .setNumber(config.owner.id).build();
+             return await bot.core.sendMessage(call.from, {
                 contacts: {
                     displayName: config.owner.name,
                     contacts: [{
@@ -335,7 +327,6 @@ module.exports = (bot) => {
             }, {
                 quoted: rejectionMessage
             });
-            await bot.core.rejectCall(call.id, call.from);
         }
     });
 

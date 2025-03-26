@@ -81,21 +81,11 @@ module.exports = (bot) => {
                 // Kirim pesan level up jika autolevelup aktif
                 const profilePictureUrl = await ctx.core.profilePictureUrl(ctx.sender.jid, "image").catch(() => "https://i.pinimg.com/736x/70/dd/61/70dd612c65034b88ebf474a52ccc70c4.jpg");
 
-            if (userDb?.autolevelup) await ctx.reply({
-                text: `${quote(`Selamat! Kamu telah naik ke level ${currentLevel}!`)}\n` +
+                if (userDb?.autolevelup) await ctx.reply(
+                    `${quote(`Selamat! Kamu telah naik ke level ${currentLevel}!`)}\n` +
                     `${config.msg.readmore}\n` +
-                    quote(tools.msg.generateNotes([`Terganggu? Ketik ${monospace(`${ctx.used.prefix}setprofile autolevelup`)} untuk menonaktifkan pesan autolevelup.`])),
-                contextInfo: {
-                    externalAdReply: {
-                        title: config.msg.watermark,
-                        mediaType: "VIDEO",
-                        thumbnailUrl: profilePictureUrl,
-                        mediaUrl: config.bot.website,
-                        sourceUrl: config.bot.website,
-                        renderLargerThumbnail: true
-                    }
-                }
-            });
+                    quote(tools.msg.generateNotes([`Terganggu? Ketik ${monospace(`${ctx.used.prefix}setprofile autolevelup`)} untuk menonaktifkan pesan autolevelup.`]))
+                );
             }
 
             // Update XP dan Level user

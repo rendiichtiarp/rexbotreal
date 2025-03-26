@@ -5,6 +5,7 @@ const {
     quote
 } = require("@mengkodingan/ckptw");
 const moment = require("moment-timezone");
+const mime = require("mime-types");
 
 // Fungsi untuk mendapatkan salam berdasarkan waktu
 function getGreeting() {
@@ -164,17 +165,11 @@ module.exports = {
             text += `\n${config.msg.footer}`;
 
             return await ctx.reply({
-                text,
-                contextInfo: {
-                    mentionedJid: [ctx.sender.jid],
-                    externalAdReply: {
-                        title: config.msg.watermark,
-                        mediaType: "IMAGE",
-                        thumbnailUrl: config.bot.thumbnail,
-                        sourceUrl: config.bot.website,
-                        renderLargerThumbnail: true
-                    }
+                image: {
+                    url: config.bot.thumbnail
                 },
+                mimetype: mime.lookup("png"),
+                caption: text,
                 mentions: [ctx.sender.jid]
             });
 

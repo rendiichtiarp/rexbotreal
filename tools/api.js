@@ -29,6 +29,9 @@ const APIs = {
     },
     vapis: {
         baseURL: "https://vapis.my.id"
+    },
+    velyn: {
+        baseURL: "https://www.velyn.biz.id"
     }
 };
 
