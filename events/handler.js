@@ -134,6 +134,39 @@ module.exports = (bot) => {
 
         isGroup ? consolefy.info(`Pesan masuk dari grup: ${groupId}, oleh: ${senderId}`) : consolefy.info(`Pesan masuk dari: ${senderId}`);
 
+        // Auto response untuk sapaan bot
+        if (!isCmd && m.content && !m.key.fromMe) {
+            const greetingWords = /\b(bot|rexbotx|rex|hi|hai|halo)\b/i;
+            
+            // Cek jika sedang dalam menfess (untuk private chat)
+            const allMenfessDb = await Database.getMenfess();
+            const activeMenfess = allMenfessDb.filter(m => m.status === 'active');
+            const menfessEntries = activeMenfess.map(m => [m.menfess_id, { from: m.from_user, to: m.to_user }]);
+            const isInMenfess = isPrivate && menfessEntries.some(([_, data]) => data.from === senderId || data.to === senderId);
+
+            if (greetingWords.test(m.content) && !isInMenfess) {
+                const responses = [
+                    `Hai ${userDb?.name || 'kak'} 👋\nAda yang bisa saya bantu?\nKetik .menu untuk melihat daftar perintah.`,
+                    `Halo ${userDb?.name || 'kak'} ✨\nSaya RexbotX, bot WhatsApp yang siap membantu.\nGunakan .menu untuk melihat fitur yang tersedia.`,
+                    `Hi ${userDb?.name || 'kak'} 🌟\nButuh bantuan? Ketik .menu untuk melihat daftar perintah ya.`
+                ];
+                
+                await ctx.reply({
+                    text: tools.general.getRandomElement(responses),
+                    contextInfo: {
+                        externalAdReply: {
+                            title: config.msg.watermark,
+                            mediaType: "IMAGE",
+                            thumbnailUrl: config.bot.thumbnail,
+                            sourceUrl: config.bot.website,
+                            renderLargerThumbnail: true
+                        }
+                    }
+                });
+                return;
+            }
+        }
+
         // Grup atau Pribadi
         if (isGroup || isPrivate) {
             if (isCmd?.didyoumean) await ctx.reply(quote(`❎ Anda salah ketik, sepertinya ${monospace(isCmd?.prefix + isCmd?.didyoumean)}.`));

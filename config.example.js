@@ -17,6 +17,11 @@ global.config = {
         website: "https://whatsapp.com/channel/0029Vb1aqIYCMY0EmiUODK00", // Website untuk WhatsApp bot
         groupJid: "", // JID untuk group bot (opsional jika tidak menggunakan requireBotGroupMembership)
 
+        // Konfigurasi channel untuk broadcast
+        groups: {
+            report: "120363366663863260@g.us" // ID group untuk laporan
+        },
+
         // Konfigurasi autentikasi sesi bot
         authAdapter: {
             adapter: "default", // Pilihan adapter: 'default', 'mysql', 'mongo', 'firebase'

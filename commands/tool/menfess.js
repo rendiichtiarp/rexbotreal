@@ -13,7 +13,8 @@ module.exports = {
     },
     code: async (ctx) => {
         const input = ctx.args.join(" ");
-        const match = input.match(/^(\d+)\s*(.+)/); // Memisahkan nomor dan pesan
+        // Ubah regex untuk memisahkan nomor dan pesan opsional
+        const match = input.match(/^(\d+)(?:\s+(.+))?/);
         
         if (!match) {
             return await ctx.reply(
@@ -24,7 +25,7 @@ module.exports = {
         }
 
         const formattedId = match[1].replace(/[^\d]/g, "");
-        const menfessText = match[2].trim();
+        const menfessText = match[2]?.trim();
         const senderId = tools.general.getID(ctx.sender.jid);
 
         try {
@@ -52,7 +53,7 @@ module.exports = {
             }
 
             if (senderActiveMenfess) {
-                return await ctx.reply(quote(`❎ Anda masih memiliki percakapan menfess yang aktif. Ketik 'delete' atau 'stop' untuk mengakhiri.`));
+                return await ctx.reply(quote("❎ Anda masih memiliki percakapan menfess yang aktif. Ketik `delete` atau `stop` untuk mengakhiri."));
             }
 
             if (receiverActiveMenfess) {
@@ -71,7 +72,11 @@ module.exports = {
                 to_user: formattedId
             });
 
-            return await ctx.reply(quote(`✅ Pesan berhasil terkirim! Pesan yang Anda kirim akan diteruskan ke orang tersebut. Jika ingin berhenti, cukup ketik 'delete' atau 'stop'.`));
+            return await ctx.reply(quote(menfessText 
+                ? "✅ Pesan berhasil terkirim! Pesan yang Anda kirim akan diteruskan ke orang tersebut."
+                : "✅ Percakapan menfess telah dimulai! Silakan kirimkan pesan Anda.") + 
+                " Jika ingin berhenti, cukup ketik `delete` atau `stop`."
+            );
         } catch (error) {
             consolefy.error(`Error: ${error}`);
             return await ctx.reply(quote(`❎ Terjadi kesalahan: ${error.message}`));
