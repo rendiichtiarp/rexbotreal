@@ -19,15 +19,17 @@ module.exports = {
 
         try {
             const delay = ms => new Promise(res => setTimeout(res, ms));
+            const getRandomDelay = () => Math.floor(Math.random() * (5000 - 2000 + 1) + 2000); // Random 2-5 detik
             const groupData = await ctx.core.groupFetchAllParticipating();
             const groupIds = Object.values(groupData).map(g => g.id);
 
-            const waitMsg = await ctx.reply(quote(`🔄 Mengirim siaran ke ${groupIds.length} grup, perkiraan waktu: ${(groupIds.length * 0.5 / 60).toFixed(2)} menit.`));
+            const waitMsg = await ctx.reply(quote(`🔄 Mengirim siaran ke ${groupIds.length} grup, perkiraan waktu: ${((groupIds.length * 3.5) / 60).toFixed(2)} menit.`));
 
             const failedGroupIds = [];
 
             for (const groupId of groupIds) {
-                await delay(500);
+                const randomDelay = getRandomDelay();
+                await delay(randomDelay);
                 try {
                     const fakeQuotedText = {
                         key: {

@@ -49,7 +49,16 @@ async function handleUserEvent(bot, m, type) {
         
                     await bot.core.sendMessage(id, {
                         text,
-                        mentions: [jid]
+                        contextInfo: {
+                            mentionedJid: [jid],
+                            externalAdReply: {
+                                title: config.msg.watermark,
+                                mediaType: "IMAGE",
+                                thumbnailUrl: profilePictureUrl,
+                                sourceUrl: config.bot.website,
+                                renderLargerThumbnail: true
+                            }
+                        }
                     });
         
                     if (type === "UserJoin" && groupDb?.intro_text) await bot.core.sendMessage(id, {

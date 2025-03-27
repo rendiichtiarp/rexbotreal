@@ -1,7 +1,6 @@
 const {
     quote
 } = require("@mengkodingan/ckptw");
-const mime = require("mime-types");
 
 module.exports = {
     name: "me",
@@ -32,11 +31,7 @@ module.exports = {
                 .catch(() => "https://i.pinimg.com/736x/70/dd/61/70dd612c65034b88ebf474a52ccc70c4.jpg");
 
             return await ctx.reply({
-                image: {
-                    url: profilePictureUrl
-                },
-                mimetype: mime.lookup("png"),
-                caption: `${quote(`Nama: ${userDb?.name || "-"}`)}\n` +
+                text: `${quote(`Nama: ${userDb?.name || "-"}`)}\n` +
                     `${quote(`Status: ${isOwner ? "Owner" : userDb?.premium ? "Premium" : "Free" || "-"}`)}\n` +
                     `${quote(`Level: ${userDb?.level || "-"}`)}\n` +
                     `${quote(`XP: ${userDb?.xp || "-"}`)}\n` +
@@ -45,6 +40,16 @@ module.exports = {
                     `${quote(`Menang: ${userDb?.win_game || "-"}`)}\n` +
                     "\n" +
                     config.msg.footer,
+                contextInfo: {
+                    mentionedJid: [ctx.sender.jid],
+                    externalAdReply: {
+                        title: config.msg.watermark,
+                        mediaType: "IMAGE",
+                        thumbnailUrl: profilePictureUrl,
+                        sourceUrl: config.bot.website,
+                        renderLargerThumbnail: true
+                    }
+                }
             });
         } catch (error) {
             consolefy.error(`Error: ${error}`);

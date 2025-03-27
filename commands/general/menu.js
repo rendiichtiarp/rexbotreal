@@ -25,22 +25,22 @@ module.exports = {
         try {
             const { cmd } = ctx.bot;
             const tag = {
-                "ai-chat": "🤖 Artificial Intelligence (Chat)",
-                "ai-image": "🎨 Artificial Intelligence (Image)",
-                "ai-misc": "🎯 Artificial Intelligence (Misc)",
-                "converter": "🔄 Media Converter",
-                "downloader": "📥 Content Downloader",
+                "ai-chat": "🤖 AI Chat",
+                "ai-image": "🎨 AI Image",
+                "ai-misc": "🎯 AI Misc",
+                "converter": "🔄 Converter",
+                "downloader": "📥 Downloader",
                 "entertainment": "🎮 Entertainment",
                 "game": "🎲 Games",
                 "minigames": "🎲 MiniGames",
-                "group": "👥 Group Management",
-                "maker": "🎨 Content Creator",
-                "profile": "👤 User Profile",
-                "search": "🔍 Information Search",
-                "tool": "🛠️ Utilities",
-                "owner": "👑 Bot Owner",
-                "information": "ℹ️ Bot Information",
-                "misc": "📦 Miscellaneous"
+                "group": "👥 Group",
+                "maker": "🎨 Maker",
+                "profile": "👤 Profile",
+                "search": "🔍 Search",
+                "tool": "🛠️ Tools",
+                "owner": "👑 Owner",
+                "information": "ℹ️ Info",
+                "misc": "📦 Misc"
             };
 
             const senderId = tools.general.getID(ctx.sender.jid);
@@ -51,34 +51,29 @@ module.exports = {
             let categoryInput = isAllMenu ? null : ctx.used.command === 'menu' ? ctx.args[0]?.toLowerCase() : ctx.used.command;
 
             const header = [
-                `${getGreeting()}, ${userDb?.name || "Pengguna"}!`,
+                `${getGreeting()}, ${userDb?.name || "Pengguna"}! ✨`,
                 ``,
-                `📅 *Tanggal:* ${moment.tz(config.system.timeZone).locale("id").format("dddd, DD MMMM YYYY")}`,
-                `⏰ *Waktu:* ${moment.tz(config.system.timeZone).format("HH:mm")} WIB`,
-                `⌛ *Uptime:* ${tools.general.convertMsToDuration(Date.now() - config.bot.readyAt)}`,
-                ``,
-                `📊 *Statistik Bot*`,
-                `◦ Total Perintah: ${Array.from(cmd.values()).length}`,
-                `◦ Total Kategori: ${Object.keys(tag).length}`,
+                `📊 *Info Bot*`,
+                `⌛ Runtime: ${tools.general.convertMsToDuration(Date.now() - config.bot.readyAt)}`,
+                `📝 Total CMD: ${Array.from(cmd.values()).length}\n`,
                 ``
             ].join('\n');
 
             let text = header;
 
             if (isAllMenu) {
-                text += `*DAFTAR SEMUA PERINTAH*\n\n`;
+                text += `*DAFTAR PERINTAH*\n\n`;
                 
                 for (const category of Object.keys(tag)) {
                     const categoryCommands = Array.from(cmd.values())
                         .filter(command => command.category === category)
                         .map(command => ({
                             name: command.name,
-                            aliases: command.aliases,
                             permissions: command.permissions || {}
                         }));
 
                     if (categoryCommands.length > 0) {
-                        text += `*${tag[category]}*\n`;
+                        text += `${tag[category]}\n`;
                         
                         categoryCommands.forEach(cmd => {
                             let permissionsText = "";
@@ -94,12 +89,9 @@ module.exports = {
                     }
                 }
 
-                text += `*Keterangan:*\n` +
-                    `💰 = Memerlukan Koin\n` +
-                    `👥 = Khusus Grup\n` +
-                    `👑 = Khusus Owner\n` +
-                    `⭐ = Khusus Premium\n` +
-                    `👤 = Khusus Chat Pribadi\n`;
+                text += `*Note:*\n` +
+                    `💰 Butuh Koin • 👥 Grup • 👑 Owner\n` +
+                    `⭐ Premium • 👤 Private Chat\n`;
 
             } else if (categoryInput) {
                 const normalizedInput = categoryInput.replace(/\s+/g, '');
@@ -118,7 +110,7 @@ module.exports = {
                 );
 
                 if (!categoryKey) {
-                    return await ctx.reply(quote(`❎ Kategori \`${categoryInput}\` tidak ditemukan!\n\nKetik \`${ctx.used.prefix}menu\` untuk melihat daftar kategori yang tersedia.`));
+                    return await ctx.reply(quote(`❎ Kategori \`${categoryInput}\` tidak ditemukan!\n\nKetik \`${ctx.used.prefix}menu\` untuk melihat daftar kategori.`));
                 }
 
                 text += `*${tag[categoryKey]}*\n\n`;
@@ -126,7 +118,6 @@ module.exports = {
                     .filter(command => command.category === categoryKey)
                     .map(command => ({
                         name: command.name,
-                        aliases: command.aliases,
                         permissions: command.permissions || {}
                     }));
 
@@ -141,35 +132,41 @@ module.exports = {
                     text += `◦ \`${ctx.used.prefix}${cmd.name}\` ${permissionsText}\n`;
                 });
 
-                text += `\n*Keterangan:*\n` +
-                    `💰 = Memerlukan Koin\n` +
-                    `👥 = Khusus Grup\n` +
-                    `👑 = Khusus Owner\n` +
-                    `⭐ = Khusus Premium\n` +
-                    `👤 = Khusus Chat Pribadi\n`;
+                text += `\n*Note:*\n` +
+                    `💰 Butuh Koin • 👥 Grup • 👑 Owner\n` +
+                    `⭐ Premium • 👤 Private Chat\n`;
 
             } else {
-                text += `*DAFTAR KATEGORI*\n` +
-                    `Ketik \`${ctx.used.prefix}menu [kategori]\` untuk melihat daftar perintah pada kategori.\n` +
-                    `Contoh: \`${ctx.used.prefix}menu chat\` untuk melihat menu AI Chat\n\n`;
+                text += `*KATEGORI MENU*\n` +
+                    `Ketik ${ctx.used.prefix}menu [kategori]\n` +
+                    `Contoh: ${ctx.used.prefix}menu chat\n\n`;
                 
                 for (const category of Object.keys(tag)) {
                     const commandCount = Array.from(cmd.values())
                         .filter(command => command.category === category).length;
                     const displayCategory = category.replace('ai-', '');
+                    const example = displayCategory.toLowerCase();
                     
-                    text += `◦ \`menu ${displayCategory}\` ${tag[category]}\n   ↳ ${commandCount} perintah\n`;
+                    text += `◦ ${tag[category]} (${commandCount}) \`${ctx.used.prefix}menu ${example}\`\n`;
                 }
+
+                text += `\nKetik ${ctx.used.prefix}allmenu untuk melihat semua perintah`;
             }
 
-            text += `\n${config.msg.footer}`;
+            text += `\n\n${config.msg.footer}`;
 
             return await ctx.reply({
-                image: {
-                    url: config.bot.thumbnail
+                text,
+                contextInfo: {
+                    mentionedJid: [ctx.sender.jid],
+                    externalAdReply: {
+                        title: config.msg.watermark,
+                        mediaType: "IMAGE",
+                        thumbnailUrl: config.bot.thumbnail,
+                        sourceUrl: config.bot.website,
+                        renderLargerThumbnail: true
+                    }
                 },
-                mimetype: mime.lookup("png"),
-                caption: text,
                 mentions: [ctx.sender.jid]
             });
 
