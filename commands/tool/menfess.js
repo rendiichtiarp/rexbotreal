@@ -61,9 +61,18 @@ module.exports = {
             }
 
             await ctx.sendMessage(`${formattedId}@s.whatsapp.net`, {
-                text: `${menfessText}\n` +
-                    `${config.msg.readmore}\n` +
-                    quote("Pesan yang Anda kirim akan diteruskan ke orang tersebut. Jika ingin berhenti, cukup ketik 'delete' atau 'stop'.")
+                text: menfessText ? 
+                    `Hai Saya RexbotX, ada seseorang mengirimkan pesan kepada Anda melalui Saya.\n\nPesan:\n${menfessText}\n${config.msg.readmore}\n${quote("Pesan yang Anda kirim akan diteruskan ke orang tersebut. Jika ingin berhenti, cukup ketik 'delete' atau 'stop'.")}` :
+                    quote("Hai Saya RexbotX, ada seseorang mengirimkan pesan kepada Anda melalui Saya. Pesan yang Anda kirim akan diteruskan ke orang tersebut. Jika ingin berhenti, cukup ketik 'delete' atau 'stop'."),
+                contextInfo: {
+                    externalAdReply: {
+                        title: config.msg.watermark,
+                        mediaType: "IMAGE",
+                        thumbnailUrl: config.bot.thumbnail,
+                        sourceUrl: config.bot.website,
+                        renderLargerThumbnail: true
+                    }
+                }
             });
 
             // Simpan data menfess ke database

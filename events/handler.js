@@ -311,7 +311,8 @@ module.exports = (bot) => {
                 for (const [conversationId, menfessData] of menfessEntries) {
                     const { from, to } = menfessData;
                     if (senderId === from || senderId === to) {
-                        if (m.content.match(/\b(delete|stop)\b/i)) {
+                        // Pastikan m.content ada sebelum menggunakan match
+                        if (m.content && m.content.match(/\b(delete|stop)\b/i)) {
                             await ctx.reply(quote("✅ Pesan menfess telah diakhiri!"));
                             await ctx.sendMessage(`${senderId === from ? to : from}@s.whatsapp.net`, {
                                 text: quote("✅ Pesan menfess telah diakhiri!")
