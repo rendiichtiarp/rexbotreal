@@ -19,21 +19,6 @@ async function checkCoin(requiredCoin, senderId) {
     return false;
 }
 
-// Fungsi untuk delay random dengan variasi lebih natural
-const randomDelay = () => {
-    return new Promise(resolve => {
-        // Base delay 2-5 detik
-        const baseDelay = Math.floor(Math.random() * (6000 - 2000 + 1) + 2000);
-        
-        // Tambahkan variasi random milliseconds (0-999ms)
-        const variation = Math.floor(Math.random() * 1000);
-        
-        const totalDelay = baseDelay + variation;
-        
-        setTimeout(resolve, totalDelay);
-    });
-};
-
 // Middleware utama bot
 module.exports = (bot) => {
     bot.use(async (ctx, next) => {
@@ -94,6 +79,9 @@ module.exports = (bot) => {
                 level: currentLevel
             });
 
+            const text = quote(`❎ Anda belum bergabung ke komunitas RexbotX\n> Bergabung untuk mendapatkan akses penuh ke fitur RexbotX!` +
+                `${(config.bot.groupLink + "\n\n> Jika belum bergabung, akan diberikan reaksi 🚫")}`);
+
             // Pengecekan kondisi pengguna
             const restrictions = [{
                     condition: userDb?.banned,
@@ -110,7 +98,16 @@ module.exports = (bot) => {
                 },
                 {
                     condition: config.system.requireBotGroupMembership && ctx.used.command !== "botgroup" && !isOwner && !userDb?.premium && !(await ctx.group(config.bot.groupJid).members()).some(member => tools.general.getID(member.id) === senderId),
-                    msg: config.msg.botGroupMembership,
+                    msg: text,
+                    contextInfo: {
+                        externalAdReply: {
+                            title: config.msg.watermark,
+                            mediaType: "IMAGE",
+                            thumbnailUrl: config.bot.thumbnail,
+                            sourceUrl: config.bot.website,
+                            renderLargerThumbnail: true
+                        }
+                    },
                     reaction: "🚫",
                     key: "has_sent_requireBotGroupMembership"
                 },
@@ -156,7 +153,7 @@ module.exports = (bot) => {
 
             // Terapkan random delay untuk non-premium user setelah pemeriksaan cooldown
             if (!isOwner && !userDb?.premium) {
-                await randomDelay();
+                await tools.general.randomDelay();
             }
 
             // Pengecekan izin

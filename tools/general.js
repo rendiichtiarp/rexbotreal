@@ -298,6 +298,21 @@ async function upload(buffer, type, host) {
     }
 }
 
+// Fungsi untuk delay random dengan variasi lebih natural
+const randomDelay = () => {
+    return new Promise(resolve => {
+        // Base delay 2-5 detik
+        const baseDelay = Math.floor(Math.random() * (6000 - 2000 + 1) + 2000);
+        
+        // Tambahkan variasi random milliseconds (0-999ms)
+        const variation = Math.floor(Math.random() * 1000);
+        
+        const totalDelay = baseDelay + variation;
+        
+        setTimeout(resolve, totalDelay);
+    });
+};
+
 function calculateTimeBasedCoin(startTime, endTime, baseCoin = 20) {
     const timeElapsed = endTime - startTime;
     const maxTime = 60000; // 60 detik dalam milidetik
@@ -326,5 +341,6 @@ module.exports = {
     translate,
     ucword,
     upload,
-    calculateTimeBasedCoin
+    calculateTimeBasedCoin,
+    randomDelay
 };

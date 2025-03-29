@@ -151,6 +151,9 @@ module.exports = (bot) => {
                     `Hi ${userDb?.name || 'kak'} 🌟\nButuh bantuan? Ketik .menu untuk melihat daftar perintah ya.`
                 ];
                 
+                if (config.system.autoTypingOnCmd) await ctx.simulateTyping();
+                await tools.general.randomDelay();
+                
                 await ctx.reply({
                     text: tools.general.getRandomElement(responses),
                     contextInfo: {

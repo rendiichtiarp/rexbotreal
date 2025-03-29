@@ -4,6 +4,7 @@ const {
 
 module.exports = {
     name: "botgroup",
+    aliases: ["groupbot", "grupbot", "botgrup"],
     category: "information",
     permissions: {},
     code: async (ctx) => {
