@@ -3,13 +3,15 @@ require("./config.js");
 const pkg = require("./package.json");
 const tools = require("./tools/exports.js");
 const {
-    Consolefy
+    Consolefy,
+    quote
 } = require("@mengkodingan/consolefy");
 const CFonts = require("cfonts");
 const fs = require("node:fs");
- const http = require("node:http");
- const path = require("node:path");
+const path = require("node:path");
 const Database = require('./lib/database/queries');
+const createServer = require("./lib/api/server");
+
 // Inisialisasi Consolefy untuk logging
 const c = new Consolefy({
     tag: pkg.name
@@ -56,10 +58,11 @@ CFonts.say(
 
 // Jalankan server jika diaktifkan dalam konfigurasi
 if (config.system.useServer) {
-    const {
-        port
-    } = config.system;
-    http.createServer((_, res) => res.end(`${pkg.name} berjalan di port ${port}`)).listen(port, () => c.success(`${pkg.name} runs on http://localhost:${port}`));
+    const { port } = config.system;
+    global.startServer = (bot) => {
+        const app = createServer(bot, c);
+        app.listen(port, () => c.success(`API server running on http://localhost:${port}`));
+    };
 }
 
 require("./main.js"); // Jalankan modul utama

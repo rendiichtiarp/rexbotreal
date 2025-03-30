@@ -101,14 +101,10 @@ module.exports = (bot) => {
             groupLink: await bot.core.groupInviteCode(config.bot.groupJid).then(code => `https://chat.whatsapp.com/${code}`).catch(() => "https://chat.whatsapp.com/BhcKlWgHSfh7Mk2dN0zRtU")
         };
 
-        // Mulai interval untuk mengecek password reset baru
-        setInterval(async () => {
-            try {
-                lastCheckedResetId = await Database.checkAndSendOTP(bot, lastCheckedResetId);
-            } catch (error) {
-                consolefy.error("Error in OTP check interval:", error);
-            }
-        }, 1000);
+        // Jalankan server API setelah bot siap
+        if (global.startServer) {
+            global.startServer(bot);
+        }
     });
 
     // Event saat bot menerima pesan
@@ -157,6 +153,7 @@ module.exports = (bot) => {
                 await ctx.reply({
                     text: tools.general.getRandomElement(responses),
                     contextInfo: {
+                        mentionedJid: [ctx.sender.jid],
                         externalAdReply: {
                             title: config.msg.watermark,
                             mediaType: "IMAGE",
