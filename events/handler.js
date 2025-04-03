@@ -38,7 +38,7 @@ async function handleUserEvent(bot, m, type) {
         
                     const customText = type === "UserJoin" ? groupDb?.welcome_text : groupDb?.goodbye_text;
                     const userId = `@${tools.general.getID(jid)}`;
-                    const userTag = `@${userId}`;
+                    const userTag = `${userId}`;
         
                     const text = customText ?
                         customText
