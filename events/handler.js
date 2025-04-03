@@ -12,6 +12,7 @@ const {
 } = require("node:child_process");
 const fs = require("node:fs");
 const util = require("node:util");
+const mime = require("mime-types");
 
 // Di bagian atas file, tambahkan variabel untuk tracking
 let lastCheckedResetId = 0;
