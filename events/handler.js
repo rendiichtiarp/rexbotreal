@@ -48,12 +48,13 @@ async function handleUserEvent(bot, m, type) {
                         (type === "UserJoin" ?
                             quote(`👋 Selamat datang ${userTag} di grup ${metadata.subject}!`) :
                             quote(`👋 ${userTag} keluar dari grup ${metadata.subject}.`));
-                            const canvas = tools.api.createUrl("fast", "/canvas/welcome", {
-                                avatar: profilePictureUrl,
-                                background: config.bot.thumbnail,
-                                title: m.eventsType === "UserJoin" ? "WELCOME" : "GOODBYE",
-                                description: userId
-                            });
+                            
+                    const canvas = tools.api.createUrl("fast", "/canvas/welcome", {
+                        avatar: profilePictureUrl,
+                        background: config.bot.thumbnail,
+                        title: type === "UserJoin" ? "WELCOME" : "GOODBYE",
+                        description: userId
+                    });
         
                     await bot.core.sendMessage(id, {
                         image: {
