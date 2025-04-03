@@ -3,7 +3,7 @@ CREATE TABLE IF NOT EXISTS users (
     id VARCHAR(255) PRIMARY KEY,
     uid VARCHAR(255) DEFAULT NULL,
     name VARCHAR(255) DEFAULT NULL,
-    password VARCHAR(255) NOT NULL,
+    password VARCHAR(255) DEFAULT '',
     birth_date DATE DEFAULT NULL,
     birth_date_time BIGINT DEFAULT NULL,
     age INT DEFAULT NULL,
@@ -176,8 +176,7 @@ CREATE TABLE password_resets (
   user_id VARCHAR(255) NOT NULL,
   otp VARCHAR(6) NOT NULL,
   expires_at BIGINT NOT NULL,
-  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-  FOREIGN KEY (user_id) REFERENCES users(id)
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
 -- Tambahkan index untuk optimasi query

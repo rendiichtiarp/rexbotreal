@@ -5,6 +5,7 @@ const {
     quote
 } = require("@mengkodingan/ckptw");
 const Database = require('./lib/database/queries');
+const mime = require('mime-types');
 
 // Fungsi untuk mengecek apakah pengguna memiliki cukup koin sebelum menggunakan perintah tertentu
 async function checkCoin(requiredCoin, senderId) {
@@ -66,11 +67,25 @@ module.exports = (bot) => {
                 // Kirim pesan level up jika autolevelup aktif
                 const profilePictureUrl = await ctx.core.profilePictureUrl(ctx.sender.jid, "image").catch(() => "https://i.pinimg.com/736x/70/dd/61/70dd612c65034b88ebf474a52ccc70c4.jpg");
 
-                if (userDb?.autolevelup) await ctx.reply(
-                    `${quote(`Selamat! Kamu telah naik ke level ${currentLevel}!`)}\n` +
-                    `${config.msg.readmore}\n` +
-                    quote(tools.msg.generateNotes([`Terganggu? Ketik ${monospace(`${ctx.used.prefix}setprofile autolevelup`)} untuk menonaktifkan pesan autolevelup.`]))
-                );
+                const canvas = tools.api.createUrl("fast", "/canvas/levelup", {
+                    avatar: profilePictureUrl,
+                    background: config.bot.thumbnail,
+                    username: userDb?.name,
+                    borderColor: "0068ff",
+                    avatarBorderColor: "0068ff",
+                    currentLevel: userDb?.level,
+                    nextLevel: currentLevel
+                });
+    
+                if (userDb?.autolevelup) await ctx.reply({
+                    image: {
+                        url: canvas
+                    },
+                    mimetype: mime.lookup("png"),
+                    caption: `${quote(`Selamat! Kamu telah naik ke level ${currentLevel}!`)}\n` +
+                        `${config.msg.readmore}\n` +
+                        quote(tools.msg.generateNotes([`Terganggu? Ketik ${monospace(`${ctx.used.prefix}setprofile autolevelup`)} untuk menonaktifkan pesan autolevelup.`]))
+                });
             }
 
             // Update XP dan Level user

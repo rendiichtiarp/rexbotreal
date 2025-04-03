@@ -36,7 +36,8 @@ async function handleUserEvent(bot, m, type) {
                     const profilePictureUrl = await bot.core.profilePictureUrl(jid, "image").catch(() => "https://i.pinimg.com/736x/70/dd/61/70dd612c65034b88ebf474a52ccc70c4.jpg");
         
                     const customText = type === "UserJoin" ? groupDb?.welcome_text : groupDb?.goodbye_text;
-                    const userTag = `@${tools.general.getID(jid)}`;
+                    const userId = `@${tools.general.getID(jid)}`;
+                    const userTag = `@${userId}`;
         
                     const text = customText ?
                         customText
@@ -46,19 +47,20 @@ async function handleUserEvent(bot, m, type) {
                         (type === "UserJoin" ?
                             quote(`👋 Selamat datang ${userTag} di grup ${metadata.subject}!`) :
                             quote(`👋 ${userTag} keluar dari grup ${metadata.subject}.`));
+                            const canvas = tools.api.createUrl("fast", "/canvas/welcome", {
+                                avatar: profilePictureUrl,
+                                background: config.bot.thumbnail,
+                                title: m.eventsType === "UserJoin" ? "WELCOME" : "GOODBYE",
+                                description: userId
+                            });
         
                     await bot.core.sendMessage(id, {
-                        text,
-                        contextInfo: {
-                            mentionedJid: [jid],
-                            externalAdReply: {
-                                title: config.msg.watermark,
-                                mediaType: "IMAGE",
-                                thumbnailUrl: profilePictureUrl,
-                                sourceUrl: config.bot.website,
-                                renderLargerThumbnail: true
-                            }
-                        }
+                        image: {
+                            url: canvas
+                        },
+                        mimetype: mime.lookup("png"),
+                        caption: text,
+                        mentions: [jid]
                     });
         
                     if (type === "UserJoin" && groupDb?.intro_text) await bot.core.sendMessage(id, {
