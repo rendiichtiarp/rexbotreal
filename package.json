@@ -1,6 +1,6 @@
 {
   "name": "rexbotx",
-  "version": "1.2.8",
+  "version": "1.2.10",
   "description": "WhatsApp Bot",
   "main": "index.js",
   "directories": {
@@ -12,7 +12,7 @@
     "test": "echo \"Error: no test specified\" && exit 1",
     "install:adapter": "node install-adapter.js",
     "start": "node .",
-    "start:pm2": "pm2 start ./index.js --name RexbotX && pm2 log"
+    "start:pm2": "pm2 start ./index.js && pm2 log"
   },
   "repository": {
     "type": "git",
@@ -29,7 +29,7 @@
   },
   "homepage": "https://github.com/rendiichtiarp/RexbotX#readme",
   "dependencies": {
-    "@mengkodingan/ckptw": "^4.4.9",
+    "@mengkodingan/ckptw": "^4.4.8",
     "@mengkodingan/consolefy": "^1.0.1",
     "@zanixongroup/uploader": "^2.0.2",
     "axios": "1.8.3",
@@ -43,7 +43,7 @@
     "jimp": "^0.16.1",
     "jsdom": "^26.0.0",
     "link-preview-js": "^3.0.14",
-    "mime-types": "3.0.1",
+    "mime-types": "^2.1.35",
     "moment-timezone": "^0.5.47",
     "mysql2": "^3.12.0",
     "util": "^0.12.5",
