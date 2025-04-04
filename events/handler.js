@@ -243,7 +243,7 @@ module.exports = (bot) => {
 
             // Penanganan antinsfw
             if (groupDb?.antinsfw) {
-                const checkMedia = await tools.general.checkMedia(ctx.getMessageType(), "image");
+                const checkMedia = await tools.cmd.checkMedia(ctx.getMessageType(), "image");
                 if (checkMedia && !await ctx.group().isSenderAdmin()) {
                     const buffer = await ctx.msg.media.toBuffer();
                     const uploadUrl = await tools.general.upload(buffer, "image");
@@ -283,7 +283,7 @@ module.exports = (bot) => {
 
             // Penanganan antisticker
             if (groupDb?.antisticker) {
-                const checkMedia = await tools.general.checkMedia(ctx.getMessageType(), "sticker");
+                const checkMedia = await tools.cmd.checkMedia(ctx.getMessageType(), "sticker");
                 if (checkMedia && !await ctx.group().isSenderAdmin()) {
                     await ctx.reply(quote(`⛔ Jangan kirim stiker!`));
                     await ctx.deleteMessage(m.key);

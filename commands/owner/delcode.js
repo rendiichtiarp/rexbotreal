@@ -13,8 +13,8 @@ module.exports = {
         const code = ctx.args[0]?.toUpperCase();
 
         if (!code) return await ctx.reply(
-            `${quote(tools.msg.generateInstruction(["send"], ["text"]))}\n` +
-            quote(tools.msg.generateCommandExample(ctx.used, "ULTAH2024"))
+            `${quote(tools.cmd.generateInstruction(["send"], ["text"]))}\n` +
+            quote(tools.cmd.generateCommandExample(ctx.used, "ULTAH2024"))
         );
 
         try {

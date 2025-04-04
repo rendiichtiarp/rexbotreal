@@ -17,8 +17,8 @@ module.exports = {
         const script = ctx.args.join(" ") || null;
 
         if (!script) return await ctx.reply(
-            `${quote(tools.msg.generateInstruction(["send"], ["text"]))}\n` +
-            quote(tools.msg.generateCommandExample(ctx.used, 'consolefy.log("halo, dunia!");'))
+            `${quote(tools.cmd.generateInstruction(["send"], ["text"]))}\n` +
+            quote(tools.cmd.generateCommandExample(ctx.used, 'consolefy.log("halo, dunia!");'))
         );
 
         try {

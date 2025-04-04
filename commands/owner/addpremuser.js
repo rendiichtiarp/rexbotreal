@@ -19,8 +19,8 @@ module.exports = {
         const userDb = await Database.getUser(tools.general.getID(userId));
 
         if (!userJid) return await ctx.reply({
-            text: `${quote(tools.msg.generateInstruction(["send"], ["text"]))}\n` +
-                quote(tools.msg.generateCommandExample(ctx.used, `@${senderId}`)),
+            text: `${quote(tools.cmd.generateInstruction(["send"], ["text"]))}\n` +
+                quote(tools.cmd.generateCommandExample(ctx.used, `@${senderId}`)),
             mentions: [senderJid]
         });
 

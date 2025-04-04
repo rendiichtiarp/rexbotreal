@@ -17,8 +17,8 @@ module.exports = {
         const accountJid = ctx.quoted?.senderJid || ctx.msg?.message?.extendedTextMessage?.contextInfo?.mentionedJid?.[0] || null;
 
         if (!accountJid) return await ctx.reply({
-            text: `${quote(tools.msg.generateInstruction(["send"], ["text"]))}\n` +
-                quote(tools.msg.generateCommandExample(ctx.used, `@${senderId}`)),
+            text: `${quote(tools.cmd.generateInstruction(["send"], ["text"]))}\n` +
+                quote(tools.cmd.generateCommandExample(ctx.used, `@${senderId}`)),
             mentions: [senderJid]
         });
 

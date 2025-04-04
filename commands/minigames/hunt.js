@@ -14,8 +14,8 @@ module.exports = {
         try {
             // Cek input
             if (!input || isNaN(input)) return await ctx.reply(
-                `${quote(tools.msg.generateInstruction(["send"], ["text"]))}\n` +
-                quote(tools.msg.generateCommandExample(ctx.used, `10`))
+                `${quote(tools.cmd.generateInstruction(["send"], ["text"]))}\n` +
+                quote(tools.cmd.generateCommandExample(ctx.used, `10`))
             );
 
             // Cek saldo user

@@ -16,7 +16,7 @@ module.exports = {
         coin: 5
     },
     code: async (ctx) => {
-        if (!await tools.general.checkQuotedMedia(ctx.quoted, ["sticker"])) return await ctx.reply(quote(tools.msg.generateInstruction(["reply"], ["sticker"])));
+        if (!await tools.cmd.checkQuotedMedia(ctx.quoted, ["sticker"])) return await ctx.reply(quote(tools.cmd.generateInstruction(["reply"], ["sticker"])));
 
         try {
             const buffer = await ctx.quoted?.media.toBuffer()

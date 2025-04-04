@@ -14,9 +14,9 @@ module.exports = {
         const [code, type, amount, maxClaims = "0", expireDays = "0"] = ctx.args;
 
         if (!code || !type || !amount) return await ctx.reply(
-            `${quote(tools.msg.generateInstruction(["send"], ["text"]))}\n` +
-            `${quote(tools.msg.generateCommandExample(ctx.used, "ULTAH2024 coin 1000 0 0"))}\n` +
-            quote(tools.msg.generateNotes([
+            `${quote(tools.cmd.generateInstruction(["send"], ["text"]))}\n` +
+            `${quote(tools.cmd.generateCommandExample(ctx.used, "ULTAH2024 coin 1000 0 0"))}\n` +
+            quote(tools.cmd.generateNotes([
                 "Format: <kode> <tipe> <jumlah> [max_klaim] [masa_berlaku]",
                 "Tipe hadiah: coin, premium",
                 "Max klaim 0 = unlimited",

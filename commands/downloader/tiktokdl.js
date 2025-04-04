@@ -15,8 +15,8 @@ module.exports = {
         const input = ctx.args.join(" ") || null;
 
         if (!input) return await ctx.reply(
-            `${quote(tools.msg.generateInstruction(["send"], ["text"]))}\n` +
-            `${quote(tools.msg.generateCommandExample(ctx.used, "https://example.com/ -a -hd"))}\n` +
+            `${quote(tools.cmd.generateInstruction(["send"], ["text"]))}\n` +
+            `${quote(tools.cmd.generateCommandExample(ctx.used, "https://example.com/ -a -hd"))}\n` +
             quote(tools.msg.generatesFlagInformation({
                 "-a": "Kirim audio",
                 "-hd": "Pilih resolusi HD"

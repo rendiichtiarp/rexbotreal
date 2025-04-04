@@ -18,9 +18,9 @@ module.exports = {
         
         if (!match) {
             return await ctx.reply(
-                `${quote(tools.msg.generateInstruction(["send"], ["text"]))}\n` +
-                `${quote(tools.msg.generateCommandExample(ctx.used, "628123456789 halo, dunia!"))}\n` +
-                quote(tools.msg.generateNotes(["Jangan gunakan spasi pada angka. Contoh: +62 8123-4567-8910, seharusnya +628123-4567-8910"]))
+                `${quote(tools.cmd.generateInstruction(["send"], ["text"]))}\n` +
+                `${quote(tools.cmd.generateCommandExample(ctx.used, "628123456789 halo, dunia!"))}\n` +
+                quote(tools.cmd.generateNotes(["Jangan gunakan spasi pada angka. Contoh: +62 8123-4567-8910, seharusnya +628123-4567-8910"]))
             );
         }
 

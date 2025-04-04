@@ -19,8 +19,8 @@ module.exports = {
 
         if (!targetId || isNaN(amount)) {
             return await ctx.reply(
-                `${quote(tools.msg.generateInstruction(["send"], ["text"]))}\n` +
-                `${quote(tools.msg.generateCommandExample(ctx.used, "@user 1000"))}\n` +
+                `${quote(tools.cmd.generateInstruction(["send"], ["text"]))}\n` +
+                `${quote(tools.cmd.generateCommandExample(ctx.used, "@user 1000"))}\n` +
                 quote(`Note: Tag pengguna atau masukkan nomor pengguna`)
             );
         }

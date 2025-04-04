@@ -13,10 +13,10 @@ module.exports = {
 
         try {
             if (!itemId) return await ctx.reply(
-                    `${quote(tools.msg.generateInstruction(["send"], ["text"]))}\n` +
-                    `${quote(tools.msg.generateCommandExample(ctx.used, `<item_id> <jumlah>`))}\n` +
+                    `${quote(tools.cmd.generateInstruction(["send"], ["text"]))}\n` +
+                    `${quote(tools.cmd.generateCommandExample(ctx.used, `<item_id> <jumlah>`))}\n` +
                     `${quote(`atau`)}\n` +
-                    `${quote(tools.msg.generateCommandExample(ctx.used, `all`))}`
+                    `${quote(tools.cmd.generateCommandExample(ctx.used, `all`))}`
                 );
             
             if (itemId.toLowerCase() === 'all') {

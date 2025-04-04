@@ -13,7 +13,7 @@ module.exports = {
         coin: 5
     },
     code: async (ctx) => {
-        if (!await tools.general.checkQuotedMedia(ctx.quoted, ["audio"])) return await ctx.reply(quote(tools.msg.generateInstruction(["reply"], ["audio"])));
+        if (!await tools.cmd.checkQuotedMedia(ctx.quoted, ["audio"])) return await ctx.reply(quote(tools.cmd.generateInstruction(["reply"], ["audio"])));
 
         try {
             const result = await ctx.quoted?.media.toBuffer()

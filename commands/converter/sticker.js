@@ -16,11 +16,11 @@ module.exports = {
     code: async (ctx) => {
         const msgType = ctx.getMessageType();
         const [checkMedia, checkQuotedMedia] = await Promise.all([
-            tools.general.checkMedia(msgType, ["image", "gif", "video"]),
-            tools.general.checkQuotedMedia(ctx.quoted, ["image", "gif", "video"])
+            tools.cmd.checkMedia(msgType, ["image", "gif", "video"]),
+            tools.cmd.checkQuotedMedia(ctx.quoted, ["image", "gif", "video"])
         ]);
 
-        if (!checkMedia && !checkQuotedMedia) return await ctx.reply(quote(tools.msg.generateInstruction(["send", "reply"], ["image", "gif", "video"])));
+        if (!checkMedia && !checkQuotedMedia) return await ctx.reply(quote(tools.cmd.generateInstruction(["send", "reply"], ["image", "gif", "video"])));
 
         try {
             const buffer = await ctx.msg.media.toBuffer() || await ctx.quoted?.media.toBuffer();

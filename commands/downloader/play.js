@@ -15,8 +15,8 @@ module.exports = {
         const input = ctx.args.join(" ") || null;
 
         if (!input) return await ctx.reply(
-            `${quote(tools.msg.generateInstruction(["send"], ["text"]))}\n` +
-            `${quote(tools.msg.generateCommandExample(ctx.used, "hikaru utada - one last kiss -i 8 -s spotify"))}\n` +
+            `${quote(tools.cmd.generateInstruction(["send"], ["text"]))}\n` +
+            `${quote(tools.cmd.generateCommandExample(ctx.used, "hikaru utada - one last kiss -i 8 -s spotify"))}\n` +
             quote(tools.msg.generatesFlagInformation({
                 "-i <number>": "Pilihan pada data indeks",
                 "-s <text>": "Sumber untuk memutar lagu (tersedia: soundcloud, spotify, youtube | default: youtube)"

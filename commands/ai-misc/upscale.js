@@ -1,30 +1,28 @@
 const {
     quote
 } = require("@mengkodingan/ckptw");
-const axios = require("axios");
 const mime = require("mime-types");
 
 module.exports = {
-    name: "superscale",
-    aliases: ["superscaler"],
-    category: "tool",
+    name: "upscale",
+    aliases: ["upscaler"],
+    category: "ai-misc",
     permissions: {
-        premium: true
+        coin: 5
     },
     code: async (ctx) => {
         const input = ctx.args.join(" ") || null;
 
         const msgType = ctx.getMessageType();
         const [checkMedia, checkQuotedMedia] = await Promise.all([
-            tools.general.checkMedia(msgType, "image"),
-            tools.general.checkQuotedMedia(ctx.quoted, "image")
+            tools.cmd.checkMedia(msgType, "image"),
+            tools.cmd.checkQuotedMedia(ctx.quoted, "image")
         ]);
 
         if (!checkMedia && !checkQuotedMedia) return await ctx.reply(
-            `${quote(tools.msg.generateInstruction(["send", "reply"], "image"))}\n` +
+            `${quote(tools.cmd.generateInstruction(["send", "reply"], "image"))}\n` +
             quote(tools.msg.generatesFlagInformation({
-                "-r <number>": "Atur faktor resize (tersedia: 2, 4, 8, 16 | default: 2)",
-                 "-a": "Jika itu gambar anime"
+                "-r <number>": "Atur faktor resize (tersedia: 2, 4, 8, 16 | default: 2)"
             }))
         );
 
@@ -35,21 +33,15 @@ module.exports = {
                     key: "resize",
                     validator: (val) => !isNaN(val) && /^[2|4|6|8|16]$/.test(val),
                     parser: (val) => parseInt(val, 10)
-                },
-                "-a": {
-                    type: "boolean",
-                    key: "anime"
                 }
             });
 
             const buffer = await ctx.msg.media.toBuffer() || await ctx.quoted?.media.toBuffer();
             const uploadUrl = await tools.general.upload(buffer, "image");
-            const apiUrl = tools.api.createUrl("fast", "/aiimage/superscale", {
+            const result = tools.api.createUrl("fast", "/aiimage/upscale", {
                 imageUrl: uploadUrl,
-                resize: flag?.resize || 2,
-                anime: flag?.anime
+                resize: flag?.resize || 2
             });
-            const result = (await axios.get(apiUrl)).data.result;
 
             return await ctx.reply({
                 image: {
@@ -58,9 +50,7 @@ module.exports = {
                 mimetype: mime.lookup("png")
             });
         } catch (error) {
-            consolefy.error(`Error: ${error}`);
-            if (error.status !== 200) return await ctx.reply(config.msg.notFound);
-            return await ctx.reply(quote(`❎ Terjadi kesalahan: ${error.message}`));
+            return await tools.cmd.handleError(ctx, error, true);
         }
     }
 };
