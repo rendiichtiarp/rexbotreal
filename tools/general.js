@@ -169,14 +169,15 @@ async function upload(buffer, type, host = "FastUrl") {
     if (!buffer || !type) return null;
 
     const hosts = {
-        any: ["FastUrl", "Litterbox", "Catbox", "Uguu"],
+        any: ["FastUrl", "Litterbox", "Catbox", "Uguu", "Pomf", "Quax", "Ryzen", "Shojib", "Erhabot", "TmpErhabot", "Videy"],
         image: ["Pomf", "Quax", "Ryzen", "Shojib", "Erhabot", "TmpErhabot"],
         video: ["Pomf", "Quax", "Videy", "Ryzen", "TmpErhabot"],
         audio: ["Pomf", "Quax", "Ryzen", "TmpErhabot"]
     };
 
     host = host?.toLowerCase() || config.system.uploaderHost?.toLowerCase();
-     const validHost = (hosts[type] || []).find(h => h.toLowerCase() === host);
+    const validHosts = type === "any" ? hosts.any.map(h => h.toLowerCase()) : (hosts[type] || []).map(h => h.toLowerCase());
+    const validHost = validHosts.find(h => h === host);
  
      if (!validHost) return `Host '${host}' tidak mendukung tipe '${type}'`;
 
@@ -184,10 +185,10 @@ async function upload(buffer, type, host = "FastUrl") {
         const url = await uploader[validHost](buffer);
          return url || `Gagal mengupload ke '${validHost}'`;
      } catch (err) {
-         consolefy.error(`Error: ${error}`);
+        consolefy.error(`Error: ${err}`);
         return null;
     }
-}
+};
 
 async function resizeWithBlur(input, width, height) {
     try {
