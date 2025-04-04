@@ -37,7 +37,7 @@ async function handleUserEvent(bot, m, type) {
         
                     const customText = type === "UserJoin" ? groupDb?.welcome_text : groupDb?.goodbye_text;
                     const userId = tools.general.getID(jid);
-                    const userTag = `@${userId}`;
+                    const userTag = `${userId}`;
         
                     const text = customText ?
                         customText
@@ -52,7 +52,7 @@ async function handleUserEvent(bot, m, type) {
                         avatar: profilePictureUrl,
                         background: config.bot.thumbnail,
                         title: type === "UserJoin" ? "WELCOME" : "GOODBYE",
-                        description: userTag
+                        description: userId
                     });
         
                     await bot.core.sendMessage(id, {
@@ -60,7 +60,8 @@ async function handleUserEvent(bot, m, type) {
                             url: canvas
                         },
                         mimetype: mime.lookup("png"),
-                        caption: text
+                        caption: text,
+                        mentions: [jid]
                     });
         
                     if (type === "UserJoin" && groupDb?.intro_text) await bot.core.sendMessage(id, {
