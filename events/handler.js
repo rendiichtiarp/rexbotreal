@@ -147,9 +147,16 @@ module.exports = (bot) => {
             // Hanya merespon jika pesan dimulai dengan sapaan atau secara eksplisit menyebut bot
             if ((greetingWords.test(m.content) || (m.content.length < 20 && botMentions.test(m.content))) && !isInMenfess) {
                 const responses = [
-                    `Hai ${userDb?.name || 'kak'} 👋\nAda yang bisa saya bantu?\nKetik .menu untuk melihat daftar perintah.`,
-                    `Halo ${userDb?.name || 'kak'} ✨\nSaya RexbotX, bot WhatsApp yang siap membantu.\nGunakan .menu untuk melihat fitur yang tersedia.`,
-                    `Hi ${userDb?.name || 'kak'} 🌟\nButuh bantuan? Ketik .menu untuk melihat daftar perintah ya.`
+                    `Ada yang bisa saya bantu?\nKetik .menu untuk melihat daftar perintah.`,
+                    `Saya RexbotX, bot WhatsApp yang siap membantu.\nGunakan .menu untuk melihat fitur yang tersedia.`,
+                    `Butuh bantuan? Ketik .menu untuk melihat daftar perintah ya.`,
+                    `Ketik .menu untuk melihat semua fitur yang tersedia.`,
+                    `Perkenalkan saya RexbotX. Ketik .menu untuk melihat apa saja yang bisa saya lakukan.`,
+                    `Silakan ketik .menu untuk melihat daftar perintah yang tersedia.`,
+                    `RexbotX siap membantu. Gunakan .menu untuk mengakses fitur.`,
+                    `Ingin tahu fitur apa saja yang ada? Ketik .menu sekarang.`,
+                    `Punya pertanyaan? Cek .menu untuk melihat cara saya membantu.`,
+                    `Gunakan .menu untuk melihat daftar lengkap fitur RexbotX.`
                 ];
                 
                 if (config.system.autoTypingOnCmd) await ctx.simulateTyping();
