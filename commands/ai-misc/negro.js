@@ -28,14 +28,14 @@ module.exports = {
         );
 
         try {
-            const flag = parseFlag(input, {
+            const flag = tools.cmd.parseFlag(input, {
                 "-f": {
                     type: "value",
                     key: "filter",
                     validator: (val) => /^(brown|black|nerd|piggy|carbon|bald)$/.test(val),
                     parser: (val) => val
                 }
-            }) || {};
+            });
             const filter = flag.filter || "brown";
 
             const buffer = await ctx.msg.media.toBuffer() || await ctx.quoted.media.toBuffer();

@@ -5,7 +5,16 @@ const didyoumean = require("didyoumean");
 const uploader = require("@zanixongroup/uploader");
 const Jimp = require("jimp");
 
-function formatBotName(botName) {
+const checkUrl = async (url) => {
+    try {
+        const response = await axios.get(url);
+        return response.status === 200;
+    } catch {
+        return false;
+    }
+}
+
+const formatBotName = (botName) => {
     if (!botName) return null;
 
      botName = botName.toLowerCase();
@@ -178,13 +187,16 @@ async function upload(buffer, type, host) {
     try {
         if (host) {
             if (!hosts[type] || !hosts[type].includes(host)) return `Host '${host}' tidak mendukung tipe '${type}'`;
-            return await uploader[host](buffer);
+            const url = await uploader[host](buffer);
+             const isValid = await checkUrl(url);
+             return isValid ? url : `Gagal mengupload ke '${host}'`;
         }
 
         for (const h of (hosts[type] || hosts.any)) {
             try {
                 const url = await uploader[h](buffer);
-                if (url) return url;
+                const isValid = await checkUrl(url);
+                 if (isValid) return url;
             } catch (err) {
                 continue;
             }
