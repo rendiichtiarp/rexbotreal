@@ -5,7 +5,8 @@ const {
 const mime = require("mime-types");
 
 module.exports = {
-    name: "negro",
+    name: "penghitaman",
+    aliases: ["hitamkan"],
     category: "tool",
     permissions: {
         coin: 10
