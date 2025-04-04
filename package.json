@@ -29,7 +29,7 @@
   },
   "homepage": "https://github.com/rendiichtiarp/RexbotX#readme",
   "dependencies": {
-    "@mengkodingan/ckptw": "^4.4.8",
+    "@mengkodingan/ckptw": "^4.4.9",
     "@mengkodingan/consolefy": "^1.0.1",
     "@zanixongroup/uploader": "^2.0.2",
     "axios": "1.8.3",
