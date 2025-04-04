@@ -152,11 +152,11 @@ function generateNotes(notes) {
 
 async function handleError(ctx, error, useAxios) {
     const errorText = util.format(error);
-     consolefy.error(`Error: ${errorText}`);
+    consolefy.error(`Error: ${errorText}`);
     if (config.system.reportErrorToOwner) await ctx.replyWithJid(`${config.owner.id}@s.whatsapp.net`, {
         text: `${quote(`⚠️ Terjadi kesalahan:`)}\n` +
-        `${quote("─────")}\n` +
-        monospace(errorText)
+            `${quote("─────")}\n` +
+            monospace(errorText)
     });
     if (useAxios && error.status !== 200) return await ctx.reply(config.msg.notFound);
     return await ctx.reply(quote(`⚠️ Terjadi kesalahan: ${error.message}`));
@@ -174,6 +174,7 @@ function parseFlag(argsString, customRules = {}) {
 
     for (let i = 0; i < args.length; i++) {
         const arg = args[i];
+
         if (customRules[arg]) {
             const rule = customRules[arg];
 
@@ -195,9 +196,9 @@ function parseFlag(argsString, customRules = {}) {
     }
 
     options.input = input.join(" ");
-
     return options;
 }
+
 
 module.exports = {
     checkMedia,

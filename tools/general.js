@@ -1,16 +1,14 @@
 // Impor modul dan dependensi yang diperlukan
 const api = require("./api.js");
+const uploader = require("@zanixongroup/uploader");
 const axios = require("axios");
 const didyoumean = require("didyoumean");
-const uploader = require("@zanixongroup/uploader");
-const Jimp = require("jimp");
 const util = require("node:util");
 
 const formatBotName = (botName) => {
     if (!botName) return null;
-
-     botName = botName.toLowerCase();
-     return botName.replace(/[aiueo0-9\W_]/g, "");
+    botName = botName.toLowerCase();
+    return botName.replace(/[aiueo0-9\W_]/g, "");
 }
 
 function convertMsToDuration(ms) {
@@ -69,22 +67,7 @@ function generateUID(id) {
 
     const uniquePart = id.split("").reverse().join("").charCodeAt(0).toString(16);
 
-    return `${Math.abs(hash).toString(16).toLowerCase()}-${uniquePart}_${formatBotName(config.bot.name)}`;
-}
-
-function generatePassword(id) {
-    if (!id) return false;
-
-    const chars = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*';
-    let password = '';
-    
-    // Generate 8 karakter random
-    for (let i = 0; i < 8; i++) {
-        const randomIndex = Math.floor(Math.random() * chars.length);
-        password += chars[randomIndex];
-    }
-
-    return password;
+    return `${Math.abs(hash).toString(16).toLowerCase()}-${uniquePart}_${formatBotName(config.bot.name)}-wabot`;
 }
 
 function getID(jid) {
@@ -100,19 +83,19 @@ function getRandomElement(arr) {
     return arr[randomIndex];
 }
 
-function isCmd(content, config) {
-    if (!content || !config) return null;
+function isCmd(content, bot) {
+    if (!content || !bot) return null;
 
     const prefix = content.charAt(0);
-    if (!new RegExp(config.prefix, "i").test(content)) return false;
+    if (!new RegExp(bot.prefix, "i").test(content)) return false;
 
     const [cmdName, ...inputArray] = content.slice(1).trim().toLowerCase().split(/\s+/);
     const input = inputArray.join(" ");
 
-    const commands = Array.from(config.cmd.values());
-     const matchedCmd = commands.find(c => c.name === cmdName || c.aliases?.includes(cmdName));
+    const commands = Array.from(bot.cmd.values());
+    const matchedCmd = commands.find(c => c.name === cmdName || c.aliases?.includes(cmdName));
 
-     if (matchedCmd) return {
+    if (matchedCmd) return {
         msg: content,
         prefix,
         name: cmdName,
@@ -153,7 +136,7 @@ async function translate(text, to) {
             to
         });
         const result = (await axios.get(apiUrl)).data.result;
-         return result;
+        return result;
     } catch (error) {
         consolefy.error(`Error: ${error}`);
         return null;
@@ -178,43 +161,14 @@ async function upload(buffer, type = "any", host = "FastUrl") {
 
     const allHosts = [...hosts.any, ...(hosts[type] || [])];
     const realHost = allHosts.find(h => h.toLowerCase() === host.toLowerCase());
- 
+
     if (!realHost) return `Host '${host}' tidak mendukung tipe '${type}'`;
 
     try {
         const url = await uploader[realHost](buffer);
-         return url || `Gagal mengupload ke '${realHost}'`;
-        } catch (error) {
-            consolefy.error(`Error: ${util.format(error)}`);
-        return null;
-    }
-};
-
-async function resizeWithBlur(input, width, height) {
-    try {
-        let image;
- 
-         if (isUrl(input)) {
-             const response = await axios.get(input, {
-                 responseType: "arraybuffer"
-             });
-             image = await Jimp.read(response.data);
-         } else {
-             image = await Jimp.read(input);
-         }
-
-        const bg = image.clone().resize(width, height).blur(20);
-
-        image.scaleToFit(width, height);
-        bg.composite(image, (width - image.bitmap.width) / 2, (height - image.bitmap.height) / 2);
-
-        const buffer = await bg.getBufferAsync(Jimp.MIME_JPEG);
-        return {
-            url: await upload(buffer, "image"),
-            buffer
-        };
+        return url || `Gagal mengupload ke '${realHost}'`;
     } catch (error) {
-        consolefy.error(`Error: ${error.message}`);
+        consolefy.error(`Error: ${util.format(error)}`);
         return null;
     }
 }
@@ -250,12 +204,10 @@ module.exports = {
     convertMsToDuration,
     formatSize,
     generateUID,
-    generatePassword,
     getID,
     getRandomElement,
     isCmd,
     isOwner,
-    resizeWithBlur,
     isUrl,
     translate,
     ucword,
