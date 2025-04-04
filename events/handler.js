@@ -10,9 +10,7 @@ const axios = require("axios");
 const {
     exec
 } = require("node:child_process");
-const fs = require("node:fs");
 const util = require("node:util");
-const mime = require("mime-types");
 
 // Di bagian atas file, tambahkan variabel untuk tracking
 let lastCheckedResetId = 0;
@@ -37,7 +35,7 @@ async function handleUserEvent(bot, m, type) {
                     const profilePictureUrl = await bot.core.profilePictureUrl(jid, "image").catch(() => "https://i.pinimg.com/736x/70/dd/61/70dd612c65034b88ebf474a52ccc70c4.jpg");
         
                     const customText = type === "UserJoin" ? groupDb?.welcome_text : groupDb?.goodbye_text;
-                    const userId = `@${tools.general.getID(jid)}`;
+                    const userId = tools.general.getID(jid);
                     const userTag = `${userId}`;
         
                     const text = customText ?
@@ -51,17 +49,24 @@ async function handleUserEvent(bot, m, type) {
                             
                     const canvas = tools.api.createUrl("fast", "/canvas/welcome", {
                         avatar: profilePictureUrl,
-                        background: config.bot.thumbnail,
+                        background: (await tools.general.resizeWithBlur(config.bot.thumbnail, 700, 350)).url,
                         title: type === "UserJoin" ? "WELCOME" : "GOODBYE",
                         description: userId
                     });
         
                     await bot.core.sendMessage(id, {
-                        image: {
-                            url: canvas
-                        },
-                        mimetype: mime.lookup("png"),
-                        caption: text,
+                        text,
+                 contextInfo: {
+                     mentionedJid: [jid],
+                     externalAdReply: {
+                         title: config.bot.name,
+                         mediaType: 1,
+                         thumbnailUrl: (await tools.general.resizeWithBlur(canvas, 1200, 630)).url,canvas,
+                         sourceUrl: config.bot.groupLink,
+                         renderLargerThumbnail: true
+                     }
+                 }
+                      }, {
                         mentions: [jid]
                     });
         

@@ -1,7 +1,6 @@
 const {
     quote
 } = require("@mengkodingan/ckptw");
-const mime = require("mime-types");
 
 module.exports = {
     name: "me",
@@ -32,7 +31,7 @@ module.exports = {
                 .catch(() => "https://i.pinimg.com/736x/70/dd/61/70dd612c65034b88ebf474a52ccc70c4.jpg");
             const canvas = tools.api.createUrl("fast", "/canvas/rank", {
                 avatar: profilePictureUrl,
-                background: config.bot.thumbnail,
+                background: (await tools.general.resizeWithBlur(config.bot.thumbnail, 850, 300)).url,
                 username: userDb?.name,
                 status: "online",
                 level: userDb?.level,
@@ -42,11 +41,7 @@ module.exports = {
             });
 
             return await ctx.reply({
-                image: {
-                    url: canvas
-                },
-                mimetype: mime.lookup("png"),
-                caption: `${quote(`Nama: ${userDb?.name || "-"}`)}\n` +
+                text: `${quote(`Nama: ${userDb?.name || "-"}`)}\n` +
                     `${quote(`Status: ${isOwner ? "Owner" : userDb?.premium ? "Premium" : "Free" || "-"}`)}\n` +
                     `${quote(`Level: ${userDb?.level || "-"}`)}\n` +
                     `${quote(`XP: ${userDb?.xp} / ${((userDb?.level || 0) + 1) * 100}`)}\n` +
@@ -54,7 +49,16 @@ module.exports = {
                     `${quote(`Peringkat: ${userRank || "-"}`)}\n` +
                     `${quote(`Menang: ${userDb?.win_game || "-"}`)}\n` +
                     "\n" +
-                    config.msg.footer
+                    config.msg.footer,
+                 contextInfo: {
+                     externalAdReply: {
+                         title: config.bot.name,
+                         mediaType: 1,
+                         thumbnailUrl: (await tools.general.resizeWithBlur(canvas, 1200, 630)).url,
+                         sourceUrl: config.bot.groupLink,
+                         renderLargerThumbnail: true
+                     }
+                 }
             });
         } catch (error) {
             consolefy.error(`Error: ${error}`);
