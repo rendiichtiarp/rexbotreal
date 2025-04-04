@@ -22,7 +22,7 @@ module.exports = {
 
         if (!checkMedia && !checkQuotedMedia) return await ctx.reply(
             `${quote(tools.cmd.generateInstruction(["send", "reply"], "image"))}\n` +
-            quote(tools.msg.generatesFlagInformation({
+            quote(tools.cmd.generatesFlagInformation({
                 "-f <text>": "Atur filter hitam (tersedia: brown, black, nerd, piggy, carbon, bald | default: brown)"
             }))
         );
