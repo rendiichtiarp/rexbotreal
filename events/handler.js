@@ -69,7 +69,7 @@ async function handleUserEvent(bot, m, type) {
                     });
         }
     } catch (error) {
-        consolefy.error(`Error: ${error}`);
+        consolefy.error(`Error: ${util.format(error)}`);
         await bot.core.sendMessage(id, {
             text: quote(`❎ Terjadi kesalahan: ${error.message}`)
         });
@@ -182,8 +182,12 @@ module.exports = (bot) => {
                         const result = await eval(m.content.startsWith("==> ") ? `(async () => { ${code} })()` : code);
                         await ctx.reply(monospace(util.inspect(result)));
                     } catch (error) {
-                        consolefy.error(`Error: ${error}`);
-                        await ctx.reply(quote(`❎ Terjadi kesalahan: ${error.message}`));
+                        consolefy.error(`Error: ${util.format(error)}`);
+                         await ctx.reply(
+                             `${quote(`⚠️ Terjadi kesalahan:`)}\n` +
+                             `${quote("─────")}\n` +
+                             monospace(errorText)
+                         );
                     }
                 }
 
@@ -194,8 +198,12 @@ module.exports = (bot) => {
                         const output = await util.promisify(exec)(command);
                         await ctx.reply(monospace(output.stdout || output.stderr));
                     } catch (error) {
-                        consolefy.error(`Error: ${error}`);
-                        await ctx.reply(quote(`❎ Terjadi kesalahan: ${error.message}`));
+                        consolefy.error(`Error: ${util.format(error)}`);
+                        await ctx.reply(
+                            `${quote(`⚠️ Terjadi kesalahan:`)}\n` +
+                            `${quote("─────")}\n` +
+                            monospace(errorText)
+                        );
                     }
                 }
             }

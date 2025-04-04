@@ -7,6 +7,7 @@ const {
     JSDOM
 } = require("jsdom");
 const mime = require("mime-types");
+const util = require("node:util");
 
 module.exports = {
     name: "tovideo",
@@ -32,7 +33,7 @@ module.exports = {
                 gifPlayback: ctx.used.command === "togif" ? true : false
             });
         } catch (error) {
-            consolefy.error(`Error: ${error}`);
+            consolefy.error(`Error: ${util.format(error)}`);
             return await ctx.reply(quote(`❎ Terjadi kesalahan: ${error.message}`));
         }
     }

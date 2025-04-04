@@ -4,6 +4,7 @@ const {
 const axios = require("axios");
 const FormData = require("form-data");
 const mime = require("mime-types");
+const util = require("node:util");
 
 module.exports = {
     name: "toaudio",
@@ -26,7 +27,7 @@ module.exports = {
                 mimetype: mime.lookup("mp3")
             });
         } catch (error) {
-            consolefy.error(`Error: ${error}`);
+            consolefy.error(`Error: ${util.format(error)}`);
             return await ctx.reply(quote(`❎ Terjadi kesalahan: ${error.message}`));
         }
     }

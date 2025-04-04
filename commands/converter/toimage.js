@@ -7,6 +7,7 @@ const {
     JSDOM
 } = require("jsdom");
 const mime = require("mime-types");
+const util = require("node:util");
 
 module.exports = {
     name: "toimage",
@@ -31,7 +32,7 @@ module.exports = {
                 mimetype: mime.lookup("png")
             });
         } catch (error) {
-            consolefy.error(`Error: ${error}`);
+            consolefy.error(`Error: ${util.format(error)}`);
             return await ctx.reply(quote(`❎ Terjadi kesalahan: ${error.message}`));
         }
     }

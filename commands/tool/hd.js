@@ -7,6 +7,7 @@ const mime = require("mime-types");
 const {
     Buffer
 } = require("node:buffer");
+const util = require("node:util");
 
 
 module.exports = {
@@ -36,7 +37,7 @@ module.exports = {
                 mimetype: mime.lookup("png")
             });
         } catch (error) {
-            consolefy.error(`Error: ${error}`);
+            consolefy.error(`Error: ${util.format(error)}`);
             return await ctx.reply(quote(`❎ Terjadi kesalahan: ${error.message}`));
         }
     }
