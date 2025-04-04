@@ -12,7 +12,7 @@
     "test": "echo \"Error: no test specified\" && exit 1",
     "install:adapter": "node install-adapter.js",
     "start": "node .",
-    "start:pm2": "pm2 start ./index.js && pm2 log"
+    "start:pm2": "pm2 start ./index.js --name RexbotX && pm2 log"
   },
   "repository": {
     "type": "git",

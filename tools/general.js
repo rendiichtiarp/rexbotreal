@@ -12,25 +12,6 @@ function formatBotName(botName) {
      return botName.replace(/[aiueo0-9\W_]/g, "");
 }
 
-async function resizeWithBlur(input, width, height) {
-    try {
-        const image = await Jimp.read(input);
-        const bg = image.clone().resize(width, height).blur(20);
-
-        image.scaleToFit(width, height);
-        bg.composite(image, (width - image.bitmap.width) / 2, (height - image.bitmap.height) / 2);
-
-        const buffer = await bg.getBufferAsync(Jimp.MIME_JPEG);
-        return {
-            url: await upload(buffer, "image"),
-            buffer
-        };
-    } catch (error) {
-        consolefy.error(`Error: ${error}`);
-        return null;
-    }
-}
-
 async function checkMedia(msgType, requiredMedia) {
     if (!msgType || !requiredMedia) return false;
 
@@ -311,6 +292,35 @@ async function upload(buffer, type, host) {
                 continue;
             }
         }
+    } catch (error) {
+        consolefy.error(`Error: ${error.message}`);
+        return null;
+    }
+}
+
+async function resizeWithBlur(input, width, height) {
+    try {
+        let image;
+ 
+         if (isUrl(input)) {
+             const response = await axios.get(input, {
+                 responseType: "arraybuffer"
+             });
+             image = await Jimp.read(response.data);
+         } else {
+             image = await Jimp.read(input);
+         }
+
+        const bg = image.clone().resize(width, height).blur(20);
+
+        image.scaleToFit(width, height);
+        bg.composite(image, (width - image.bitmap.width) / 2, (height - image.bitmap.height) / 2);
+
+        const buffer = await bg.getBufferAsync(Jimp.MIME_JPEG);
+        return {
+            url: await upload(buffer, "image"),
+            buffer
+        };
     } catch (error) {
         consolefy.error(`Error: ${error.message}`);
         return null;

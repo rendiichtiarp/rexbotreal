@@ -11,6 +11,7 @@ const {
     exec
 } = require("node:child_process");
 const util = require("node:util");
+const mime = require("mime-types");
 
 // Di bagian atas file, tambahkan variabel untuk tracking
 let lastCheckedResetId = 0;
@@ -49,23 +50,17 @@ async function handleUserEvent(bot, m, type) {
                             
                     const canvas = tools.api.createUrl("fast", "/canvas/welcome", {
                         avatar: profilePictureUrl,
-                        background: (await tools.general.resizeWithBlur(config.bot.thumbnail, 700, 350)).url,
+                        background: config.bot.thumbnail,
                         title: type === "UserJoin" ? "WELCOME" : "GOODBYE",
                         description: userId
                     });
         
                     await bot.core.sendMessage(id, {
-                        text,
-                 contextInfo: {
-                     mentionedJid: [jid],
-                     externalAdReply: {
-                         title: config.bot.name,
-                         mediaType: 1,
-                         thumbnailUrl: (await tools.general.resizeWithBlur(canvas, 1200, 630)).url,canvas,
-                         sourceUrl: config.bot.groupLink,
-                         renderLargerThumbnail: true
-                     }
-                 }
+                        image: {
+                            url: canvas
+                        },
+                        mimetype: mime.lookup("png"),
+                        caption: text
                       }, {
                         mentions: [jid]
                     });
