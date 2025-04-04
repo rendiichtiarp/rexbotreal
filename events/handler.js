@@ -134,7 +134,9 @@ module.exports = (bot) => {
 
         // Auto response untuk sapaan bot
         if (!isCmd && m.content && !m.key.fromMe) {
-            const greetingWords = /\b(bot|rexbotx|rex|hi|hai|halo)\b/i;
+            // Regex yang lebih spesifik untuk sapaan bot
+            const greetingWords = /^(bot|rexbotx|rex|rexbot|hi|hai|halo|p|hy|woi)(\s+|$)/i;
+            const botMentions = /(bot|rexbotx|rex|rexbot)/i;
             
             // Cek jika sedang dalam menfess (untuk private chat)
             const allMenfessDb = await Database.getMenfess();
@@ -142,7 +144,8 @@ module.exports = (bot) => {
             const menfessEntries = activeMenfess.map(m => [m.menfess_id, { from: m.from_user, to: m.to_user }]);
             const isInMenfess = isPrivate && menfessEntries.some(([_, data]) => data.from === senderId || data.to === senderId);
 
-            if (greetingWords.test(m.content) && !isInMenfess) {
+            // Hanya merespon jika pesan dimulai dengan sapaan atau secara eksplisit menyebut bot
+            if ((greetingWords.test(m.content) || (m.content.length < 20 && botMentions.test(m.content))) && !isInMenfess) {
                 const responses = [
                     `Hai ${userDb?.name || 'kak'} 👋\nAda yang bisa saya bantu?\nKetik .menu untuk melihat daftar perintah.`,
                     `Halo ${userDb?.name || 'kak'} ✨\nSaya RexbotX, bot WhatsApp yang siap membantu.\nGunakan .menu untuk melihat fitur yang tersedia.`,
