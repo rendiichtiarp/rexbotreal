@@ -41,12 +41,7 @@ module.exports = {
                 requiredXp: ((userDb?.level || 0) + 1) * 100
             });
 
-            return await ctx.reply({
-                image: {
-                    url: canvas
-                },
-                mimetype: mime.lookup("png"),
-                caption: `${quote(`Nama: ${userDb?.name || "-"}`)}\n` +
+                const text = `${quote(`Nama: ${userDb?.name || "-"}`)}\n` +
                     `${quote(`Status: ${isOwner ? "Owner" : userDb?.premium ? "Premium" : "Free" || "-"}`)}\n` +
                     `${quote(`Level: ${userDb?.level || "-"}`)}\n` +
                     `${quote(`XP: ${userDb?.xp} / ${((userDb?.level || 0) + 1) * 100}`)}\n` +
@@ -54,8 +49,19 @@ module.exports = {
                     `${quote(`Peringkat: ${userRank || "-"}`)}\n` +
                     `${quote(`Menang: ${userDb?.win_game || "-"}`)}\n` +
                     "\n" +
-                    config.msg.footer
-            });
+                    config.msg.footer;
+
+                    try {
+                        return await ctx.reply({
+                            image: {
+                                url: canvas
+                            },
+                            mimetype: mime.lookup("png"),
+                            caption: text
+                        });
+                    } catch (error) {
+                        if (error.status !== 200) return await ctx.reply(text);
+                    }
         } catch (error) {
             consolefy.error(`Error: ${error}`);
             return await ctx.reply(quote(`❎ Terjadi kesalahan: ${error.message}`));

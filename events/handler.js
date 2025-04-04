@@ -61,8 +61,6 @@ async function handleUserEvent(bot, m, type) {
                         },
                         mimetype: mime.lookup("png"),
                         caption: text
-                      }, {
-                        mentions: [jid]
                     });
         
                     if (type === "UserJoin" && groupDb?.intro_text) await bot.core.sendMessage(id, {
@@ -356,8 +354,7 @@ module.exports = (bot) => {
             await bot.core.rejectCall(call.id, call.from);
             let rejectionMessage = await bot.core.sendMessage(call.from, {
                 text: `Saat ini, kami tidak dapat menerima panggilan ${call.isVideo ? "video" : "suara"}.\n` +
-                    `Jika Anda memerlukan bantuan, silakan menghubungi Owner!`,
-                mentions: [call.from]
+                    `Jika Anda memerlukan bantuan, silakan menghubungi Owner!`
             });
 
             const vcard = new VCardBuilder()
