@@ -5,15 +5,6 @@ const didyoumean = require("didyoumean");
 const uploader = require("@zanixongroup/uploader");
 const Jimp = require("jimp");
 
-const checkUrl = async (url) => {
-    try {
-        const response = await axios.get(url);
-        return response.status === 200;
-    } catch {
-        return false;
-    }
-}
-
 const formatBotName = (botName) => {
     if (!botName) return null;
 
@@ -174,7 +165,7 @@ function ucword(text) {
     return text.toLowerCase().replace(/\b(\w)/g, (s) => s.toUpperCase());
 }
 
-async function upload(buffer, type, host) {
+async function upload(buffer, type, host = "FastUrl") {
     if (!buffer || !type) return null;
 
     const hosts = {
@@ -184,25 +175,16 @@ async function upload(buffer, type, host) {
         audio: ["Pomf", "Quax", "Ryzen", "TmpErhabot"]
     };
 
-    try {
-        if (host) {
-            if (!hosts[type] || !hosts[type].includes(host)) return `Host '${host}' tidak mendukung tipe '${type}'`;
-            const url = await uploader[host](buffer);
-             const isValid = await checkUrl(url);
-             return isValid ? url : `Gagal mengupload ke '${host}'`;
-        }
+    host = host?.toLowerCase() || config.system.uploaderHost?.toLowerCase();
+     const validHost = (hosts[type] || []).find(h => h.toLowerCase() === host);
+ 
+     if (!validHost) return `Host '${host}' tidak mendukung tipe '${type}'`;
 
-        for (const h of (hosts[type] || hosts.any)) {
-            try {
-                const url = await uploader[h](buffer);
-                const isValid = await checkUrl(url);
-                 if (isValid) return url;
-            } catch (err) {
-                continue;
-            }
-        }
-    } catch (error) {
-        consolefy.error(`Error: ${error.message}`);
+    try {
+        const url = await uploader[validHost](buffer);
+         return url || `Gagal mengupload ke '${validHost}'`;
+     } catch (err) {
+         consolefy.error(`Error: ${error}`);
         return null;
     }
 }

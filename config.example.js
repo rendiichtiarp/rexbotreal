@@ -108,6 +108,7 @@ global.config = {
         cooldown: 15 * 1000, // Jeda antar perintah (ms)
         port: 3000, // Port (jika pakai server)
         reportErrorToOwner: true, // Laporkan kesalahan ke owner bot
+        uploaderHost: "FastUrl", // Host uploader untuk menyimpan media (Tersedia: FastUrl, litterbox, Catbox, Uguu, Quax, Pomf, Quax, Ryzen, Shojib, Erhabot, TmpErhabot, Videy)
         restrict: false, // Batasi akses perintah
         requireBotGroupMembership: false, // Harus gabung grup bot
         selfOwner: false, // Bot jadi owner sendiri
