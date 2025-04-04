@@ -202,9 +202,9 @@ module.exports = (bot) => {
 
             // Penanganan AFK
             if (ctx.quoted?.senderJid || m.message?.extendedTextMessage?.contextInfo?.mentionedJid) {
-                const userAFKJids = ctx.quoted?.senderJid ? 
+                const userAFKJids = ctx.quoted.senderJid ? 
                     [tools.general.getID(ctx.quoted.senderJid)] : 
-                    m.message?.extendedTextMessage?.contextInfo?.mentionedJid?.map(jid => tools.general.getID(jid)) || [];
+                    m.message.extendedTextMessage?.contextInfo?.mentionedJid?.map(jid => tools.general.getID(jid)) || [];
 
                 if (userAFKJids.length > 0) {
                     if (m.key.fromMe) return;

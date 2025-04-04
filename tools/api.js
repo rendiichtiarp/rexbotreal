@@ -6,9 +6,6 @@ const APIs = {
     archive: {
         baseURL: "https://archive-ui.tanakadomp.biz.id"
     },
-    agung: {
-        baseURL: "https://api.agungny.my.id"
-    },
     bk9: {
         baseURL: "https://bk9.fun"
     },
