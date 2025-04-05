@@ -182,4 +182,42 @@ CREATE TABLE password_resets (
 -- Tambahkan index untuk optimasi query
 CREATE INDEX idx_password_resets_user ON password_resets(user_id);
 CREATE INDEX idx_password_resets_otp ON password_resets(otp);
-CREATE INDEX idx_password_resets_expires ON password_resets(expires_at); 
+CREATE INDEX idx_password_resets_expires ON password_resets(expires_at);
+
+-- Buat ulang tabel reports dengan struktur yang lebih sederhana
+CREATE TABLE IF NOT EXISTS reports (
+    report_id INT AUTO_INCREMENT PRIMARY KEY,
+    report_code VARCHAR(10) UNIQUE NOT NULL,
+    user_id VARCHAR(255) NOT NULL,
+    message TEXT NOT NULL,
+    status ENUM('pending', 'process', 'done', 'rejected') DEFAULT 'pending',
+    admin_response TEXT NULL,
+    admin_id VARCHAR(255) NULL,
+    resolved_at TIMESTAMP NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+    FOREIGN KEY (admin_id) REFERENCES users(id) ON DELETE SET NULL
+) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+
+-- Index untuk optimasi query reports
+ALTER TABLE reports ADD INDEX idx_user_reports (user_id);
+ALTER TABLE reports ADD INDEX idx_status (status);
+ALTER TABLE reports ADD INDEX idx_report_code (report_code);
+ALTER TABLE reports ADD INDEX idx_created_at (created_at);
+
+-- Tabel untuk rating bot
+CREATE TABLE IF NOT EXISTS bot_ratings (
+    rating_id INT AUTO_INCREMENT PRIMARY KEY,
+    user_id VARCHAR(255) NOT NULL,
+    rating INT NOT NULL CHECK (rating >= 1 AND rating <= 5),
+    message TEXT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+    CONSTRAINT unique_user_rating UNIQUE (user_id)
+) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+
+-- Index untuk optimasi query ratings
+ALTER TABLE bot_ratings ADD INDEX idx_rating_score (rating);
+ALTER TABLE bot_ratings ADD INDEX idx_rating_date (created_at);
