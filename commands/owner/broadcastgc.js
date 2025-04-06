@@ -10,10 +10,15 @@ module.exports = {
         owner: true
     },
     code: async (ctx) => {
-        const input = ctx.args.join(" ") || ctx.quoted.conversation || ctx.quoted.extendedTextMessage?.text || null;
+        const input = ctx.args.join(" ") || ctx.quoted?.conversation || ctx.quoted?.extendedTextMessage?.text || null;
+        const msgType = ctx.getMessageType();
+        const [checkMedia, checkQuotedMedia] = await Promise.all([
+            tools.cmd.checkMedia(msgType, "image"),
+            tools.cmd.checkQuotedMedia(ctx.quoted, "image")
+        ]);
 
-        if (!input) return await ctx.reply(
-            `${quote(tools.cmd.generateInstruction(["send"], ["text"]))}\n` +
+        if (!input && !checkMedia && !checkQuotedMedia) return await ctx.reply(
+            `${quote(tools.cmd.generateInstruction(["send"], ["text", "image"]))}\n` +
             quote(tools.cmd.generateCommandExample(ctx.used, "halo, dunia!"))
         );
 
@@ -26,6 +31,12 @@ module.exports = {
             const waitMsg = await ctx.reply(quote(`🔄 Mengirim siaran ke ${groupIds.length} grup, perkiraan waktu: ${((groupIds.length * 3.5) / 60).toFixed(2)} menit.`));
 
             const failedGroupIds = [];
+            let imageUrl = null;
+
+            if (checkMedia || checkQuotedMedia) {
+                const buffer = await ctx.msg.media?.toBuffer() || await ctx.quoted.media?.toBuffer();
+                imageUrl = await tools.general.upload(buffer, "image");
+            }
 
             for (const groupId of groupIds) {
                 const randomDelay = getRandomDelay();
@@ -45,11 +56,20 @@ module.exports = {
                             }
                         }
                     };
-                    await ctx.sendMessage(groupId, {
-                        text: input
-                    }, {
-                        quoted: fakeQuotedText
-                    });
+
+                    if (imageUrl) {
+                        await ctx.sendMessage(groupId, {
+                            image: { url: imageUrl },
+                            caption: input || "",
+                            quoted: fakeQuotedText
+                        });
+                    } else {
+                        await ctx.sendMessage(groupId, {
+                            text: input
+                        }, {
+                            quoted: fakeQuotedText
+                        });
+                    }
                 } catch (error) {
                     consolefy.error(`Error: ${error}`);
                     failedGroupIds.push(groupId);

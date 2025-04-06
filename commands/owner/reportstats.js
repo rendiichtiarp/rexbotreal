@@ -3,7 +3,7 @@ const { quote } = require("@mengkodingan/ckptw");
 module.exports = {
     name: "reportstats",
     aliases: ["statsreport", "reportstat"],
-    category: "admin",
+    category: "owner",
     permissions: {
         owner: true
     },

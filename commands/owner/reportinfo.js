@@ -4,7 +4,7 @@ const moment = require("moment-timezone");
 module.exports = {
     name: "reportinfo",
     aliases: ["inforeport", "reportdetail"],
-    category: "admin",
+    category: "owner",
     permissions: {
         owner: true
     },
