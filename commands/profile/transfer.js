@@ -13,7 +13,7 @@ module.exports = {
         const userDb = await Database.getUser(senderId);
 
         // Cek apakah ada yang di mention
-        const mentionedJid = ctx.msg?.message?.extendedTextMessage?.contextInfo?.mentionedJid;
+        const mentionedJid = ctx.msg.message.extendedTextMessage?.contextInfo?.mentionedJid?.[0] || (userId ? `${userId}@s.whatsapp.net` : null) || ctx.quoted.senderJid;
         const targetId = mentionedJid?.[0] ? tools.general.getID(mentionedJid[0]) : ctx.args[0];
         const amount = parseInt(ctx.args[mentionedJid?.[0] ? 1 : 1]);
 
