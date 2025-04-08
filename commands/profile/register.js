@@ -11,15 +11,14 @@ module.exports = {
   code: async (ctx) => {
     try {
       ctx.reply(quote(`Pendaftaran RexbotX melalui:\n` +
-        `https://rexbotx.rendiichtiar.xyz\n\n` +
+        `https://www.rexbotx.xyz\n\n` +
         `Cara pendaftaran:\n` +
         `1. Klik garis tiga di kanan atas\n` +
         `2. Pilih menu Daftar\n` +
         `3. Isi data Anda\n` +
         `4. Selamat, Anda sudah terdaftar di RexbotX`));
     } catch (error) {
-      consolefy.error(`Error: ${error}`);
-      return await ctx.reply(quote(`❎ Terjadi kesalahan: ${error.message}`));
+      return await tools.cmd.handleError(ctx, error, false);
     }
   },
 };

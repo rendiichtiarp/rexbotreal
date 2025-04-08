@@ -29,9 +29,7 @@ module.exports = {
                 config.msg.footer
             );
         } catch (error) {
-            consolefy.error(`Error: ${error}`);
-            if (error.status !== 200) return await ctx.reply(config.msg.notFound);
-            return message.reply(quote(`❎ Terjadi kesalahan: ${error.message}`));
+            return await tools.cmd.handleError(ctx, error, false);
         }
     }
 };

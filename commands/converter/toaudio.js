@@ -74,7 +74,6 @@ async function video2audio(buffer) {
             }
         };
     } catch (error) {
-        consolefy.error(`Error: ${error}`);
-        return null;
+        return await tools.cmd.handleError(ctx, error, false);
     }
 }

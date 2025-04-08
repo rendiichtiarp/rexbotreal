@@ -49,7 +49,7 @@ module.exports = {
 
             return await ctx.reply(await result.toMessage());
         } catch (error) {
-            return await tools.cmd.handleError(ctx, error, true);
+            return await tools.cmd.handleError(ctx, error, false);
         }
     }
 };

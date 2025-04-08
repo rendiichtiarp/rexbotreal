@@ -71,7 +71,6 @@ async function webp2mp4(blob) {
         } = new JSDOM(html2).window;
         return new URL(document2.querySelector("div#output > p.outfile > video > source").src, res2.request.res.responseUrl).toString();
     } catch (error) {
-        consolefy.error(`Error: ${error}`);
-        return null;
+        return await tools.cmd.handleError(ctx, error, false);
     }
 }

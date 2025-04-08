@@ -34,7 +34,7 @@ module.exports = {
                     config.msg.footer
             });
         } catch (error) {
-            return await tools.cmd.handleError(ctx, error, true);
+            return await tools.cmd.handleError(ctx, error, false);
         }
     }
 };

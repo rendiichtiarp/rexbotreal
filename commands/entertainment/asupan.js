@@ -23,7 +23,7 @@ module.exports = {
                 mimetype: mime.lookup("mp4")
             });
         } catch (error) {
-            return await tools.cmd.handleError(ctx, error, true);
+            return await tools.cmd.handleError(ctx, error, false);
         }
     }
 };

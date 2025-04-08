@@ -98,8 +98,7 @@ module.exports = {
             if (session.has(ctx.id)) {
                 session.delete(ctx.id);
             }
-            consolefy.error(`Error: ${error}`);
-            return await ctx.reply(quote(`❎ Terjadi kesalahan: ${error.message}`));
+            return await tools.cmd.handleError(ctx, error, false);
         }
     }
 };

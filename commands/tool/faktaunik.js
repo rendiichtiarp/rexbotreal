@@ -18,7 +18,7 @@ module.exports = {
 
             return await ctx.reply(quote(`Tahukah Anda? ${result}`));
         } catch (error) {
-            return await tools.cmd.handleError(ctx, error, true);
+            return await tools.cmd.handleError(ctx, error, false);
         }
     }
 };

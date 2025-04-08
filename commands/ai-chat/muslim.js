@@ -29,7 +29,7 @@ module.exports = {
 
             return await ctx.reply(result);
         } catch (error) {
-            return await tools.cmd.handleError(ctx, error, true);
+            return await tools.cmd.handleError(ctx, error, false);
         }
     }
 };

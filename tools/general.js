@@ -138,8 +138,7 @@ async function translate(text, to) {
         const result = (await axios.get(apiUrl)).data.result;
         return result;
     } catch (error) {
-        consolefy.error(`Error: ${error}`);
-        return null;
+        return await tools.cmd.handleError(ctx, error, false);
     }
 }
 

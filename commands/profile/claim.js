@@ -52,7 +52,6 @@ module.exports = {
 
             return await ctx.reply(quote(`✅ Anda berhasil mengklaim hadiah ${input} sebesar ${claimRewards[input].reward} koin! Koin saat ini: ${rewardCoin}.`));
         } catch (error) {
-            consolefy.error(`Error: ${error}`);
             return await tools.cmd.handleError(ctx, error, false);
         }
     }

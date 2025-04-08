@@ -62,8 +62,7 @@ module.exports = {
             return await ctx.reply(quote(`✅ Berhasil memperbarui laporan ${reportCode}`));
 
         } catch (error) {
-            consolefy.error(`Error: ${error}`);
-            return await ctx.reply(quote(`❎ Terjadi kesalahan: ${error.message}`));
+            return await tools.cmd.handleError(ctx, error, false);
         }
     }
 }; 

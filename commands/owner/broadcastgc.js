@@ -10,7 +10,7 @@ module.exports = {
         owner: true
     },
     code: async (ctx) => {
-        const input = ctx.args.join(" ") || ctx.quoted?.conversation || ctx.quoted?.extendedTextMessage?.text || null;
+        const input = ctx.args.join(" ") || Object.values(ctx.quoted || {}).find(msg => msg?.caption || msg?.text)?.caption || null;
         const msgType = ctx.getMessageType();
         const [checkMedia, checkQuotedMedia] = await Promise.all([
             tools.cmd.checkMedia(msgType, "image"),
@@ -79,8 +79,7 @@ module.exports = {
             const successCount = groupIds.length - failedGroupIds.length;
             return await ctx.editMessage(waitMsg.key, quote(`✅ Berhasil mengirim ke ${successCount} grup. Gagal mengirim ke ${failedGroupIds.length} grup.`));
         } catch (error) {
-            consolefy.error(`Error: ${error}`);
-            return await ctx.reply(quote(`❎ Terjadi kesalahan: ${error.message}`));
+            return await tools.cmd.handleError(ctx, error, false);
         }
     }
 };

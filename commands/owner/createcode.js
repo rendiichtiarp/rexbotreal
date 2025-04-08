@@ -81,7 +81,7 @@ module.exports = {
                 `📅 Kadaluarsa: ${expireDaysNum === 0 ? 'Unlimited' : `${expireDaysNum} hari`}`
             ));
         } catch (error) {
-            return await ctx.reply(quote(`❎ ${error.message}`));
+            return await tools.cmd.handleError(ctx, error, false);
         }
     }
 };

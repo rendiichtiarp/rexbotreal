@@ -38,7 +38,7 @@ module.exports = {
                 mimetype: mime.lookup(result.filename) || "application/octet-stream"
             });
         } catch (error) {
-            return await tools.cmd.handleError(ctx, error, true);
+            return await tools.cmd.handleError(ctx, error, false);
         }
     }
 };

@@ -21,7 +21,7 @@ module.exports = {
             await Database.deleteRedeemCode(code);
             return await ctx.reply(quote(`✅ Kode redeem ${code} berhasil dihapus!`));
         } catch (error) {
-            return await ctx.reply(quote(`❎ ${error.message}`));
+            return await tools.cmd.handleError(ctx, error, false);
         }
     }
 };

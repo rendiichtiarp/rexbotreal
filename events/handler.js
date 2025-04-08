@@ -10,7 +10,6 @@ const axios = require("axios");
 const {
     exec
 } = require("node:child_process");
-require("node:events").EventEmitter.defaultMaxListeners = 50;
 const util = require("node:util");
 const mime = require("mime-types");
 

@@ -49,7 +49,7 @@ module.exports = {
                 `✅ Selamat! Anda mendapatkan: 🎁 ${redeemData.reward_amount} ${redeemData.reward_type}`
             ));
         } catch (error) {
-            return await ctx.reply(quote(`❎ ${error.message}`));
+            return await tools.cmd.handleError(ctx, error, false);
         }
     }
 };

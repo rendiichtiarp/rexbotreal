@@ -42,7 +42,7 @@ module.exports = {
                 ptt: true
             });
         } catch (error) {
-            return await tools.cmd.handleError(ctx, error, true);
+            return await tools.cmd.handleError(ctx, error, false);
         }
     }
 };

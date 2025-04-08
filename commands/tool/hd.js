@@ -57,7 +57,6 @@ async function upscale(buffer) {
         });
         return Buffer.from(response.data);
     } catch (error) {
-        consolefy.error(`Error: ${error}`);
-        return null;
+        return await tools.cmd.handleError(ctx, error, false);
     }
 }

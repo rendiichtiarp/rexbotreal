@@ -27,8 +27,7 @@ module.exports = {
 
             return await util.promisify(exec)("pm2 restart $(basename $(pwd))"); // Hanya berfungsi saat menggunakan PM2
         } catch (error) {
-            consolefy.error(`Error: ${error}`);
-            return await ctx.reply(quote(`❎ Terjadi kesalahan: ${error.message}`));
+            return await tools.cmd.handleError(ctx, error, false);
         }
     }
 };

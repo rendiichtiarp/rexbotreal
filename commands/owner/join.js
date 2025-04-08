@@ -35,17 +35,7 @@ module.exports = {
 
             return await ctx.reply(quote(`✅ Berhasil bergabung dengan grup!`));
         } catch (error) {
-            consolefy.error(`Error: ${error}`);
-            const errorMessages = {
-                'group does not exist': 'Grup tidak ditemukan.',
-                'already in group': 'Bot telah bergabung dengan grup.',
-                'invite link revoked': 'URL grup telah disetel ulang.',
-                'group is full': 'Grup penuh!',
-                'not authorized': 'Bot telah dikeluarkan dari grup itu.'
-            };
-            
-            const errorMsg = errorMessages[error.message.toLowerCase()] || error.message;
-            return await ctx.reply(quote(`❎ ${errorMsg}`));
+            return await tools.cmd.handleError(ctx, error, false);
         }
     }
 };
