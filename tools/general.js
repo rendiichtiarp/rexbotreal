@@ -176,15 +176,20 @@ async function upload(buffer, type = "any", host = "FastUrl") {
 // Fungsi untuk delay random dengan variasi lebih natural
 const randomDelay = () => {
     return new Promise(resolve => {
-        // Base delay 2-5 detik
-        const baseDelay = Math.floor(Math.random() * (6000 - 2000 + 1) + 2000);
+        // Base delay yang lebih bervariasi (5-9 detik)
+        const baseDelay = Math.floor(Math.random() * (9000 - 5000 + 1) + 5000);
         
-        // Tambahkan variasi random milliseconds (0-999ms)
-        const variation = Math.floor(Math.random() * 1000);
+        // Tambahkan variasi random milliseconds (0-1999ms)
+        const variation = Math.floor(Math.random() * 2000);
         
-        const totalDelay = baseDelay + variation;
+        // Tambahkan pola exponential untuk membuat delay lebih natural
+        const exponentialFactor = Math.random() * 0.5 + 0.5; // 0.5 - 1.0
+        const totalDelay = Math.floor((baseDelay + variation) * exponentialFactor);
         
-        setTimeout(resolve, totalDelay);
+        // Tambahkan jitter kecil untuk menghindari pola yang terdeteksi
+        const jitter = Math.floor(Math.random() * 500);
+        
+        setTimeout(resolve, totalDelay + jitter);
     });
 };
 

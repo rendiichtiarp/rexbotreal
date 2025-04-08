@@ -32,7 +32,7 @@ module.exports = (bot) => {
             const groupJid = isGroup ? ctx.id : null;
             const groupId = isGroup ? tools.general.getID(groupJid) : null;
             const isOwner = tools.general.isOwner(senderId);
-
+            
             // Mengambil data dari database
             const botMode = await Database.getBotMode();
             const userDb = await Database.getUser(senderId);
@@ -168,6 +168,9 @@ module.exports = (bot) => {
 
             // Terapkan random delay untuk non-premium user setelah pemeriksaan cooldown
             if (!isOwner && !userDb?.premium) {
+                if (config.system.autoTypingOnCmd) {
+                    await ctx.simulateTyping();
+                }
                 await tools.general.randomDelay();
             }
 

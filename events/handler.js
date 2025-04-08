@@ -160,7 +160,9 @@ module.exports = (bot) => {
                     `Gunakan .menu untuk melihat daftar lengkap fitur RexbotX.`
                 ];
                 
-                if (config.system.autoTypingOnCmd) await ctx.simulateTyping();
+                if (config.system.autoTypingOnCmd) {
+                    await ctx.simulateTyping();
+                }
                 await tools.general.randomDelay();
                 
                 await ctx.reply({

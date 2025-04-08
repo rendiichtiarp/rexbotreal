@@ -42,10 +42,8 @@ module.exports = {
 
         try {
             // Cek apakah nomor valid di WhatsApp
-            const [result] = await ctx.core.onWhatsApp(`${targetId}@s.whatsapp.net`);
-            if (!result?.exists) {
-                return await ctx.reply(quote(`❎ Nomor tersebut tidak terdaftar di WhatsApp!`));
-            }
+            const [isOnWhatsApp] = await ctx.core.onWhatsApp(userJid);
+             if (!isOnWhatsApp.exists) return await ctx.reply(quote(`❎ Akun tidak ada di WhatsApp!`));
 
             // Transfer coin
             const targetDb = await Database.getUser(targetId);
