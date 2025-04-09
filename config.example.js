@@ -103,19 +103,20 @@ global.config = {
         alwaysOnline: true, // Bot selalu berstatus "online"
         antiCall: true, // Bot secara otomatis membanned orang yang menelepon
         autoMention: true, // Bot otomatis mention seseorang dalam pesan yang dikirim
-        autoRead: false, // Bot baca pesan otomatis
+        autoRead: true, // Bot baca pesan otomatis
         autoTypingOnCmd: true, // Tampilkan status "sedang mengetik" saat memproses perintah
-        cooldown: 15 * 1000, // Jeda antar perintah (ms)
+        cooldown: 10 * 1000, // Jeda antar perintah (ms)
+        maxListeners: 50, // Max listeners untuk events
         port: 3000, // Port (jika pakai server)
         reportErrorToOwner: true, // Laporkan kesalahan ke owner bot
-        uploaderHost: "FastUrl", // Host uploader untuk menyimpan media (Tersedia: FastUrl, litterbox, Catbox, Uguu, Quax, Pomf, Quax, Ryzen, Shojib, Erhabot, TmpErhabot, Videy)
         restrict: false, // Batasi akses perintah
         requireBotGroupMembership: false, // Harus gabung grup bot
         selfOwner: false, // Bot jadi owner sendiri
         selfReply: true, // Bot balas pesan bot sendiri
         timeZone: "Asia/Jakarta", // Zona waktu bot
+        uploaderHost: "FastUrl", // Host uploader untuk menyimpan media (Tersedia: FastUrl, litterbox, Catbox, Uguu, Quax, Pomf, Quax, Ryzen, Shojib, Erhabot, TmpErhabot, Videy)
         useCoin: true, // Pakai koin
         usePairingCode: false, // Pakai kode pairing untuk koneksi
-        useServer: true // Jalankan bot dengan server
+        useServer: false // Jalankan bot dengan server
     }
 };
