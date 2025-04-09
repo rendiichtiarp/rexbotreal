@@ -9,7 +9,7 @@ module.exports = {
     aliases: ["togta", "togta5"],
     category: "ai-misc",
     permissions: {
-        coin: 10
+        coin: 5
     },
     code: async (ctx) => {
         const msgType = ctx.getMessageType();
