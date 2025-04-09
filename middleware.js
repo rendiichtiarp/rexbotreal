@@ -42,7 +42,7 @@ module.exports = (bot) => {
             if (botMode === "group" && !isGroup) return;
             if (botMode === "private" && isGroup) return;
             if (botMode === "self" && !isOwner) return;
-            if (groupDb?.mute && ctx.used.command !== "unmute") return;
+            if (groupDb?.mute && (!isOwner || !await ctx.group().isSenderAdmin())) return;
 
             if (config.system.autoTypingOnCmd) await ctx.simulateTyping();
 

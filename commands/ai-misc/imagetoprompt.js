@@ -5,8 +5,8 @@ const axios = require("axios");
 const mime = require("mime-types");
 
 module.exports = {
-    name: "image2prompt",
-    aliases: ["image2prompt", "imagetoprompt", "imgtoprompt"],
+    name: "imagetoprompt",
+     aliases: ["image2prompt", "img2prompt", "imgtoprompt"],
     category: "ai-misc",
     permissions: {
         coin: 5

@@ -18,8 +18,8 @@ module.exports = {
         );
 
         try {
-            const result = tools.api.createUrl("velyn", "/api/tools/tulisbuku", {
-                prompt: input
+            const result = tools.api.createUrl("crafters", "/tools/tulisbuku", {
+                query: input
             });
 
             return await ctx.reply({
