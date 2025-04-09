@@ -8,22 +8,21 @@ const mime = require("mime-types");
 const session = new Map();
 
 module.exports = {
-    name: "tebakjkt48",
-    aliases: ["tebakjkt"],
+    name: "tebakhewan",
     category: "game",
     permissions: {},
     code: async (ctx) => {
         if (session.has(ctx.id)) return await ctx.reply(quote(`🎮 Sesi permainan sedang berjalan!`));
 
         try {
-            const apiUrl = tools.api.createUrl("https://raw.githubusercontent.com", "/ERLANRAHMAT/games/refs/heads/main/tebakjkt48.json");
+            const apiUrl = tools.api.createUrl("https://raw.githubusercontent.com", "/Aiinne/scrape/refs/heads/main/tebakhewan.json");
             const result = tools.general.getRandomElement((await axios.get(apiUrl)).data);
 
             const game = {
                 startTime: Date.now(),
                 timeout: 60000,
                 senderId: tools.general.getID(ctx.sender.jid),
-                answer: result.jawaban.toLowerCase()
+                answer: result.nama.toLowerCase()
             };
 
             session.set(ctx.id, true);

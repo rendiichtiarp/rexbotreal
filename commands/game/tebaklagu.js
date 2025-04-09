@@ -3,43 +3,44 @@ const {
     quote
 } = require("@mengkodingan/ckptw");
 const axios = require("axios");
-const mime = require("mime-types");
 
 const session = new Map();
 
 module.exports = {
-    name: "tebakjkt48",
-    aliases: ["tebakjkt"],
+    name: "tebaklagu",
     category: "game",
     permissions: {},
     code: async (ctx) => {
         if (session.has(ctx.id)) return await ctx.reply(quote(`🎮 Sesi permainan sedang berjalan!`));
 
         try {
-            const apiUrl = tools.api.createUrl("https://raw.githubusercontent.com", "/ERLANRAHMAT/games/refs/heads/main/tebakjkt48.json");
+            const apiUrl = tools.api.createUrl("https://raw.githubusercontent.com", "/Aiinne/scrape/refs/heads/main/tebaklagu.json");
             const result = tools.general.getRandomElement((await axios.get(apiUrl)).data);
 
             const game = {
                 startTime: Date.now(),
                 timeout: 60000,
                 senderId: tools.general.getID(ctx.sender.jid),
-                answer: result.jawaban.toLowerCase()
+                answer: result.judul.toLowerCase()
             };
 
             session.set(ctx.id, true);
 
             await ctx.reply({
-                image: {
-                    url: result.img
+                audio: {
+                    url: result.lagu
                 },
-                mimetype: mime.lookup("png"),
-                caption: `${quote(`Bonus: 20 Koin (Akan berkurang berdasarkan waktu)`)}\n` +
-                    `${quote(`Batas waktu: ${tools.general.convertMsToDuration(game.timeout)}`)}\n` +
-                    `${quote("Ketik 'h' untuk bantuan.")}\n` +
-                    `${quote("Ketik 's' untuk menyerah.")}\n` +
-                    "\n" +
-                    config.msg.footer
+                mimetype: mime.lookup("mp3"),
             });
+            await ctx.reply(
+                `${quote(`Artis: ${result.artis}`)}\n` +
+                `${quote(`Bonus: 20 Koin (Akan berkurang berdasarkan waktu)`)}\n` +
+                `${quote(`Batas waktu: ${tools.general.convertMsToDuration(game.timeout)}`)}\n` +
+                `${quote("Ketik 'h' untuk bantuan.")}\n` +
+                `${quote("Ketik 's' untuk menyerah.")}\n` +
+                "\n" +
+                config.msg.footer
+            );
 
             const collector = ctx.MessageCollector({
                 time: game.timeout

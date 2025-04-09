@@ -8,15 +8,14 @@ const mime = require("mime-types");
 const session = new Map();
 
 module.exports = {
-    name: "tebakjkt48",
-    aliases: ["tebakjkt"],
+    name: "tebaklogo",
     category: "game",
     permissions: {},
     code: async (ctx) => {
         if (session.has(ctx.id)) return await ctx.reply(quote(`🎮 Sesi permainan sedang berjalan!`));
 
         try {
-            const apiUrl = tools.api.createUrl("https://raw.githubusercontent.com", "/ERLANRAHMAT/games/refs/heads/main/tebakjkt48.json");
+            const apiUrl = tools.api.createUrl("https://raw.githubusercontent.com", "/Aiinne/scrape/refs/heads/main/tebaklogo.json");
             const result = tools.general.getRandomElement((await axios.get(apiUrl)).data);
 
             const game = {
@@ -33,7 +32,8 @@ module.exports = {
                     url: result.img
                 },
                 mimetype: mime.lookup("png"),
-                caption: `${quote(`Bonus: 20 Koin (Akan berkurang berdasarkan waktu)`)}\n` +
+                caption: `${quote(`Deskripsi: ${result.deskripsi}`)}\n` +
+                    `${quote(`Bonus: 20 Koin (Akan berkurang berdasarkan waktu)`)}\n` +
                     `${quote(`Batas waktu: ${tools.general.convertMsToDuration(game.timeout)}`)}\n` +
                     `${quote("Ketik 'h' untuk bantuan.")}\n` +
                     `${quote("Ketik 's' untuk menyerah.")}\n` +

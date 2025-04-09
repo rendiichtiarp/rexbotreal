@@ -15,31 +15,30 @@ module.exports = {
         if (session.has(ctx.id)) return await ctx.reply(quote(`🎮 Sesi permainan sedang berjalan!`));
 
         try {
-            const apiUrl = tools.api.createUrl("siputzx", "/api/games/tebakheroml");
-            const { data } = (await axios.get(apiUrl)).data;
+            const apiUrl = tools.api.createUrl("https://raw.githubusercontent.com", "/ERLANRAHMAT/games/refs/heads/main/tebakheroml.json");
+            const result = tools.general.getRandomElement((await axios.get(apiUrl)).data);
 
             const game = {
                 startTime: Date.now(),
                 timeout: 60000,
                 senderId: tools.general.getID(ctx.sender.jid),
-                answer: data.name.toLowerCase()
+                answer: result.jawaban.toLowerCase()
             };
 
             session.set(ctx.id, true);
 
-            // Kirim audio terlebih dahulu
             await ctx.reply({
-                audio: {
-                    url: data.audio,
+                image: {
+                    url: result.fullimg
                 },
-                mimetype: mime.lookup("mp3"),
-                caption:
+                mimetype: mime.lookup("png"),
+                caption: `${quote(`Deskripsi: ${result.deskripsi}`)}\n` +
                     `${quote(`Bonus: 20 Koin (Akan berkurang berdasarkan waktu)`)}\n` +
                     `${quote(`Batas waktu: ${tools.general.convertMsToDuration(game.timeout)}`)}\n` +
                     `${quote("Ketik 'h' untuk bantuan.")}\n` +
                     `${quote("Ketik 's' untuk menyerah.")}\n` +
                     "\n" +
-                    config.msg.footer,
+                    config.msg.footer
             });
 
             const collector = ctx.MessageCollector({
@@ -47,14 +46,15 @@ module.exports = {
             });
 
             collector.on("collect", async (m) => {
-                const userAnswer = m.content.toLowerCase();
+                const participantAnswer = m.content.toLowerCase();
+                const participantId = tools.general.getID(m.sender);
 
-                if (userAnswer === game.answer) {
+                if (participantAnswer === game.answer) {
                     session.delete(ctx.id);
                     
                     const earnedCoin = tools.general.calculateTimeBasedCoin(game.startTime, Date.now());
                     const validCoin = Number.isFinite(earnedCoin) ? Math.max(0, Math.floor(earnedCoin)) : 20;
-                    await Database.addGameReward(game.senderId, validCoin);
+                    await Database.addGameReward(participantId, validCoin);
                     
                     await ctx.sendMessage(
                         ctx.id, {
@@ -65,16 +65,14 @@ module.exports = {
                         }
                     );
                     return collector.stop();
-                } else if (userAnswer === "h") {
+                } else if (participantAnswer === "h") {
                     const clue = game.answer.replace(/[aiueo]/g, "_");
-                    await ctx.sendMessage(
-                        ctx.id, {
-                            text: monospace(clue.toUpperCase())
-                        }, {
-                            quoted: m
-                        }
-                    );
-                } else if (userAnswer === "s") {
+                    await ctx.sendMessage(ctx.id, {
+                        text: monospace(clue.toUpperCase())
+                    }, {
+                        quoted: m
+                    });
+                } else if (participantAnswer === "s") {
                     session.delete(ctx.id);
                     await ctx.reply(
                         `${quote("🏳️ Anda menyerah!")}\n` +

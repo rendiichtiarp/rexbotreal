@@ -8,7 +8,7 @@ module.exports = {
     aliases: ["an1", "an1s"],
     category: "search",
     permissions: {
-        coin: 10
+        coin: 5
     },
     code: async (ctx) => {
         const input = ctx.args.join(" ") || null;

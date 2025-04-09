@@ -21,7 +21,8 @@ module.exports = {
                 startTime: Date.now(),
                 timeout: 60000,
                 senderId: tools.general.getID(ctx.sender.jid),
-                answer: result.jawaban.toLowerCase()
+                answer: result.jawaban.toLowerCase(),
+                deskripsi: result.deskripsi
             };
 
             session.set(ctx.id, true);

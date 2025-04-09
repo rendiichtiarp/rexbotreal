@@ -2,11 +2,11 @@ const {
     quote
 } = require("@mengkodingan/ckptw");
 const mime = require("mime-types");
+const axios = require("axios");
 
 module.exports = {
-    name: "removebg",
-    aliases: ["rbg"],
-    category: "ai-misc",
+    name: "restore",
+    category: "tool",
     permissions: {
         coin: 5
     },
@@ -22,9 +22,11 @@ module.exports = {
         try {
             const buffer = await ctx.msg.media.toBuffer() || await ctx.quoted.media.toBuffer();
             const uploadUrl = await tools.general.upload(buffer, "image");
-            const result = tools.api.createUrl("fast", "/aiimage/removebg", {
-                imageUrl: uploadUrl
+            const apiUrl = tools.api.createUrl("crafters", "/tools/pxpic", {
+                url: uploadUrl,
+                type: "restore"
             });
+            const result = (await axios.get(apiUrl)).data.result.resultImageUrl;
 
             return await ctx.reply({
                 image: {

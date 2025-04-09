@@ -3,20 +3,18 @@ const {
     quote
 } = require("@mengkodingan/ckptw");
 const axios = require("axios");
-const mime = require("mime-types");
 
 const session = new Map();
 
 module.exports = {
-    name: "tebakjkt48",
-    aliases: ["tebakjkt"],
+    name: "kuisislami",
     category: "game",
     permissions: {},
     code: async (ctx) => {
         if (session.has(ctx.id)) return await ctx.reply(quote(`🎮 Sesi permainan sedang berjalan!`));
 
         try {
-            const apiUrl = tools.api.createUrl("https://raw.githubusercontent.com", "/ERLANRAHMAT/games/refs/heads/main/tebakjkt48.json");
+            const apiUrl = tools.api.createUrl("https://raw.githubusercontent.com", "/ERLANRAHMAT/games/refs/heads/main/kuisislami.json");
             const result = tools.general.getRandomElement((await axios.get(apiUrl)).data);
 
             const game = {
@@ -28,18 +26,15 @@ module.exports = {
 
             session.set(ctx.id, true);
 
-            await ctx.reply({
-                image: {
-                    url: result.img
-                },
-                mimetype: mime.lookup("png"),
-                caption: `${quote(`Bonus: 20 Koin (Akan berkurang berdasarkan waktu)`)}\n` +
-                    `${quote(`Batas waktu: ${tools.general.convertMsToDuration(game.timeout)}`)}\n` +
-                    `${quote("Ketik 'h' untuk bantuan.")}\n` +
-                    `${quote("Ketik 's' untuk menyerah.")}\n` +
-                    "\n" +
-                    config.msg.footer
-            });
+            await ctx.reply(
+                `${quote(`Soal: ${result.soal}`)}\n` +
+                `${quote(`Bonus: 20 Koin (Akan berkurang berdasarkan waktu)`)}\n` +
+                `${quote(`Batas waktu: ${tools.general.convertMsToDuration(game.timeout)}`)}\n` +
+                `${quote("Ketik 'h' untuk bantuan.")}\n` +
+                `${quote("Ketik 's' untuk menyerah.")}\n` +
+                "\n" +
+                config.msg.footer
+            );
 
             const collector = ctx.MessageCollector({
                 time: game.timeout
@@ -73,21 +68,26 @@ module.exports = {
                         quoted: m
                     });
                 } else if (participantAnswer === "s") {
+                    const description = result.deskripsi;
                     session.delete(ctx.id);
                     await ctx.reply(
                         `${quote("🏳️ Anda menyerah!")}\n` +
-                        quote(`Jawabannya adalah ${tools.general.ucword(game.answer)}.`)
+                        `${quote(`Jawabannya adalah ${tools.general.ucword(game.answer)}.`)}\n` +
+                        quote(description)
                     );
                     return collector.stop();
                 }
             });
 
             collector.on("end", async () => {
+                const description = result.deskripsi;
+
                 if (session.has(ctx.id)) {
                     session.delete(ctx.id);
                     return await ctx.reply(
                         `${quote("⏱ Waktu habis!")}\n` +
-                        quote(`Jawabannya adalah ${tools.general.ucword(game.answer)}.`)
+                        `${quote(`Jawabannya adalah ${tools.general.ucword(game.answer)}.`)}\n` +
+                        quote(description)
                     );
                 }
             });

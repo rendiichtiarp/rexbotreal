@@ -9,7 +9,7 @@ module.exports = {
     aliases: ["cosplayer"],
     category: "entertainment",
     permissions: {
-        coin: 10
+        coin: 5
     },
     code: async (ctx) => {
         try {

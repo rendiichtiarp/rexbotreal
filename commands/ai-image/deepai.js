@@ -7,7 +7,7 @@ module.exports = {
     name: "deepai",
     category: "ai-image",
     permissions: {
-        coin: 10
+        coin: 5
     },
     code: async (ctx) => {
         const input = ctx.args.join(" ") || null;
@@ -18,7 +18,7 @@ module.exports = {
         );
 
         try {
-            const result = tools.api.createUrl("https://api.crafters.biz.id", "/ai-img/deepai", {
+            const result = tools.api.createUrl("crafters", "/ai-img/deepai", {
                 text: input
             });
 
