@@ -13,9 +13,6 @@ const {
 const util = require("node:util");
 const mime = require("mime-types");
 
-// Di bagian atas file, tambahkan variabel untuk tracking
-let lastCheckedResetId = 0;
-
 // Fungsi untuk menangani event pengguna bergabung/keluar grup
 async function handleUserEvent(bot, m, type) {
     const {
