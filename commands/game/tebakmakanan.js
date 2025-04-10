@@ -4,6 +4,7 @@ const {
 } = require("@mengkodingan/ckptw");
 const axios = require("axios");
 const mime = require("mime-types");
+const didYouMean = require("didyoumean");
 
 const session = new Map();
 
@@ -65,7 +66,7 @@ module.exports = {
                         }
                     );
                     return collector.stop();
-                } else if (participantAnswer === "s") {
+                } else if (participantAnswer === "h") {
                     const clue = game.answer.replace(/[aiueo]/g, "_");
                     await ctx.sendMessage(ctx.id, {
                         text: monospace(clue.toUpperCase())
@@ -79,6 +80,8 @@ module.exports = {
                         quote(`Jawabannya adalah ${tools.general.ucword(game.answer)}.`)
                     );
                     return collector.stop();
+                } else if (didYouMean(participantAnswer, [game.answer]) === game.answer) {
+                    await ctx.reply(quote("⛳ Sedikit lagi."));
                 }
             });
 

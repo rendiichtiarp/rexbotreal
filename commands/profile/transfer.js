@@ -1,7 +1,7 @@
-const { 
-    quote 
+const {
+    quote
 } = require("@mengkodingan/ckptw");
-const Database = require('../../lib/database/queries');
+const Database = require("../../lib/database/queries");
 
 module.exports = {
     name: "transfer",
@@ -9,63 +9,43 @@ module.exports = {
     category: "profile",
     permissions: {},
     code: async (ctx) => {
-        const senderId = tools.general.getID(ctx.sender.jid);
-        const userDb = await Database.getUser(senderId);
+        const userId = ctx.args[0];
+        const coinAmount = parseInt(ctx.args[1], 10);
 
-        // Cek apakah ada yang di mention
-        const mentionedJid = ctx.msg.message.extendedTextMessage?.contextInfo?.mentionedJid?.[0] || (userId ? `${userId}@s.whatsapp.net` : null) || ctx.quoted.senderJid;
-        const targetId = mentionedJid?.[0] ? tools.general.getID(mentionedJid[0]) : ctx.args[0];
-        const amount = parseInt(ctx.args[mentionedJid?.[0] ? 1 : 1]);
+        const userJid = ctx.msg.message.extendedTextMessage?.contextInfo?.mentionedJid?.[0] || (userId ? `${userId}@s.whatsapp.net` : null) || ctx.quoted.senderJid;
+        const senderJid = ctx.sender.jid;
+        const senderId = tools.general.getID(senderJid);
 
-        if (!targetId || isNaN(amount)) {
-            return await ctx.reply(
-                `${quote(tools.cmd.generateInstruction(["send"], ["text"]))}\n` +
-                `${quote(tools.cmd.generateCommandExample(ctx.used, "@user 1000"))}\n` +
-                quote(`Note: Tag pengguna atau masukkan nomor pengguna`)
-            );
-        }
-
-        // Cek jumlah coin yang akan dikirim
-        if (amount <= 0) {
-            return await ctx.reply(quote(
-                `❎ Minimal transfer 1 coin!`
-            ));
-        }
-
-        // Cek coin pengirim
-        if ((userDb?.coin || 0) < amount) {
-            return await ctx.reply(quote(
-                `❎ Coin kamu tidak cukup untuk transfer ${amount} coin!\n` +
-                `Coin kamu saat ini: ${userDb?.coin || 0}`
-            ));
-        }
+        if ((!userJid || !coinAmount) || isNaN(coinAmount)) return await ctx.reply({
+            text: `${quote(tools.cmd.generateInstruction(["send"], ["text"]))}\n` +
+                quote(tools.cmd.generateCommandExample(ctx.used, `@${senderId} 8`)),
+            mentions: [senderJid]
+        });
 
         try {
-            // Cek apakah nomor valid di WhatsApp
             const [isOnWhatsApp] = await ctx.core.onWhatsApp(userJid);
-             if (!isOnWhatsApp.exists) return await ctx.reply(quote(`❎ Akun tidak ada di WhatsApp!`));
+            if (!isOnWhatsApp.exists) return await ctx.reply(quote(`❎ Akun tidak ada di WhatsApp!`));
 
-            // Transfer coin
-            const targetDb = await Database.getUser(targetId);
-            await Database.updateUser(targetId, {
-                coin: (targetDb?.coin || 0) + amount
-            });
+            if (senderId === userId) return await ctx.reply(quote(`❎ Anda tidak dapat mentransfer koin ke diri sendiri!`));
+
+            const senderData = await Database.getUser(senderId);
+            if (!senderData || senderData.coin < coinAmount) return await ctx.reply(quote(`❎ Koin Anda tidak mencukupi untuk transfer ini!`));
+
+            const receiverId = tools.general.getID(userJid);
+            
+            // Update koin pengirim
             await Database.updateUser(senderId, {
-                coin: (userDb?.coin || 0) - amount
+                coin: senderData.coin - coinAmount
             });
 
-            // Kirim notifikasi ke penerima
-            await ctx.sendMessage(`${targetId}@s.whatsapp.net`, {
-                text: quote(`🎉 Kamu menerima ${amount} coin dari @${senderId}!`),
-                mentions: [`${senderId}@s.whatsapp.net`]
+            // Update koin penerima
+            const receiverData = await Database.getUser(receiverId);
+            const receiverCoin = receiverData?.coin || 0;
+            await Database.updateUser(receiverId, {
+                coin: receiverCoin + coinAmount
             });
 
-            // Kirim konfirmasi ke pengirim
-            return await ctx.reply({
-                text: quote(`✅ Berhasil mengirim ${amount} coin ke @${targetId}!`),
-                mentions: [`${targetId}@s.whatsapp.net`]
-            });
-
+            return await ctx.reply(quote(`✅ Berhasil mentransfer ${coinAmount} koin ke pengguna!`));
         } catch (error) {
             return await tools.cmd.handleError(ctx, error, false);
         }

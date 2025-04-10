@@ -24,7 +24,7 @@ module.exports = {
             const buffer = await ctx.msg.media.toBuffer() || await ctx.quoted.media.toBuffer();
             const uploadUrl = await tools.general.upload(buffer, "image");
             const apiUrl = tools.api.createUrl("crafters", "/ai-img/image2gta", {
-                imageUrl: uploadUrl,
+                url: uploadUrl,
                 type: "png"
             });
             const result = (await axios.get(apiUrl)).data.result.img_url;

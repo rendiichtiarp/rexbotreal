@@ -7,7 +7,9 @@ module.exports = {
     name: "jadwalsholat",
     aliases: ["sholat"],
     category: "tool",
-    permissions: {},
+    permissions: {
+        coin: 5
+    },
     code: async (ctx) => {
         const input = ctx.args.join(" ") || null;
 

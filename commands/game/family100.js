@@ -3,6 +3,7 @@ const {
     quote
 } = require("@mengkodingan/ckptw");
 const axios = require("axios");
+const didYouMean = require("didyoumean");
 
 const session = new Map();
 
@@ -81,6 +82,8 @@ module.exports = {
                         quote(`Jawabannya adalah ${answer}.`)
                     );
                     return collector.stop();
+                } else if (didYouMean(userAnswer, [game.answer]) === game.answer) {
+                    await ctx.reply(quote("⛳ Sedikit lagi."));
                 }
             });
 

@@ -3,7 +3,7 @@ const {
     quote
 } = require("@mengkodingan/ckptw");
 const axios = require("axios");
-
+const didYouMean = require("didyoumean");
 const session = new Map();
 
 module.exports = {
@@ -73,6 +73,8 @@ module.exports = {
                         quote(`Jawabannya adalah ${tools.general.ucword(game.answer)}.`)
                     );
                     return collector.stop();
+                } else if (didYouMean(userAnswer, [game.answer]) === game.answer) {
+                    await ctx.reply(quote("⛳ Sedikit lagi."));
                 }
             });
 

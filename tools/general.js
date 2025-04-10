@@ -2,7 +2,7 @@
 const api = require("./api.js");
 const uploader = require("@zanixongroup/uploader");
 const axios = require("axios");
-const didyoumean = require("didyoumean");
+const didYouMean = require("didyoumean");
 const util = require("node:util");
 
 const formatBotName = (botName) => {
@@ -102,7 +102,7 @@ function isCmd(content, bot) {
         input
     };
 
-    const mean = didyoumean(cmdName, commands.flatMap(c => [c.name, ...(c.aliases || [])]));
+    const mean = didYouMean(cmdName, commands.flatMap(c => [c.name, ...(c.aliases || [])]));
 
     return mean ? {
         msg: content,
@@ -176,7 +176,7 @@ async function upload(buffer, type = "any", host = "FastUrl") {
 const randomDelay = () => {
     return new Promise(resolve => {
         // Base delay yang lebih bervariasi (5-9 detik)
-        const baseDelay = Math.floor(Math.random() * (9000 - 5000 + 1) + 5000);
+        const baseDelay = Math.floor(Math.random() * (10000 - 6000 + 1) + 6000);
         
         // Tambahkan variasi random milliseconds (0-1999ms)
         const variation = Math.floor(Math.random() * 2000);
