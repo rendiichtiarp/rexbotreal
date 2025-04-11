@@ -128,7 +128,7 @@ module.exports = (bot) => {
 
         if ((botMode === "group" && !isGroup) || (botMode === "private" && isGroup) || (botMode === "self" && !isOwner)) return;
 
-        if (groupDb?.mute && (!isOwner || !await ctx.group().isSenderAdmin())) return;
+        if (groupDb?.mute && (!isOwner && !await ctx.group().isSenderAdmin())) return;
 
         isGroup ? consolefy.info(`Pesan masuk dari grup: ${groupId}, oleh: ${senderId}`) : consolefy.info(`Pesan masuk dari: ${senderId}`);
 
