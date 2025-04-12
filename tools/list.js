@@ -91,7 +91,8 @@ async function get(type) {
                     "antisticker (Anti stiker)",
                     "antitoxic (Anti toxic, seperti bahasa kasar)",
                     "autokick (Dikeluarkan secara otomatis, jika ada yang melanggar salah satu opsi 'anti...')",
-                    "welcome (Sambutan member)"
+                    "welcome (Sambutan member)",
+                    "antistatustag (Anti status mention)"
                 ];
                 text = createList(data, d => `${quote(d)}`);
                 break;
