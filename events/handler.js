@@ -13,6 +13,12 @@ const {
 const util = require("node:util");
 const mime = require("mime-types");
 
+const {
+    default:
+    baileys,
+    getContentType
+} = require("@whiskeysockets/baileys");
+
 // Fungsi untuk menangani event pengguna bergabung/keluar grup
 async function handleUserEvent(bot, m, type) {
     const {
@@ -253,6 +259,13 @@ module.exports = (bot) => {
         // Penanganan obrolan grup
         if (isGroup && !m.key.fromMe) {
             const now = Date.now();
+
+            // Penanganan antistatustag
+            if (groupDb?.antistatustag && ctx.getMessageType() === "groupStatusMentionMessage" && !await ctx.group().isSenderAdmin()) {
+                await ctx.reply(quote(`⛔ Jangan sebut grup ini!`));
+                await ctx.deleteMessage(m.key);
+                await ctx.group().kick([ctx.sender.jid]);
+            }
 
             // Penanganan antilink
             if (groupDb?.antilink && await tools.general.isUrl(m.content) && !await ctx.group().isSenderAdmin()) {

@@ -38,6 +38,7 @@ module.exports = {
                 `${quote(`Antitoxic: ${group?.antitoxic ? "Aktif" : "Nonaktif"}`)}\n` +
                 `${quote(`Autokick: ${group?.autokick ? "Aktif" : "Nonaktif"}`)}\n` +
                 `${quote(`Welcome: ${group?.welcome ? "Aktif" : "Nonaktif"}`)}\n` +
+                `${quote(`Antistatustag: ${group?.antistatustag ? "Aktif" : "Nonaktif"}`)}\n` +
                 "\n" +
                 config.msg.footer
             );
@@ -55,6 +56,7 @@ module.exports = {
                 case "antitoxic":
                 case "autokick":
                 case "welcome":
+                case "antistatustag":
                     // Toggle nilai boolean
                     await Database.updateGroup(groupId, {
                         [input.toLowerCase()]: !group?.[input.toLowerCase()]

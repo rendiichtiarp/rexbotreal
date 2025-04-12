@@ -33,6 +33,7 @@ CREATE TABLE IF NOT EXISTS users (
 CREATE TABLE IF NOT EXISTS group_settings (
     id VARCHAR(255) PRIMARY KEY,
     mute BOOLEAN DEFAULT false,
+    antistatustag BOOLEAN DEFAULT false,
     antilink BOOLEAN DEFAULT false,
     antinsfw BOOLEAN DEFAULT false,
     antispam BOOLEAN DEFAULT false,
