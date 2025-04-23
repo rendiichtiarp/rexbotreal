@@ -60,8 +60,14 @@ CFonts.say(
 if (config.system.useServer) {
     const { port } = config.system;
     global.startServer = (bot) => {
-        const app = createServer(bot, c);
-        app.listen(port, () => c.success(`API server running on http://localhost:${port}`));
+        const server = createServer(bot, c);
+        if (server.hasOwnProperty('listen')) {
+            // HTTP Server
+            server.listen(port, () => c.success(`API server running on http://localhost:${port}`));
+        } else {
+            // HTTPS Server
+            server.listen(port, () => c.success(`API server running on https://localhost:${port}`));
+        }
     };
 }
 

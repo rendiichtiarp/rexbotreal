@@ -30,8 +30,8 @@
   "homepage": "https://github.com/rendiichtiarp/RexbotX#readme",
   "dependencies": {
     "@mengkodingan/ckptw": "^4.4.9",
-    "@whiskeysockets/baileys": "github:kiuur/bails",
     "@mengkodingan/consolefy": "^1.0.1",
+    "@whiskeysockets/baileys": "github:kiuur/bails",
     "@zanixongroup/uploader": "^2.0.2",
     "axios": "1.8.3",
     "cfonts": "^3.3.0",
@@ -41,6 +41,8 @@
     "express": "^4.21.2",
     "file-type": "^16.5.4",
     "form-data": "^4.0.2",
+    "fs": "^0.0.1-security",
+    "https": "^1.0.0",
     "jimp": "^0.16.1",
     "jsdom": "^26.0.0",
     "link-preview-js": "^3.0.14",
