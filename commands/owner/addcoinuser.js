@@ -29,10 +29,11 @@ module.exports = {
             });
         }
 
-        try {
+        
             const [isOnWhatsApp] = await ctx.core.onWhatsApp(userJid);
              if (!isOnWhatsApp.exists) return await ctx.reply(quote(`❎ Akun tidak ada di WhatsApp!`));
 
+             try {
             // Bersihkan ID dari karakter khusus
             const targetId = tools.general.getID(userJid).replace(/[^\d]/g, '');
             const userDb = await Database.getUser(targetId);

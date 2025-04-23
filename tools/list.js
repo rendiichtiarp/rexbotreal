@@ -1,9 +1,6 @@
 // Impor modul dan dependensi yang diperlukan
 const api = require("./api.js");
 const {
-    bold,
-    italic,
-    monospace,
     quote
 } = require("@mengkodingan/ckptw");
 const axios = require("axios");

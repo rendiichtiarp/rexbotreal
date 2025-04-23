@@ -69,7 +69,8 @@ async function handleUserEvent(bot, m, type) {
                         });
                     } catch (error) {
                         if (error.status !== 200) await bot.core.sendMessage(id, {
-                            text
+                            text,
+                            mentions: [jid]
                         });
                     }
         

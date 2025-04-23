@@ -19,8 +19,8 @@ module.exports = {
         );
 
         try {
-            const result = tools.api.createUrl("agung", "/api/text2img", {
-                prompt: input
+            const result = tools.api.createUrl("nekorinn", "/ai-img/text2img", {
+                text: input
             });
 
             return await ctx.reply({

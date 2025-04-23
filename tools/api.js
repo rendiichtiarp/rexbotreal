@@ -20,8 +20,14 @@ const APIs = {
     fast: {
         baseURL: "https://fastrestapis.fasturl.cloud"
     },
+    davidcyril: {
+        baseURL: "https://apis.davidcyriltech.my.id"
+    },
     nyxs: {
         baseURL: "https://api.nyxs.pw"
+    },
+    nekorinn: {
+        baseURL: "https://api.nekorinn.my.id"
     },
     otinxsandip: {
         baseURL: "https://sandipbaruwal.onrender.com"
@@ -31,6 +37,9 @@ const APIs = {
     },
     vapis: {
         baseURL: "https://vapis.my.id"
+    },
+    zell: {
+        baseURL: "https://apizell.web.id"
     }
 };
 

@@ -22,10 +22,11 @@ module.exports = {
             mentions: [senderJid]
         });
 
-        try {
+        
             const [isOnWhatsApp] = await ctx.core.onWhatsApp(userJid);
              if (!isOnWhatsApp.exists) return await ctx.reply(quote(`❎ Akun tidak ada di WhatsApp!`));
 
+             try {
             await Database.updateUser(tools.general.getID(userJid), {
                 banned: true
             });

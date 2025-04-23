@@ -22,10 +22,11 @@ module.exports = {
             mentions: [senderJid]
         });
 
-        try {
+        
             const [isOnWhatsApp] = await ctx.core.onWhatsApp(userJid);
-            if (!isOnWhatsApp.exists) return await ctx.reply(quote(`❎ Akun tidak ada di WhatsApp!`));
+         if (!isOnWhatsApp.exists) return await ctx.reply(quote(`❎ Akun tidak ada di WhatsApp!`));
 
+         try {
             if (senderId === userId) return await ctx.reply(quote(`❎ Anda tidak dapat mentransfer koin ke diri sendiri!`));
 
             const senderData = await Database.getUser(senderId);

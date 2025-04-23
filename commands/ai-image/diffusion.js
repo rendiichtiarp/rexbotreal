@@ -4,8 +4,8 @@ const {
 const mime = require("mime-types");
 
 module.exports = {
-    name: "stablediffusion",
-    aliases: ["sdxl"],
+    name: "diffusion",
+    aliases: ["diff"],
     category: "ai-image",
     permissions: {
         coin: 5
@@ -19,9 +19,8 @@ module.exports = {
         );
 
         try {
-            const result = tools.api.createUrl("fast", "/aiimage/stablediffusion", {
-                prompt: input,
-                model: "stable-diffusion-xl-base"
+            const result = tools.api.createUrl("davidcyril", "/diffusion", {
+                prompt: input
             });
 
             return await ctx.reply({
@@ -34,7 +33,7 @@ module.exports = {
                     config.msg.footer
             });
         } catch (error) {
-            return await tools.cmd.handleError(ctx, error, false);
+            return await tools.cmd.handleError(ctx, error, true);
         }
     }
 };
