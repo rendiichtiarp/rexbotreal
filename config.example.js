@@ -19,7 +19,8 @@ global.config = {
 
         // Konfigurasi channel untuk broadcast
         groups: {
-            report: "120363366663863260@g.us" // ID group untuk laporan
+            report: "123@g.us", // ID group untuk laporan
+            donation: "123@g.us" // ID group untuk notif donasi
         },
 
         // Konfigurasi autentikasi sesi bot
@@ -66,7 +67,7 @@ global.config = {
         private: quote("⛔ Perintah hanya dapat diakses dalam obrolan pribadi!"), // Pesan untuk perintah obrolan pribadi
         restrict: quote("⛔ Perintah ini telah dibatasi karena alasan keamanan!"), // Pesan pembatasan perintah
         register: quote("❎ Anda belum terdaftar! Silakan daftar terlebih dahulu.\n\n> Pendaftaran RexbotX melalui:\n" +
-            "https://rexbotx.xyz\n\n" +
+            "https://rexbotx.biz.id\n\n" +
             "Cara pendaftaran:\n" +
             "1. Klik tautan diatas\n" +
             "2. Dihalaman website klik garis tiga di kanan atas\n" +

@@ -138,54 +138,7 @@ module.exports = (bot) => {
 
         isGroup ? consolefy.info(`Pesan masuk dari grup: ${groupId}, oleh: ${senderId}`) : consolefy.info(`Pesan masuk dari: ${senderId}`);
 
-        // Auto response untuk sapaan bot
-        if (!isCmd && m.content && !m.key.fromMe) {
-            // Regex yang lebih spesifik untuk sapaan bot
-            const greetingWords = /^(bot|rexbotx|rex|rexbot|hi|hai|halo|p|hy|woi)(\s+|$)/i;
-            const botMentions = /(bot|rexbotx|rex|rexbot)/i;
-            
-            // Cek jika sedang dalam menfess (untuk private chat)
-            const allMenfessDb = await Database.getMenfess();
-            const activeMenfess = allMenfessDb.filter(m => m.status === 'active');
-            const menfessEntries = activeMenfess.map(m => [m.menfess_id, { from: m.from_user, to: m.to_user }]);
-            const isInMenfess = isPrivate && menfessEntries.some(([_, data]) => data.from === senderId || data.to === senderId);
-
-            // Hanya merespon jika pesan dimulai dengan sapaan atau secara eksplisit menyebut bot
-            if ((greetingWords.test(m.content) || (m.content.length < 20 && botMentions.test(m.content))) && !isInMenfess) {
-                const responses = [
-                    `Ada yang bisa saya bantu?\nKetik .menu untuk melihat daftar perintah.`,
-                    `Saya RexbotX, bot WhatsApp yang siap membantu.\nGunakan .menu untuk melihat fitur yang tersedia.`,
-                    `Butuh bantuan? Ketik .menu untuk melihat daftar perintah ya.`,
-                    `Ketik .menu untuk melihat semua fitur yang tersedia.`,
-                    `Perkenalkan saya RexbotX. Ketik .menu untuk melihat apa saja yang bisa saya lakukan.`,
-                    `Silakan ketik .menu untuk melihat daftar perintah yang tersedia.`,
-                    `RexbotX siap membantu. Gunakan .menu untuk mengakses fitur.`,
-                    `Ingin tahu fitur apa saja yang ada? Ketik .menu sekarang.`,
-                    `Punya pertanyaan? Cek .menu untuk melihat cara saya membantu.`,
-                    `Gunakan .menu untuk melihat daftar lengkap fitur RexbotX.`
-                ];
-                
-                if (config.system.autoTypingOnCmd) {
-                    await ctx.simulateTyping();
-                }
-                await tools.general.randomDelay();
-                
-                await ctx.reply({
-                    text: tools.general.getRandomElement(responses),
-                    contextInfo: {
-                        mentionedJid: [ctx.sender.jid],
-                        externalAdReply: {
-                            title: config.msg.watermark,
-                            mediaType: "IMAGE",
-                            thumbnailUrl: config.bot.thumbnail,
-                            sourceUrl: config.bot.website,
-                            renderLargerThumbnail: true
-                        }
-                    }
-                });
-                return;
-            }
-        }
+        await tools.general.randomDelay();
 
         // Grup atau Pribadi
         if (isGroup || isPrivate) {
@@ -375,7 +328,7 @@ module.exports = (bot) => {
                 }
             }
         }
-    });
+    }); // Menutup event handler MessagesUpsert
 
     // Event saat bot menerima panggilan
     bot.ev.on(Events.Call, async (calls) => {

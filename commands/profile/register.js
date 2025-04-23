@@ -11,7 +11,7 @@ module.exports = {
   code: async (ctx) => {
     try {
       ctx.reply(quote(`Pendaftaran RexbotX melalui:\n` +
-        `https://www.rexbotx.xyz\n\n` +
+        `https://www.rexbotx.biz.id\n\n` +
         `Cara pendaftaran:\n` +
         `1. Klik garis tiga di kanan atas\n` +
         `2. Pilih menu Daftar\n` +
