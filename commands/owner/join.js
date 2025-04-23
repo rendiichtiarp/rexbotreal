@@ -23,6 +23,7 @@ module.exports = {
         try {
             const urlCode = new URL(url).pathname.split("/").pop();
             const groupJid = await ctx.core.groupAcceptInvite(urlCode);
+            if (result.data !== 200) return await ctx.reply(quote(`❎ Gagal bergabung dengan grup!`));
 
             if (!groupJid) {
                 return await ctx.reply(quote(`❎ Gagal bergabung dengan grup.`));

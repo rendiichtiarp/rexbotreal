@@ -77,13 +77,19 @@ module.exports = {
                 } else if (userAnswer === "s") {
                     const answer = [...game.answers].map(tools.general.ucword).join(", ").replace(/, ([^,]*)$/, ", dan $1");
                     session.delete(ctx.id);
-                    await ctx.reply(
-                        `${quote("🏳️ Anda menyerah!")}\n` +
-                        quote(`Jawabannya adalah ${answer}.`)
-                    );
+                    await ctx.sendMessage(ctx.id, {
+                        text: `${quote("🏳️ Anda menyerah!")}\n` +
+                            quote(`Jawaban yang belum terjawab adalah ${answer}.`)
+                    }, {
+                        quoted: m
+                    });
                     return collector.stop();
                 } else if (didYouMean(userAnswer, [game.answer]) === game.answer) {
-                    await ctx.reply(quote("⛳ Sedikit lagi."));
+                    await ctx.sendMessage(ctx.id, {
+                         text: quote("🎯 Sedikit lagi!")
+                     }, {
+                         quoted: m
+                     });
                 }
             });
 
