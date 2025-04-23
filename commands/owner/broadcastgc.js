@@ -19,7 +19,8 @@ module.exports = {
 
         if (!input && !checkMedia && !checkQuotedMedia) return await ctx.reply(
             `${quote(tools.cmd.generateInstruction(["send"], ["text", "image"]))}\n` +
-            quote(tools.cmd.generateCommandExample(ctx.used, "halo, dunia!"))
+            `${quote(tools.cmd.generateCommandExample(ctx.used, "halo, dunia!"))}\n` +
+             quote(tools.cmd.generateNotes(["Untuk teks satu baris, ketik saja langsung ke perintah. Untuk teks dengan baris baru, balas pesan yang berisi teks tersebut ke perintah."]))
         );
 
         try {
