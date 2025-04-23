@@ -2,7 +2,6 @@ const {
     quote
 } = require("@mengkodingan/ckptw");
 const mime = require("mime-types");
-const axios = require("axios");
 
 module.exports = {
     name: "colorize",
@@ -22,11 +21,9 @@ module.exports = {
         try {
             const buffer = await ctx.msg.media.toBuffer() || await ctx.quoted.media.toBuffer();
             const uploadUrl = await tools.general.upload(buffer, "image");
-            const apiUrl = tools.api.createUrl("crafters", "/tools/pxpic", {
-                url: uploadUrl,
-                type: "colorize"
+            const result = tools.api.createUrl("fast", "/aiimage/imgcolorize", {
+                url: uploadUrl
             });
-            const result = (await axios.get(apiUrl)).data.result.resultImageUrl;
 
             return await ctx.reply({
                 image: {
