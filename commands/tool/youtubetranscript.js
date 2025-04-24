@@ -5,7 +5,7 @@ const axios = require("axios");
 
 module.exports = {
     name: "youtubetranscript",
-    aliases: ["yttranscript"],
+    aliases: ["yttranscript", "ytt", "yttext", "ytscript", "yttr"],
     category: "tool",
     permissions: {
         coin: 10

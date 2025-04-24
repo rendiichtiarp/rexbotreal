@@ -46,6 +46,12 @@ module.exports = {
                 coin: receiverCoin + coinAmount
             });
 
+            // Kirim notifikasi ke penerima
+            await ctx.core.sendMessage(userJid, {
+                text: quote(`💰 Anda menerima transfer ${coinAmount} koin dari @${senderId}!`),
+                mentions: [senderJid]
+            });
+
             return await ctx.reply(quote(`✅ Berhasil mentransfer ${coinAmount} koin ke pengguna!`));
         } catch (error) {
             return await tools.cmd.handleError(ctx, error, false);

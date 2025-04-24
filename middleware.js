@@ -78,8 +78,9 @@ module.exports = (bot) => {
                     nextLevel: currentLevel
                 });
     
-                        `${config.msg.readmore}\n` +
-                        quote(tools.cmd.generateNotes([`Terganggu? Ketik ${monospace(`${ctx.used.prefix}setprofile autolevelup`)} untuk menonaktifkan pesan autolevelup.`]));
+                const text = `${quote(`Selamat! Kamu telah naik ke level ${currentLevel}!`)}\n` +
+                    `${config.msg.readmore}\n` +
+                    quote(tools.cmd.generateNotes([`Terganggu? Ketik ${monospace(`${ctx.used.prefix}setprofile autolevelup`)} untuk menonaktifkan pesan autolevelup.`]));
  
                  try {
                      await ctx.reply({
