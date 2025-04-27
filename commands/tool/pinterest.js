@@ -21,17 +21,24 @@ module.exports = {
         );
 
         try {
-            const apiUrl = tools.api.createUrl("archive", "/search/pinterest", {
-                q: input
-            });
-            const result = tools.general.getRandomElement((await axios.get(apiUrl)).data.result).image_hd;
+            const apiUrl = tools.api.createUrl("archive", "api/search/pinterest");
+            const response = await axios.get(apiUrl, {
+                    params: {
+                        query: input
+                    }
+                });
+
+            const randomResult = tools.general.getRandomElement(response.data.result);
 
             return await ctx.reply({
                 image: {
-                    url: result
+                    url: randomResult.image
                 },
                 mimetype: mime.lookup("png"),
-                caption: `${quote(`Kueri: ${input}`)}\n` +
+                caption: `${quote(`Query: ${input}`)}\n` +
+                    `${quote(`Caption: ${randomResult.caption || 'Tidak ada caption'}`)}\n` +
+                    `${quote(`Uploader: ${randomResult.fullname} (@${randomResult.upload_by})`)}\n` +
+                    `${quote(`Source: ${randomResult.source}`)}\n` +
                     "\n" +
                     config.msg.footer
             });

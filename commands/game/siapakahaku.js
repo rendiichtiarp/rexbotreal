@@ -98,7 +98,7 @@ module.exports = {
             if (session.has(ctx.id)) {
                 session.delete(ctx.id);
             }
-            return await tools.cmd.handleError(ctx, error, false);
+           return await tools.cmd.handleError(ctx, error, true);
         }
     }
 };
