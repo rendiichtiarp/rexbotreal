@@ -7,7 +7,7 @@ module.exports = {
     name: "qwen",
     category: "ai-chat",
     permissions: {
-        coin: 5
+        premium: true
     },
     code: async (ctx) => {
         const input = ctx.args.join(" ") || null;

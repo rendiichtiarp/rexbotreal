@@ -7,7 +7,7 @@ module.exports = {
     name: "toghibli",
     category: "ai-misc",
     permissions: {
-        coin: 5
+        premium: true
     },
     code: async (ctx) => {
         const msgType = ctx.getMessageType();
