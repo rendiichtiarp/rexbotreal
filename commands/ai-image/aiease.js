@@ -1,14 +1,14 @@
 const {
     quote
 } = require("@mengkodingan/ckptw");
-const mime = require("mime-types");
 const axios = require("axios");
+const mime = require("mime-types");
 
 module.exports = {
-    name: "dreamshaper",
+    name: "aiease",
     category: "ai-image",
     permissions: {
-        coin: 5
+        coin: 10
     },
     code: async (ctx) => {
         const input = ctx.args.join(" ") || null;
@@ -19,10 +19,10 @@ module.exports = {
         );
 
         try {
-            const apiUrl = tools.api.createUrl("nekorinn", "/ai-img/dreamshaper-xl", {
-                text: input
+            const apiUrl = tools.api.createUrl("zell", "/ai/text2image5", {
+                prompt: input
             });
-            const result = tools.general.getRandomElement((await axios.get(apiUrl)).data.result);
+            const result = (await axios.get(apiUrl)).data.result;
 
             return await ctx.reply({
                 image: {
@@ -34,7 +34,7 @@ module.exports = {
                     config.msg.footer
             });
         } catch (error) {
-            return await tools.cmd.handleError(ctx, error, false);
+            return await tools.cmd.handleError(ctx, error, true);
         }
     }
 };

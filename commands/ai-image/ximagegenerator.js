@@ -1,13 +1,15 @@
 const {
     quote
 } = require("@mengkodingan/ckptw");
+const axios = require("axios");
 const mime = require("mime-types");
 
 module.exports = {
-    name: "animagine",
+    name: "ximagegenerator",
+    aliases: ["xart"],
     category: "ai-image",
     permissions: {
-        coin: 5
+        coin: 10
     },
     code: async (ctx) => {
         const input = ctx.args.join(" ") || null;
@@ -18,9 +20,10 @@ module.exports = {
         );
 
         try {
-            const result = tools.api.createUrl("nekorinn", "/ai-img/animagine-3.1", {
-                text: input
+            const apiUrl = tools.api.createUrl("zell", "/ai/text2image2", {
+                prompt: input
             });
+            const result = (await axios.get(apiUrl)).data.result;
 
             return await ctx.reply({
                 image: {

@@ -1,13 +1,14 @@
 const {
     quote
 } = require("@mengkodingan/ckptw");
+const axios = require("axios");
 const mime = require("mime-types");
 
 module.exports = {
-    name: "sdxlfast",
+    name: "seaartrealism",
     category: "ai-image",
     permissions: {
-        coin: 5
+        coin: 10
     },
     code: async (ctx) => {
         const input = ctx.args.join(" ") || null;
@@ -18,10 +19,10 @@ module.exports = {
         );
 
         try {
-            const result = tools.api.createUrl("fast", "/aiimage/stablediffusion", {
-                prompt: input,
-                model: "stable-diffusion-xl-fast"
+            const apiUrl = tools.api.createUrl("nekorinn", "/ai-img/seaart-realism", {
+                text: input
             });
+            const result = tools.general.getRandomElement((await axios.get(apiUrl)).data.result);
 
             return await ctx.reply({
                 image: {
@@ -33,7 +34,7 @@ module.exports = {
                     config.msg.footer
             });
         } catch (error) {
-            return await tools.cmd.handleError(ctx, error, false);
+            return await tools.cmd.handleError(ctx, error, true);
         }
     }
 };

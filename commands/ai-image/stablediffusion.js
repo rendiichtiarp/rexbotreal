@@ -5,7 +5,6 @@ const mime = require("mime-types");
 
 module.exports = {
     name: "stablediffusion",
-    aliases: ["sdxl"],
     category: "ai-image",
     permissions: {
         coin: 5
@@ -19,10 +18,12 @@ module.exports = {
         );
 
         try {
-            const result = tools.api.createUrl("fast", "/aiimage/stablediffusion", {
-                prompt: input,
-                model: "stable-diffusion-xl-base"
+            const apiUrl = tools.api.createUrl("nekorinn", "/ai-img/stable-diffusion-3.5", {
+                text: input
             });
+
+            const result = tools.general.getRandomElement((await axios.get(apiUrl)).data.result);
+ 
 
             return await ctx.reply({
                 image: {

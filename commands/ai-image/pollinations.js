@@ -2,10 +2,10 @@ const {
     quote
 } = require("@mengkodingan/ckptw");
 const mime = require("mime-types");
-const axios = require("axios");
 
 module.exports = {
-    name: "dreamshaper",
+    name: "pollinations",
+    aliases: ["imagine"],
     category: "ai-image",
     permissions: {
         coin: 5
@@ -19,10 +19,9 @@ module.exports = {
         );
 
         try {
-            const apiUrl = tools.api.createUrl("nekorinn", "/ai-img/dreamshaper-xl", {
+            const result = tools.api.createUrl("shizo", "/ai/imagine", {
                 text: input
-            });
-            const result = tools.general.getRandomElement((await axios.get(apiUrl)).data.result);
+            }, "apikey");
 
             return await ctx.reply({
                 image: {
@@ -34,7 +33,7 @@ module.exports = {
                     config.msg.footer
             });
         } catch (error) {
-            return await tools.cmd.handleError(ctx, error, false);
+            return await tools.cmd.handleError(ctx, error, true);
         }
     }
 };

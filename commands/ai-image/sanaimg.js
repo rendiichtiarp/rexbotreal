@@ -1,15 +1,13 @@
 const {
     quote
 } = require("@mengkodingan/ckptw");
-const axios = require("axios");
 const mime = require("mime-types");
 
 module.exports = {
-    name: "photorealistic",
-    aliases: ["picsart", "realistic"],
+    name: "sanaimg",
     category: "ai-image",
     permissions: {
-        coin: 10
+        coin: 5
     },
     code: async (ctx) => {
         const input = ctx.args.join(" ") || null;
@@ -20,10 +18,9 @@ module.exports = {
         );
 
         try {
-            const apiUrl = tools.api.createUrl("nekorinn", "/ai-img/photorealistic13", {
+            const result = tools.api.createUrl("nekorinn", "/ai-img/sana-ai", {
                 text: input
             });
-            const result = tools.general.getRandomElement((await axios.get(apiUrl)).data.result);
 
             return await ctx.reply({
                 image: {
@@ -35,7 +32,7 @@ module.exports = {
                     config.msg.footer
             });
         } catch (error) {
-            return await tools.cmd.handleError(ctx, error, true);
+            return await tools.cmd.handleError(ctx, error, false);
         }
     }
 };
