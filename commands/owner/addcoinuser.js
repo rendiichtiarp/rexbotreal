@@ -12,14 +12,14 @@ module.exports = {
     },
     code: async (ctx) => {
         const userId = ctx.args[0];
-        const coinAmount = parseInt(ctx.args[1], 10);
+        const coinAmount = parseInt(ctx.args[!!ctx.quoted?.senderJid ? 0 : 1], 10);
         
         // Validasi input coin
         if (!coinAmount || isNaN(coinAmount)) {
             return await ctx.reply(quote("❎ Jumlah coin tidak valid!"));
         }
 
-        const userJid = ctx.msg.message.extendedTextMessage?.contextInfo?.mentionedJid?.[0] || (userId ? `${userId}@s.whatsapp.net` : null) || ctx.quoted.senderJid;
+        const userJid = ctx.msg.message.extendedTextMessage?.contextInfo?.mentionedJid?.[0] || (userId ? `${userId}@s.whatsapp.net` : null) || ctx.quoted?.senderJid;
         
         if (!userJid) {
             return await ctx.reply({
@@ -30,8 +30,8 @@ module.exports = {
         }
 
         
-            const [isOnWhatsApp] = await ctx.core.onWhatsApp(userJid);
-             if (!isOnWhatsApp.exists) return await ctx.reply(quote(`❎ Akun tidak ada di WhatsApp!`));
+        const isOnWhatsApp = await ctx.core.onWhatsApp(userJid);
+        if (isOnWhatsApp.length < 0) return await ctx.reply(quote("❎ Akun tidak ada di WhatsApp!"));
 
              try {
             // Bersihkan ID dari karakter khusus

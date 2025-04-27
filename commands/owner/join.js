@@ -22,12 +22,8 @@ module.exports = {
 
         try {
             const urlCode = new URL(url).pathname.split("/").pop();
-            const groupJid = await ctx.core.groupAcceptInvite(urlCode);
-            if (result.data !== 200) return await ctx.reply(quote(`❎ Gagal bergabung dengan grup!`));
-
-            if (!groupJid) {
-                return await ctx.reply(quote(`❎ Gagal bergabung dengan grup.`));
-            }
+            const result = await ctx.groups.acceptInvite(urlCode);
+             if (result.length < 0) return await ctx.reply(quote("❎ Gagal bergabung dengan grup!"));
 
             // Kirim pesan perkenalan ke grup
             await ctx.core.sendMessage(groupJid, {
