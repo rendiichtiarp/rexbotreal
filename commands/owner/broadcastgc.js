@@ -10,18 +10,7 @@ module.exports = {
         owner: true
     },
     code: async (ctx) => {
-        let input = ctx.args.join(" ");
-        
-        // Jika tidak ada input langsung, cek pesan yang di-reply
-        if (!input && ctx.quoted) {
-            if (ctx.quoted.text) {
-                input = ctx.quoted.text;
-            } else if (ctx.quoted.caption) {
-                input = ctx.quoted.caption;
-            } else if (ctx.quoted.conversation) {
-                input = ctx.quoted.conversation;
-            }
-        }
+        const input = ctx.args.join(" ") || ctx.quoted.conversation || Object.values(ctx.quoted).map(v => v?.text || v?.caption).find(Boolean) || null;
 
         const msgType = ctx.getMessageType();
         const [checkMedia, checkQuotedMedia] = await Promise.all([
