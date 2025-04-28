@@ -8,7 +8,7 @@ module.exports = {
     aliases: ["fakta", "tahukahanda"],
     category: "tool",
     permissions: {
-        coin: 5
+        coin: 10
     },
     code: async (ctx) => {
         const apiUrl = tools.api.createUrl("https://cinnabar.icaksh.my.id", "/public/daily/tawiki");

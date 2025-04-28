@@ -9,7 +9,7 @@ module.exports = {
     aliases: ["ytmp4", "ytv", "ytvideo"],
     category: "downloader",
     permissions: {
-        coin: 5
+        coin: 15
     },
     code: async (ctx) => {
         const input = ctx.args.join(" ") || null;

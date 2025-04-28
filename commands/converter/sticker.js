@@ -11,7 +11,7 @@ module.exports = {
     aliases: ["s", "stiker"],
     category: "converter",
     permissions: {
-        coin: 5
+        coin: 10
     },
     code: async (ctx) => {
         const msgType = ctx.getMessageType();

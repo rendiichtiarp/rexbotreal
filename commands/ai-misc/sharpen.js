@@ -7,7 +7,7 @@ module.exports = {
     name: "sharpen",
     category: "ai-misc",
     permissions: {
-        coin: 5
+        coin: 15
     },
     code: async (ctx) => {
         const msgType = ctx.getMessageType();

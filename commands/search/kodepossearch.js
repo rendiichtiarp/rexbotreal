@@ -8,7 +8,7 @@ module.exports = {
     aliases: ["kodepos", "kodeposs"],
     category: "search",
     permissions: {
-        coin: 5
+        coin: 10
     },
     code: async (ctx) => {
         const input = ctx.args.join(" ") || null;

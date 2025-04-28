@@ -8,7 +8,7 @@ module.exports = {
     aliases: ["toptt"],
     category: "converter",
     permissions: {
-        coin: 5
+        coin: 10
     },
     code: async (ctx) => {
         if (!await tools.cmd.checkQuotedMedia(ctx.quoted, ["audio"])) return await ctx.reply(quote(tools.cmd.generateInstruction(["reply"], ["audio"])));

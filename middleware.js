@@ -201,7 +201,9 @@ module.exports = (bot) => {
                 {
                     key: "coin",
                     condition: permissions.coin && config.system.useCoin && await checkCoin(permissions.coin, senderId),
-                    msg: config.msg.coin
+                    msg: quote(`❎ Anda tidak memiliki cukup koin untuk menggunakan fitur ini.\n`) +
+                        quote(`Koin Anda saat ini: ${userDb?.coin || 0} koin. Dibutuhkan: ${permissions.coin} koin.\n\n`) +
+                        quote(`Ketik ${monospace(`${ctx.used.prefix}coin`)} untuk melihat cara mendapatkan koin.`)
                 },
                 {
                     key: "group",

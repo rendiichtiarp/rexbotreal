@@ -9,7 +9,7 @@ module.exports = {
     aliases: ["tiktok", "tiktoknowm", "tt", "ttdl", "vt", "vtdl", "vtdltiktok", "vtnowm"],
     category: "downloader",
     permissions: {
-        coin: 5
+        coin: 15
     },
     code: async (ctx) => {
         const input = ctx.args.join(" ") || null;

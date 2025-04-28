@@ -11,7 +11,7 @@ module.exports = {
     aliases: ["quran"],
     category: "tool",
     permissions: {
-        coin: 5
+        coin: 10
     },
     code: async (ctx) => {
         const [surat, ayat] = ctx.args;

@@ -11,7 +11,7 @@ module.exports = {
     aliases: ["sanimbrat", "stikeranimbrat", "stickeranimbrat"],
     category: "maker",
     permissions: {
-        coin: 5
+        coin: 10
     },
     code: async (ctx) => {
         const input = ctx.args.join(" ") || null;

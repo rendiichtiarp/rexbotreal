@@ -14,7 +14,7 @@ module.exports = {
     aliases: ["get"],
     category: "tool",
     permissions: {
-        coin: 5
+        coin: 10
     },
     code: async (ctx) => {
         const url = ctx.args[0] || null;

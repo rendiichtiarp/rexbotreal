@@ -8,7 +8,7 @@ module.exports = {
     aliases: ["conf", "confes", "confess", "menf", "menfes"],
     category: "tool",
     permissions: {
-        coin: 5,
+        coin: 10,
         private: true
     },
     code: async (ctx) => {

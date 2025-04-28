@@ -9,7 +9,7 @@ module.exports = {
     name: "wallpaper",
     category: "tool",
     permissions: {
-        coin: 5
+        coin: 10
     },
     code: async (ctx) => {
         const input = ctx.args.join(" ") || null;

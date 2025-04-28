@@ -9,7 +9,7 @@ module.exports = {
     aliases: ["scdl"],
     category: "downloader",
     permissions: {
-        coin: 5
+        coin: 15
     },
     code: async (ctx) => {
         const url = ctx.args[0] || null;
