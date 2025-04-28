@@ -19,7 +19,7 @@ module.exports = {
 
         if (!input) return await ctx.reply(
             `${quote(tools.cmd.generateInstruction(["send"], ["text"]))}\n` +
-            `${quote(tools.cmd.generateCommandExample(ctx.used, "itsreimau"))}\n` +
+            `${quote(tools.cmd.generateCommandExample(ctx.used, "RexbotX"))}\n` +
              quote(tools.cmd.generateNotes([`Ketik ${monospace(`${ctx.used.prefix + ctx.used.command} list`)} untuk melihat daftar.`]))
         );
 

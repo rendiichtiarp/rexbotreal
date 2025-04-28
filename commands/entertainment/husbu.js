@@ -4,7 +4,7 @@ const mime = require("mime-types");
      name: "husbu",
      category: "entertainment",
      permissions: {
-         coin: 10
+         coin: 5
      },
      code: async (ctx) => {
          try {
