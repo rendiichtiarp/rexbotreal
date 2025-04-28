@@ -67,16 +67,16 @@ const claimRewards = {
     weekly: {
         reward: 100,        // Dari 500 menjadi 250 coin
         cooldown: 7 * 24 * 60 * 60 * 1000, // 7 hari
-        level: 15 // Level 15 untuk klaim weekly
+        level: 10 // Level 10 untuk klaim weekly
     },
     monthly: {
         reward: 500,       // Dari 2000 menjadi 1000 coin
         cooldown: 30 * 24 * 60 * 60 * 1000, // 30 hari
-        level: 50 // Level 50 untuk klaim monthly
+        level: 30 // Level 30 untuk klaim monthly
     },
     yearly: {
         reward: 2000,       // Dari 10000 menjadi 5000 coin
         cooldown: 365 * 24 * 60 * 60 * 1000, // 365 hari
-        level: 75 // Level 75 untuk klaim yearly
+        level: 50 // Level 50 untuk klaim yearly
     }
 };

@@ -1,14 +1,15 @@
 const mime = require("mime-types");
  
  module.exports = {
-     name: "husbu",
+     name: "bluearchive",
+     aliases: ["ba"],
      category: "entertainment",
      permissions: {
-         coin: 5
+         coin: 10
      },
      code: async (ctx) => {
          try {
-             const result = tools.api.createUrl("shizo", "/sfw/husbu", null, "apikey");
+             const result = tools.api.createUrl("archive", "/api/random/bluearchive");
  
              return await ctx.reply({
                  image: {

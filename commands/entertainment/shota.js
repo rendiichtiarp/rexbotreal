@@ -20,4 +20,4 @@ const mime = require("mime-types");
              return await tools.cmd.handleError(ctx, error, true);
          }
      }
- }
+ };
