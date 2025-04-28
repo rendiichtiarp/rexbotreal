@@ -35,58 +35,58 @@ async function handleUserEvent(bot, m, type) {
 
         const metadata = await bot.core.groupMetadata(id);
 
-                for (const jid of participants) {
-                    const profilePictureUrl = await bot.core.profilePictureUrl(jid, "image").catch(() => "https://i.pinimg.com/736x/70/dd/61/70dd612c65034b88ebf474a52ccc70c4.jpg");
-        
-                    const customText = type === "UserJoin" ? groupDb?.welcome_text : groupDb?.goodbye_text;
-                    const userId = tools.general.getID(jid);
-                    const userTag = `${userId}`;
-        
-                    const text = customText ?
-                        customText
-                        .replace(/%tag%/g, userTag)
-                        .replace(/%subject%/g, metadata.subject)
-                        .replace(/%description%/g, metadata.description) :
-                        (type === "UserJoin" ?
-                            quote(`👋 Selamat datang ${userTag} di grup ${metadata.subject}!`) :
-                            quote(`👋 ${userTag} keluar dari grup ${metadata.subject}.`));
-                            
-                    const canvas = tools.api.createUrl("fast", "/canvas/welcome", {
-                        avatar: profilePictureUrl,
-                        background: config.bot.thumbnail,
-                        title: type === "UserJoin" ? "WELCOME" : "GOODBYE",
-                        description: userId
-                    });
-        
-                    try {
-                        await bot.core.sendMessage(id, {
-                            image: {
-                                url: canvas
-                            },
-                            mimetype: mime.lookup("png"),
-                            caption: text,
-                            mentions: [jid]
-                        });
-                    } catch (error) {
-                        if (error.status !== 200) await bot.core.sendMessage(id, {
-                            text,
-                            mentions: [jid]
-                        });
-                    }
-        
-                    if (type === "UserJoin" && groupDb?.intro_text) await bot.core.sendMessage(id, {
-                        text: groupDb?.intro_text,
-                        mentions: [jid]
-                    });
+        for (const jid of participants) {
+            const profilePictureUrl = await bot.core.profilePictureUrl(jid, "image").catch(() => "https://i.pinimg.com/736x/70/dd/61/70dd612c65034b88ebf474a52ccc70c4.jpg");
+
+            const customText = type === "UserJoin" ? groupDb?.welcome_text : groupDb?.goodbye_text;
+            const userId = tools.general.getID(jid);
+            const userTag = `${userId}`;
+
+            const text = customText ?
+                customText
+                    .replace(/%tag%/g, userTag)
+                    .replace(/%subject%/g, metadata.subject)
+                    .replace(/%description%/g, metadata.description) :
+                (type === "UserJoin" ?
+                    quote(`👋 Selamat datang ${userTag} di grup ${metadata.subject}!`) :
+                    quote(`👋 ${userTag} keluar dari grup ${metadata.subject}.`));
+
+            const canvas = tools.api.createUrl("fast", "/canvas/welcome", {
+                avatar: profilePictureUrl,
+                background: config.bot.thumbnail,
+                title: type === "UserJoin" ? "WELCOME" : "GOODBYE",
+                description: userId
+            });
+
+            try {
+                await bot.core.sendMessage(id, {
+                    image: {
+                        url: canvas
+                    },
+                    mimetype: mime.lookup("png"),
+                    caption: text,
+                    mentions: [jid]
+                });
+            } catch (error) {
+                if (error.status !== 200) await bot.core.sendMessage(id, {
+                    text,
+                    mentions: [jid]
+                });
+            }
+
+            if (type === "UserJoin" && groupDb?.intro_text) await bot.core.sendMessage(id, {
+                text: groupDb?.intro_text,
+                mentions: [jid]
+            });
         }
     } catch (error) {
         const errorText = util.format(error);
-         consolefy.error(`Error: ${errorText}`);
-         if (config.system.reportErrorToOwner) await bot.core.sendMessage(`${config.owner.id}@s.whatsapp.net`, {
-             text: `${quote("⚠️ Terjadi kesalahan:")}\n` +
-                 `${quote("─────")}\n` +
-                 monospace(errorText)
-         });
+        consolefy.error(`Error: ${errorText}`);
+        if (config.system.reportErrorToOwner) await bot.core.sendMessage(`${config.owner.id}@s.whatsapp.net`, {
+            text: `${quote("⚠️ Terjadi kesalahan:")}\n` +
+                `${quote("─────")}\n` +
+                monospace(errorText)
+        });
         await bot.core.sendMessage(id, {
             text: quote(`❎ Terjadi kesalahan: ${error.message}`)
         });
@@ -96,7 +96,7 @@ async function handleUserEvent(bot, m, type) {
 // Events utama bot
 module.exports = (bot) => {
     bot.ev.setMaxListeners(config.system.maxListeners); // Tetapkan max listeners untuk events
-    
+
     // Event saat bot siap
     bot.ev.once(Events.ClientReady, async (m) => {
         consolefy.success(`${config.bot.name} by ${config.owner.name}, ready at ${m.user.id}`);
@@ -108,7 +108,7 @@ module.exports = (bot) => {
                 text: quote(`✅ Berhasil dimulai ulang! Membutuhkan waktu ${timeago}.`),
                 edit: JSON.parse(lastRestart.message_key)
             });
-            
+
             await Database.deleteRestart();
         }
 
@@ -167,12 +167,12 @@ module.exports = (bot) => {
                         await ctx.reply(monospace(util.inspect(result)));
                     } catch (error) {
                         const errorText = util.format(error);
-                         consolefy.error(`Error: ${errorText}`);
-                         await ctx.reply(
-                             `${quote(`⚠️ Terjadi kesalahan:`)}\n` +
-                             `${quote("─────")}\n` +
-                             monospace(errorText)
-                         );
+                        consolefy.error(`Error: ${errorText}`);
+                        await ctx.reply(
+                            `${quote(`⚠️ Terjadi kesalahan:`)}\n` +
+                            `${quote("─────")}\n` +
+                            monospace(errorText)
+                        );
                     }
                 }
 
@@ -184,7 +184,7 @@ module.exports = (bot) => {
                         await ctx.reply(monospace(output.stdout || output.stderr));
                     } catch (error) {
                         const errorText = util.format(error);
-                         consolefy.error(`Error: ${errorText}`);
+                        consolefy.error(`Error: ${errorText}`);
                         await ctx.reply(
                             `${quote(`⚠️ Terjadi kesalahan:`)}\n` +
                             `${quote("─────")}\n` +
@@ -195,20 +195,15 @@ module.exports = (bot) => {
             }
 
             // Penanganan AFK
-            if (ctx.quoted?.senderJid || m.message?.extendedTextMessage?.contextInfo?.mentionedJid) {
-                const userAFKJids = ctx.quoted.senderJid ? 
-                    [tools.general.getID(ctx.quoted.senderJid)] : 
-                    m.message?.extendedTextMessage?.contextInfo?.mentionedJid?.map(jid => tools.general.getID(jid)) || [];
+            const userAFKJids = ctx.quoted.senderJid ? [tools.general.getID(ctx.quoted.senderJid)] : m.message?.extendedTextMessage?.contextInfo?.mentionedJid?.map(jid => tools.general.getID(jid)) || [];
+            if (userAFKJids.length > 0) {
+                if (m.key.fromMe) return;
 
-                if (userAFKJids.length > 0) {
-                    if (m.key.fromMe) return;
-
-                    for (const userAFKJid of userAFKJids) {
-                        const userAFK = await Database.getUser(userAFKJid);
-                        if (userAFK?.afk_reason && userAFK?.afk_timestamp) {
-                            const timeago = tools.general.convertMsToDuration(Date.now() - userAFK.afk_timestamp);
-                            await ctx.reply(quote(`📴 Dia sedang AFK ${userAFK.afk_reason ? `dengan alasan "${userAFK.afk_reason}"` : "tanpa alasan"} selama ${timeago}.`));
-                        }
+                for (const userAFKJid of userAFKJids) {
+                    const userAFK = await Database.getUser(userAFKJid);
+                    if (userAFK?.afk_reason && userAFK?.afk_timestamp) {
+                        const timeago = tools.general.convertMsToDuration(Date.now() - userAFK.afk_timestamp);
+                        await ctx.reply(quote(`💤 Dia sedang AFK ${userAFK.afk_reason ? `dengan alasan "${userAFK.afk_reason}"` : "tanpa alasan"} selama ${timeago}.`));
                     }
                 }
             }
@@ -218,7 +213,7 @@ module.exports = (bot) => {
                 const timeElapsed = Date.now() - userDb.afk_timestamp;
                 if (timeElapsed > 3000) {
                     const timeago = tools.general.convertMsToDuration(timeElapsed);
-                    await ctx.reply(quote(`📴 Anda telah keluar dari AFK ${userDb.afk_reason ? `dengan alasan "${userDb.afk_reason}"` : "tanpa alasan"} selama ${timeago}.`));
+                    await ctx.reply(quote(`💤 Anda telah keluar dari AFK ${userDb.afk_reason ? `dengan alasan "${userDb.afk_reason}"` : "tanpa alasan"} selama ${timeago}.`));
                     await Database.removeAfk(senderId);
                 }
             }
@@ -309,7 +304,7 @@ module.exports = (bot) => {
             const allMenfessDb = await Database.getMenfess();
             const activeMenfess = allMenfessDb.filter(m => m.status === 'active');
             const menfessEntries = activeMenfess.map(m => [m.menfess_id, { from: m.from_user, to: m.to_user }]);
-            
+
             if (!isCmd || isCmd.didyoumean) {
                 for (const [conversationId, menfessData] of menfessEntries) {
                     const { from, to } = menfessData;
@@ -322,9 +317,9 @@ module.exports = (bot) => {
                             });
                             await Database.updateMenfess(conversationId, {
                                 status: 'done',
-                                last_message: new Date().toLocaleString('en-US', { 
+                                last_message: new Date().toLocaleString('en-US', {
                                     timeZone: 'Asia/Jakarta',
-                                    hour12: false 
+                                    hour12: false
                                 }).replace(/(\d+)\/(\d+)\/(\d+),\s+/, '$3-$1-$2 ')
                             });
                         } else {
@@ -333,9 +328,9 @@ module.exports = (bot) => {
                             });
                             // Update timestamp pesan terakhir menggunakan format 24 jam
                             await Database.updateMenfess(conversationId, {
-                                last_message: new Date().toLocaleString('en-US', { 
+                                last_message: new Date().toLocaleString('en-US', {
                                     timeZone: 'Asia/Jakarta',
-                                    hour12: false 
+                                    hour12: false
                                 }).replace(/(\d+)\/(\d+)\/(\d+),\s+/, '$3-$1-$2 ')
                             });
                         }
@@ -359,10 +354,10 @@ module.exports = (bot) => {
             });
 
             const vcard = new VCardBuilder()
-                 .setFullName(config.owner.name)
-                 .setOrg(config.owner.organization)
-                 .setNumber(config.owner.id).build();
-             return await bot.core.sendMessage(call.from, {
+                .setFullName(config.owner.name)
+                .setOrg(config.owner.organization)
+                .setNumber(config.owner.id).build();
+            return await bot.core.sendMessage(call.from, {
                 contacts: {
                     displayName: config.owner.name,
                     contacts: [{

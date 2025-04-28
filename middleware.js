@@ -32,7 +32,7 @@ module.exports = (bot) => {
             const groupJid = isGroup ? ctx.id : null;
             const groupId = isGroup ? tools.general.getID(groupJid) : null;
             const isOwner = tools.general.isOwner(senderId);
-            
+
             // Mengambil data dari database
             const botMode = await Database.getBotMode();
             const userDb = await Database.getUser(senderId);
@@ -65,35 +65,35 @@ module.exports = (bot) => {
                 currentLevel += 1;
 
                 if (userDb.autolevelup) {
-                // Kirim pesan level up jika autolevelup aktif
-                const profilePictureUrl = await ctx.core.profilePictureUrl(ctx.sender.jid, "image").catch(() => "https://i.pinimg.com/736x/70/dd/61/70dd612c65034b88ebf474a52ccc70c4.jpg");
+                    // Kirim pesan level up jika autolevelup aktif
+                    const profilePictureUrl = await ctx.core.profilePictureUrl(ctx.sender.jid, "image").catch(() => "https://i.pinimg.com/736x/70/dd/61/70dd612c65034b88ebf474a52ccc70c4.jpg");
 
-                const canvas = tools.api.createUrl("fast", "/canvas/levelup", {
-                    avatar: profilePictureUrl,
-                    background: config.bot.thumbnail,
-                    username: userDb?.name,
-                    borderColor: "0068ff",
-                    avatarBorderColor: "0068ff",
-                    currentLevel: userDb?.level,
-                    nextLevel: currentLevel
-                });
-    
-                const text = `${quote(`Selamat! Kamu telah naik ke level ${currentLevel}!`)}\n` +
-                    `${config.msg.readmore}\n` +
-                    quote(tools.cmd.generateNotes([`Terganggu? Ketik ${monospace(`${ctx.used.prefix}setprofile autolevelup`)} untuk menonaktifkan pesan autolevelup.`]));
- 
-                 try {
-                     await ctx.reply({
-                         image: {
-                             url: canvas
-                         },
-                         mimetype: mime.lookup("png"),
-                         caption: text
-                     });
-                 } catch (error) {
-                     if (error.status !== 200) await ctx.reply(text);
-                 }
-             }
+                    const canvas = tools.api.createUrl("fast", "/canvas/levelup", {
+                        avatar: profilePictureUrl,
+                        background: config.bot.thumbnail,
+                        username: userDb?.name,
+                        borderColor: "0068ff",
+                        avatarBorderColor: "0068ff",
+                        currentLevel: userDb?.level,
+                        nextLevel: currentLevel
+                    });
+
+                    const text = `${quote(`Selamat! Kamu telah naik ke level ${currentLevel}!`)}\n` +
+                        `${config.msg.readmore}\n` +
+                        quote(tools.cmd.generateNotes([`Terganggu? Ketik ${monospace(`${ctx.used.prefix}setprofile autolevelup`)} untuk menonaktifkan pesan autolevelup.`]));
+
+                    try {
+                        await ctx.reply({
+                            image: {
+                                url: canvas
+                            },
+                            mimetype: mime.lookup("png"),
+                            caption: text
+                        });
+                    } catch (error) {
+                        if (error.status !== 200) await ctx.reply(text);
+                    }
+                }
             }
 
             // Update XP dan Level user
@@ -107,49 +107,49 @@ module.exports = (bot) => {
 
             // Pengecekan kondisi pengguna
             const restrictions = [{
-                    condition: userDb?.banned,
-                    msg: config.msg.banned,
-                    reaction: "🚫",
-                    key: "has_sent_banned"
+                condition: userDb?.banned,
+                msg: config.msg.banned,
+                reaction: "🚫",
+                key: "has_sent_banned"
+            },
+            {
+                condition: !isOwner && !userDb?.premium && new Cooldown(ctx, config.system.cooldown).onCooldown,
+                msg: config.msg.cooldown,
+                reaction: "🔄",
+                afterCooldown: "✅",
+                key: "has_sent_cooldown"
+            },
+            {
+                condition: config.system.requireBotGroupMembership && ctx.used.command !== "botgroup" && !isOwner && !userDb?.premium && !(await ctx.group(config.bot.groupJid).members()).some(member => tools.general.getID(member.id) === senderId),
+                msg: text,
+                contextInfo: {
+                    externalAdReply: {
+                        title: config.msg.watermark,
+                        mediaType: "IMAGE",
+                        thumbnailUrl: config.bot.thumbnail,
+                        sourceUrl: config.bot.website,
+                        renderLargerThumbnail: true
+                    }
                 },
-                {
-                    condition: !isOwner && !userDb?.premium && new Cooldown(ctx, config.system.cooldown).onCooldown,
-                    msg: config.msg.cooldown,
-                    reaction: "🔄",
-                    afterCooldown: "✅",
-                    key: "has_sent_cooldown"
-                },
-                {
-                    condition: config.system.requireBotGroupMembership && ctx.used.command !== "botgroup" && !isOwner && !userDb?.premium && !(await ctx.group(config.bot.groupJid).members()).some(member => tools.general.getID(member.id) === senderId),
-                    msg: text,
-                    contextInfo: {
-                        externalAdReply: {
-                            title: config.msg.watermark,
-                            mediaType: "IMAGE",
-                            thumbnailUrl: config.bot.thumbnail,
-                            sourceUrl: config.bot.website,
-                            renderLargerThumbnail: true
-                        }
-                    },
-                    reaction: "🚫",
-                    key: "has_sent_requireBotGroupMembership"
-                },
-                {
-                    condition: !userDb?.registered && !["register", "daftar", "reg", "regist", "verif", "verify", "caradaftar"].includes(ctx.used.command),
-                    msg: config.msg.register,
-                    reaction: "📝",
-                    alwaysNotify: true
-                }
+                reaction: "🚫",
+                key: "has_sent_requireBotGroupMembership"
+            },
+            {
+                condition: !userDb?.registered && !["register", "daftar", "reg", "regist", "verif", "verify", "caradaftar"].includes(ctx.used.command),
+                msg: config.msg.register,
+                reaction: "📝",
+                alwaysNotify: true
+            }
             ];
 
             for (const {
-                    condition,
-                    msg,
-                    reaction,
-                    afterCooldown,
-                    key,
-                    alwaysNotify
-                }
+                condition,
+                msg,
+                reaction,
+                afterCooldown,
+                key,
+                alwaysNotify
+            }
                 of restrictions) {
                 if (condition) {
                     if (alwaysNotify || !userDb?.[key]) {
@@ -189,54 +189,54 @@ module.exports = (bot) => {
                 permissions = {}
             } = command;
             const permissionChecks = [{
-                    key: "admin",
-                    condition: isGroup && !await ctx.group().isSenderAdmin(),
-                    msg: config.msg.admin
-                },
-                {
-                    key: "botAdmin",
-                    condition: isGroup && !await ctx.group().isBotAdmin(),
-                    msg: config.msg.botAdmin
-                },
-                {
-                    key: "coin",
-                    condition: permissions.coin && config.system.useCoin && await checkCoin(permissions.coin, senderId),
-                    msg: quote(`❎ Anda tidak memiliki cukup koin untuk menggunakan fitur ini.\n`) +
-                        quote(`Koin Anda saat ini: ${userDb?.coin || 0} koin. Dibutuhkan: ${permissions.coin} koin.\n\n`) +
-                        quote(`Ketik ${monospace(`${ctx.used.prefix}coin`)} untuk melihat cara mendapatkan koin.`)
-                },
-                {
-                    key: "group",
-                    condition: !isGroup,
-                    msg: config.msg.group
-                },
-                {
-                    key: "owner",
-                    condition: !isOwner,
-                    msg: config.msg.owner
-                },
-                {
-                    key: "premium",
-                    condition: !isOwner && !userDb?.premium,
-                    msg: config.msg.premium
-                },
-                {
-                    key: "private",
-                    condition: isGroup,
-                    msg: config.msg.private
-                },
-                {
-                    key: "restrict",
-                    condition: config.system.restrict,
-                    msg: config.msg.restrict
-                }
+                key: "admin",
+                condition: isGroup && !await ctx.group().isSenderAdmin(),
+                msg: config.msg.admin
+            },
+            {
+                key: "botAdmin",
+                condition: isGroup && !await ctx.group().isBotAdmin(),
+                msg: config.msg.botAdmin
+            },
+            {
+                key: "coin",
+                condition: permissions.coin && config.system.useCoin && await checkCoin(permissions.coin, senderId),
+                msg: quote(`❎ Anda tidak memiliki cukup koin untuk menggunakan fitur ini.\n`) +
+                    quote(`Koin Anda saat ini: ${userDb?.coin || 0} koin. Dibutuhkan: ${permissions.coin} koin.\n\n`) +
+                    quote(`Ketik ${monospace(`${ctx.used.prefix}coin`)} untuk melihat cara mendapatkan koin.`)
+            },
+            {
+                key: "group",
+                condition: !isGroup,
+                msg: config.msg.group
+            },
+            {
+                key: "owner",
+                condition: !isOwner,
+                msg: config.msg.owner
+            },
+            {
+                key: "premium",
+                condition: !isOwner && !userDb?.premium,
+                msg: config.msg.premium
+            },
+            {
+                key: "private",
+                condition: isGroup,
+                msg: config.msg.private
+            },
+            {
+                key: "restrict",
+                condition: config.system.restrict,
+                msg: config.msg.restrict
+            }
             ];
 
             for (const {
-                    key,
-                    condition,
-                    msg
-                }
+                key,
+                condition,
+                msg
+            }
                 of permissionChecks) {
                 if (permissions[key] && condition) {
                     return await ctx.reply(msg);
