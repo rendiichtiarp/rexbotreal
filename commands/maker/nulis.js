@@ -7,7 +7,7 @@ const mime = require("mime-types");
 module.exports = {
     name: "nulis",
     aliases: ["tulis"],
-    category: "tool",
+    category: "maker",
     permissions: {
         coin: 10
     },

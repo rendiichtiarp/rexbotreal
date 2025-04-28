@@ -2,7 +2,8 @@
 const {
     Cooldown,
     monospace,
-    quote
+    quote,
+    bold
 } = require("@mengkodingan/ckptw");
 const Database = require('./lib/database/queries');
 const mime = require("mime-types");
@@ -102,8 +103,11 @@ module.exports = (bot) => {
                 level: currentLevel
             });
 
-            const text = quote(`❎ Anda belum bergabung ke komunitas RexbotX\n> Bergabung untuk mendapatkan akses penuh ke fitur RexbotX!` +
-                `${(config.bot.groupLink + "\n\n> Jika belum bergabung, akan diberikan reaksi 🚫")}`);
+            const text = quote(`❎ Anda belum bergabung ke komunitas RexbotX\n> Bergabung ke komunitas RexbotX terlebih dahulu.\n\n`) +
+                (`*Syarat:*\n`) +
+                (`- *Follow:* https://whatsapp.com/channel/0029Vb1aqIYCMY0EmiUODK00\n`) +
+                (`- *Bergabung:* ${config.bot.groupLink}\n\n`) +
+                quote(`Jika belum bergabung akan diberikan reaksi "🚫"`)
 
             // Pengecekan kondisi pengguna
             const restrictions = [{
