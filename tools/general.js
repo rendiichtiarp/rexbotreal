@@ -204,6 +204,26 @@ function calculateTimeBasedCoin(startTime, endTime, baseCoin = 20) {
     return calculatedCoin;
 }
 
+function formatPhoneNumber(phoneNumber) {
+    if (!phoneNumber) return null;
+    
+    // Menghapus semua karakter non-digit
+    let cleaned = phoneNumber.replace(/[^\d]/g, '');
+    
+    // Jika dimulai dengan 0, cek apakah ada kode negara sebelumnya
+    if (cleaned.startsWith('0')) {
+        // Cek apakah ada match dengan nomor yang disalin dari WhatsApp
+        // yang biasanya dalam format: [kode_negara][0][nomor]
+        const matchCountryCode = phoneNumber.match(/^\+(\d+)\s*0/);
+        if (matchCountryCode) {
+            // Jika ada kode negara, gunakan kode negara tersebut
+            cleaned = matchCountryCode[1] + cleaned.slice(1);
+        }
+    }
+    
+    return cleaned;
+}
+
 module.exports = {
     convertMsToDuration,
     formatSize,
@@ -217,5 +237,6 @@ module.exports = {
     ucword,
     upload,
     calculateTimeBasedCoin,
-    randomDelay
+    randomDelay,
+    formatPhoneNumber
 };

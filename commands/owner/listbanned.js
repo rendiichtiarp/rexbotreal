@@ -19,18 +19,24 @@ module.exports = {
                 return await ctx.reply(quote("❎ Tidak ada pengguna yang dibanned."));
             }
 
-            let resultText = "";
+            let resultText = quote(`📋 Daftar Pengguna Banned\n`) +
+                quote(`Total: ${bannedUsers.length} pengguna\n`) +
+                quote(`──────────────\n`);
             let userMentions = [];
 
             bannedUsers.forEach((user) => {
-                resultText += `${quote(`@${user.id}`)}\n`;
+                const expiredTime = user.banned_expired ? new Date(user.banned_expired).toLocaleString('id-ID') : "Permanen";
+                const remainingTime = user.banned_expired ? tools.general.convertMsToDuration(user.banned_expired - Date.now()) : "Permanen";
+                
+                resultText += quote(`👤 @${user.id}\n`) +
+                    quote(`Berakhir: ${expiredTime}\n`) +
+                    quote(`Sisa waktu: ${remainingTime}\n`) +
+                    quote(`──────────────\n`);
                 userMentions.push(`${user.id}@s.whatsapp.net`);
             });
 
             return await ctx.reply({
-                text: `${resultText}` +
-                    "\n" +
-                    config.msg.footer,
+                text: resultText + config.msg.footer,
                 mentions: userMentions
             });
         } catch (error) {

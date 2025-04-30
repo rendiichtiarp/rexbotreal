@@ -12,15 +12,17 @@ module.exports = {
     },
     code: async (ctx) => {
         const userId = ctx.args[0];
+        const duration = ctx.args[1]; // Bisa berupa angka atau "permanent"/"permanen"
 
         const userJid = ctx.msg.message.extendedTextMessage?.contextInfo?.mentionedJid?.[0] || (userId ? `${userId}@s.whatsapp.net` : null) || ctx.quoted.senderJid;
         const senderJid = ctx.sender.jid;
         const senderId = tools.general.getID(senderJid);
         const userDb = await Database.getUser(tools.general.getID(userId));
 
-        if (!userJid) return await ctx.reply({
+        if (!userJid || !duration) return await ctx.reply({
             text: `${quote(tools.cmd.generateInstruction(["send"], ["text"]))}\n` +
-                quote(tools.cmd.generateCommandExample(ctx.used, `@${senderId}`)),
+                quote(tools.cmd.generateCommandExample(ctx.used, `@${senderId} 30`)) + "\n" +
+                quote(tools.cmd.generateCommandExample(ctx.used, `@${senderId} permanent`)),
             mentions: [senderJid]
         });
 
@@ -29,14 +31,37 @@ module.exports = {
          if (!isOnWhatsApp.exists) return await ctx.reply(quote("❎ Akun tidak ada di WhatsApp."));
 
              try {
+            // Cek apakah permanen atau durasi
+            const isPermanent = duration.toLowerCase() === "permanent" || duration.toLowerCase() === "permanen";
+            const durationNumber = isPermanent ? null : parseInt(duration);
+
+            if (!isPermanent && (isNaN(durationNumber) || durationNumber <= 0)) {
+                return await ctx.reply(quote("❎ Durasi harus berupa angka positif atau 'permanent'/'permanen'!"));
+            }
+
+            // Hitung waktu expired jika tidak permanen
+            const expiredTime = isPermanent ? null : Date.now() + (durationNumber * 24 * 60 * 60 * 1000);
+
             await Database.updateUser(tools.general.getID(userJid), {
-                premium: true
+                premium: true,
+                premium_expired: expiredTime
             });
 
+            const durationText = isPermanent ? "Permanent" : `${durationNumber} hari`;
+            const expiredText = isPermanent ? "Permanent" : new Date(expiredTime).toLocaleString('id-ID');
+
             await ctx.sendMessage(userJid, {
-                text: quote(`🎉 Anda telah ditambahkan sebagai pengguna Premium oleh Owner!`)
+                text: quote(`🎉 Anda telah ditambahkan sebagai pengguna Premium oleh Owner!\n`) +
+                    quote(`Durasi: ${durationText}\n`) +
+                    quote(`Berakhir pada: ${expiredText}`)
             });
-            return await ctx.reply(quote(`✅ Berhasil ditambahkan sebagai pengguna Premium!`));
+            
+            return await ctx.reply(quote(`✅ Berhasil ditambahkan sebagai pengguna Premium!\n`) +
+                quote(`User: @${tools.general.getID(userJid)}\n`) +
+                quote(`Durasi: ${durationText}\n`) +
+                quote(`Berakhir pada: ${expiredText}`), {
+                mentions: [userJid]
+            });
         } catch (error) {
             return await tools.cmd.handleError(ctx, error, false);
         }

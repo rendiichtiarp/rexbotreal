@@ -18,18 +18,24 @@ module.exports = {
                 return await ctx.reply(quote("❎ Tidak ada pengguna yang premium."));
             }
 
-            let resultText = "";
+            let resultText = quote(`📋 Daftar Pengguna Premium\n`) +
+                quote(`Total: ${premiumUsers.length} pengguna\n`) +
+                quote(`──────────────\n`);
             let userMentions = [];
 
             premiumUsers.forEach((user) => {
-                resultText += `${quote(`@${user.id}`)}\n`;
+                const expiredTime = user.premium_expired ? new Date(user.premium_expired).toLocaleString('id-ID') : "Permanen";
+                const remainingTime = user.premium_expired ? tools.general.convertMsToDuration(user.premium_expired - Date.now()) : "Permanen";
+                
+                resultText += quote(`👤 @${user.id}\n`) +
+                    quote(`Berakhir: ${expiredTime}\n`) +
+                    quote(`Sisa waktu: ${remainingTime}\n`) +
+                    quote(`──────────────\n`);
                 userMentions.push(`${user.id}@s.whatsapp.net`);
             });
 
             return await ctx.reply({
-                text: `${resultText}` +
-                    "\n" +
-                    config.msg.footer,
+                text: resultText + config.msg.footer,
                 mentions: userMentions
             });
         } catch (error) {

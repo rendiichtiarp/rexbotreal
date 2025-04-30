@@ -24,7 +24,7 @@ module.exports = {
 
         try {
             const [isOnWhatsApp] = await ctx.core.onWhatsApp(userJid);
-            if (!isOnWhatsApp || !isOnWhatsApp.exists) return await ctx.reply(quote("❎ Akun tidak ada di WhatsApp!"));
+            if (!isOnWhatsApp.exists) return await ctx.reply(quote("❎ Akun tidak ada di WhatsApp!"));
 
             if (senderId === userId) return await ctx.reply(quote(`❎ Anda tidak dapat mentransfer koin ke diri sendiri!`));
 
@@ -32,7 +32,7 @@ module.exports = {
             if (!senderData || senderData.coin < coinAmount) return await ctx.reply(quote(`❎ Koin Anda tidak mencukupi untuk transfer ini!`));
 
             const receiverId = tools.general.getID(userJid).replace(/[^\d]/g, '');
-            
+
             // Update koin pengirim
             await Database.updateUser(senderId, {
                 coin: senderData.coin - coinAmount

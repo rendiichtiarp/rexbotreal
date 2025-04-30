@@ -24,17 +24,23 @@ module.exports = {
 
         
         const [isOnWhatsApp] = await ctx.core.onWhatsApp(userJid);
-         if (!isOnWhatsApp.exists) return await ctx.reply(quote("❎ Akun tidak ada di WhatsApp!"));
+        if (!isOnWhatsApp.exists) return await ctx.reply(quote("❎ Akun tidak ada di WhatsApp!"));
             
-             try {
+        try {
             await Database.updateUser(tools.general.getID(userJid), {
-                premium: false
+                premium: false,
+                premium_expired: null
             });
 
             await ctx.sendMessage(userJid, {
-                text: quote(`🎉 Anda telah dihapus sebagai pengguna Premium oleh Owner!`)
+                text: quote(`💡 Status premium Anda telah dihapus oleh Owner!\n`) +
+                    quote(`Terima kasih telah berlangganan premium.`)
             });
-            return await ctx.reply(quote(`✅ Berhasil dihapus sebagai pengguna Premium!`));
+            
+            return await ctx.reply(quote(`✅ Berhasil dihapus sebagai pengguna Premium!\n`) +
+                quote(`User: @${tools.general.getID(userJid)}`), {
+                mentions: [userJid]
+            });
         } catch (error) {
             return await tools.cmd.handleError(ctx, error, false);
         }

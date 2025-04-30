@@ -11,30 +11,54 @@ module.exports = {
     },
     code: async (ctx) => {
         const userId = ctx.args[0];
+        const duration = ctx.args[1]; // Bisa berupa angka atau "permanent"/"permanen"
 
         const userJid = ctx.msg.message.extendedTextMessage?.contextInfo?.mentionedJid?.[0] || (userId ? `${userId}@s.whatsapp.net` : null) || ctx.quoted.senderJid;
         const senderJid = ctx.sender.jid;
         const senderId = tools.general.getID(senderJid);
 
-        if (!userJid) return await ctx.reply({
+        if (!userJid || !duration) return await ctx.reply({
             text: `${quote(tools.cmd.generateInstruction(["send"], ["text"]))}\n` +
-                quote(tools.cmd.generateCommandExample(ctx.used, `@${senderId}`)),
+                quote(tools.cmd.generateCommandExample(ctx.used, `@${senderId} 30`)) + "\n" +
+                quote(tools.cmd.generateCommandExample(ctx.used, `@${senderId} permanent`)),
             mentions: [senderJid]
         });
 
-        
         const [isOnWhatsApp] = await ctx.core.onWhatsApp(userJid);
-         if (!isOnWhatsApp.exists) return await ctx.reply(quote("❎ Akun tidak ada di WhatsApp!"));
+        if (!isOnWhatsApp.exists) return await ctx.reply(quote("❎ Akun tidak ada di WhatsApp!"));
 
-             try {
+        try {
+            // Cek apakah permanen atau durasi
+            const isPermanent = duration.toLowerCase() === "permanent" || duration.toLowerCase() === "permanen";
+            const durationNumber = isPermanent ? null : parseInt(duration);
+
+            if (!isPermanent && (isNaN(durationNumber) || durationNumber <= 0)) {
+                return await ctx.reply(quote("❎ Durasi harus berupa angka positif atau 'permanent'/'permanen'!"));
+            }
+
+            // Hitung waktu expired jika tidak permanen
+            const expiredTime = isPermanent ? null : Date.now() + (durationNumber * 24 * 60 * 60 * 1000);
+
             await Database.updateUser(tools.general.getID(userJid), {
-                banned: true
+                banned: true,
+                banned_expired: expiredTime
             });
+
+            const durationText = isPermanent ? "Permanent" : `${durationNumber} hari`;
+            const expiredText = isPermanent ? "Permanent" : new Date(expiredTime).toLocaleString('id-ID');
 
             await ctx.sendMessage(userJid, {
-                text: quote(`🎉 Anda telah dibanned oleh Owner!`)
+                text: quote(`💡 Anda telah dibanned oleh Owner!\n`) +
+                    quote(`Durasi: ${durationText}\n`) +
+                    quote(`Berakhir pada: ${expiredText}`)
             });
-            return await ctx.reply(quote(`✅ Berhasil dibanned!`));
+            
+            return await ctx.reply(quote(`✅ Berhasil dibanned!\n`) +
+                quote(`User: @${tools.general.getID(userJid)}\n`) +
+                quote(`Durasi: ${durationText}\n`) +
+                quote(`Berakhir pada: ${expiredText}`), {
+                mentions: [userJid]
+            });
         } catch (error) {
             return await tools.cmd.handleError(ctx, error, false);
         }
