@@ -14,17 +14,24 @@ module.exports = {
             let targetJid = ctx.quoted?.participant || ctx.mentions?.[0] || ctx.args?.[0];
             let senderJid = ctx.sender.jid;
             
-            // Jika ada nomor telepon yang diberikan (format: 62xxx)
-            if (targetJid && !targetJid.includes('@') && targetJid.startsWith('62')) {
-                targetJid = `${targetJid}@s.whatsapp.net`;
-            }
-            
             // Jika tidak ada target, gunakan sender sendiri
             if (!targetJid) {
                 targetJid = senderJid;
             }
+            
+            // Bersihkan format JID dan dapatkan ID
+            let targetId;
+            if (targetJid) {
+                // Hapus @ di awal jika ada
+                targetJid = targetJid.replace(/^@+/, '');
+                
+                // Hapus @s.whatsapp.net jika ada
+                targetJid = targetJid.replace(/@s\.whatsapp\.net$/, '');
+                
+                // Gunakan nomor telepon sebagai ID
+                targetId = targetJid;
+            }
 
-            const targetId = tools.general.getID(targetJid);
             const userDb = await Database.getUser(targetId);
             
             // Jika user tidak ditemukan di database
@@ -45,8 +52,12 @@ module.exports = {
                 .sort((a, b) => b.win_game - a.win_game || b.level - a.level);
 
             const userRank = leaderboardData.findIndex(user => user.id === targetId) + 1;
-            const profilePictureUrl = await ctx.core.profilePictureUrl(targetJid, "image")
+            
+            // Tambahkan kembali @s.whatsapp.net untuk profilePictureUrl
+            const profileJid = `${targetId}@s.whatsapp.net`;
+            const profilePictureUrl = await ctx.core.profilePictureUrl(profileJid, "image")
                 .catch(() => "https://i.pinimg.com/736x/70/dd/61/70dd612c65034b88ebf474a52ccc70c4.jpg");
+            
             const canvas = tools.api.createUrl("fast", "/canvas/rank", {
                 avatar: profilePictureUrl,
                 background: config.bot.thumbnail,

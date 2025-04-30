@@ -23,7 +23,7 @@ module.exports = {
         });
 
         
-        const isOnWhatsApp = await ctx.core.onWhatsApp(user);
+        const [isOnWhatsApp] = await ctx.core.onWhatsApp(user);
              if (!isOnWhatsApp.exists) return await ctx.reply(quote(`❎ Akun tidak ada di WhatsApp!`));
 
              try {
