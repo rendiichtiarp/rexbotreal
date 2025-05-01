@@ -23,13 +23,13 @@ module.exports = {
         });
 
         const [isOnWhatsApp] = await ctx.core.onWhatsApp(userJid);
-        if (!isOnWhatsApp.exists) return await ctx.reply(quote(`❎ Akun tidak ada di WhatsApp!`));
+             if (!isOnWhatsApp.exists) return await ctx.reply(quote(`❎ Akun tidak ada di WhatsApp!`));
 
         // Cek apakah user dibanned
         const userDb = await Database.getUser(tools.general.getID(userJid));
         if (!userDb?.banned) return await ctx.reply(quote("❎ User tidak dalam status banned!"));
 
-        try {
+             try {
             await Database.updateUser(tools.general.getID(userJid), {
                 banned: false,
                 banned_expired: null
@@ -39,7 +39,7 @@ module.exports = {
                 text: quote(`💡 Anda telah diunbanned oleh Owner!\n`) +
                     quote(`Terima kasih telah mematuhi peraturan.`)
             });
-            
+
             return await ctx.reply(quote(`✅ Berhasil diunbanned!\n`) +
                 quote(`User: @${tools.general.getID(userJid)}`), {
                 mentions: [userJid]

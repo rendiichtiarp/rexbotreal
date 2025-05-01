@@ -23,11 +23,11 @@ module.exports = {
                 quote(tools.cmd.generateCommandExample(ctx.used, `@${senderId} permanent`)),
             mentions: [senderJid]
         });
-
+        
         const [isOnWhatsApp] = await ctx.core.onWhatsApp(userJid);
-        if (!isOnWhatsApp.exists) return await ctx.reply(quote("❎ Akun tidak ada di WhatsApp!"));
+         if (!isOnWhatsApp.exists) return await ctx.reply(quote("❎ Akun tidak ada di WhatsApp!"));
 
-        try {
+             try {
             // Cek apakah permanen atau durasi
             const isPermanent = duration.toLowerCase() === "permanent" || duration.toLowerCase() === "permanen";
             const durationNumber = isPermanent ? null : parseInt(duration);
