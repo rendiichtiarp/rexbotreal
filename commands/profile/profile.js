@@ -73,6 +73,9 @@ module.exports = {
                 `${quote(`Status: ${isOwner ? "Owner" : userDb?.premium ? "Premium" : "Free" || "-"}`)}\n` +
                 `${quote(`Level: ${userDb?.level || "-"}`)}\n` +
                 `${quote(`XP: ${userDb?.xp} / ${((userDb?.level || 0) + 1) * 100}`)}\n` +
+                `${quote(`Rod: ${userDb?.rodlevel || 0}`)}\n` +
+                `${quote(`Pickaxe: ${userDb?.pickaxe || 0}`)}\n` +
+                `${quote(`Work Streak: ${userDb?.workStreak || 0}`)}\n` +
                 `${quote(`Koin: ${isOwner || userDb?.premium ? "Tak terbatas" : userDb?.coin || "-"}`)}\n` +
                 `${quote(`Peringkat: ${userRank || "-"}`)}\n` +
                 `${quote(`Menang: ${userDb?.win_game || "-"}`)}\n` +

@@ -26,6 +26,9 @@ module.exports = {
             const [isOnWhatsApp] = await ctx.core.onWhatsApp(userJid);
             if (!isOnWhatsApp.exists) return await ctx.reply(quote("❎ Akun tidak ada di WhatsApp!"));
 
+            const userDb = await Database.getUser(senderId);
+            if (userDb?.premium || tools.general.isOwner(senderId)) return await ctx.reply(quote("❎ Koin tak terbatas tidak dapat di transfer!"));
+
             if (senderId === userId) return await ctx.reply(quote(`❎ Anda tidak dapat mentransfer koin ke diri sendiri!`));
 
             const senderData = await Database.getUser(senderId);

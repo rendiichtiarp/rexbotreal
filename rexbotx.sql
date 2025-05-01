@@ -274,13 +274,28 @@ CREATE TABLE IF NOT EXISTS `users` (
   `last_claim_weekly` bigint(20) DEFAULT 0,
   `last_claim_monthly` bigint(20) DEFAULT 0,
   `last_claim_yearly` bigint(20) DEFAULT 0,
+  `lastBeg` bigint(20) DEFAULT 0,
+  `lastMineTime` bigint(20) DEFAULT 0,
+  `lastWorkTime` bigint(20) DEFAULT 0,
+  `lastFishTime` bigint(20) DEFAULT 0,
+  `lastScavenge` bigint(20) DEFAULT 0,
+  `workStreak` int(11) DEFAULT 0,
   `login_attempts` int(11) DEFAULT 0,
   `last_login_attempt` timestamp NULL DEFAULT NULL,
   `role` enum('user','admin') DEFAULT 'user',
+  `rodlevel` enum('bamboo','iron','gold','iridium') DEFAULT 'bamboo',
+  `pickaxe` enum('stone','iron','golden','iridium') DEFAULT 'stone',
   `created_at` timestamp NULL DEFAULT current_timestamp(),
   `updated_at` timestamp NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
   PRIMARY KEY (`id`),
-  KEY `idx_login` (`id`,`password`)
+  KEY `idx_login` (`id`,`password`),
+  KEY `idx_rodlevel` (`rodlevel`),
+  KEY `idx_pickaxe` (`pickaxe`),
+  KEY `idx_lastBeg` (`lastBeg`),
+  KEY `idx_lastMineTime` (`lastMineTime`),
+  KEY `idx_lastWorkTime` (`lastWorkTime`),
+  KEY `idx_lastFishTime` (`lastFishTime`),
+  KEY `idx_lastScavenge` (`lastScavenge`)
 ) ENGINE=InnoDB DEFAULT CHARSET=ascii COLLATE=ascii_bin;
 
 -- Data exporting was unselected.
