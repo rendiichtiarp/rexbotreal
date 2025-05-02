@@ -2,6 +2,7 @@ const {
     quote
 } = require("@mengkodingan/ckptw");
 const mime = require("mime-types");
+const axios = require("axios");
 
 module.exports = {
     name: "me",
@@ -39,7 +40,7 @@ module.exports = {
                 return await ctx.reply(quote("❎ Pengguna tidak ditemukan dalam database!"));
             }
 
-            const isOwner = tools.general.isOwner(targetId);
+            const isOwner = tools.general.isOwner(targetId, ctx.msg.key.id);
 
             // Get all users for ranking
             const users = await Database.getAllUsers();
@@ -70,25 +71,30 @@ module.exports = {
             });
 
             const text = `${quote(`Nama: ${userDb?.name || "-"}`)}\n` +
-                `${quote(`Status: ${isOwner ? "Owner" : userDb?.premium ? "Premium" : "Free" || "-"}`)}\n` +
+                `${quote(`Status: ${isOwner ? "Owner" : userDb?.premium ? "Premium" : "Free"}`)}\n` +
                 `${quote(`Level: ${userDb?.level || "-"}`)}\n` +
                 `${quote(`XP: ${userDb?.xp} / ${((userDb?.level || 0) + 1) * 100}`)}\n` +
                 `${quote(`Rod: ${userDb?.rodlevel || 0}`)}\n` +
                 `${quote(`Pickaxe: ${userDb?.pickaxe || 0}`)}\n` +
                 `${quote(`Work Streak: ${userDb?.workStreak || 0}`)}\n` +
-                `${quote(`Koin: ${isOwner || userDb?.premium ? "Tak terbatas" : userDb?.coin || "-"}`)}\n` +
+                `${quote(`Koin: ${isOwner ? "Tak terbatas" : userDb?.coin || "-"}`)}\n` +
                 `${quote(`Peringkat: ${userRank || "-"}`)}\n` +
                 `${quote(`Menang: ${userDb?.win_game || "-"}`)}\n` +
+                `${quote(`Penggunaan Perintah: ${userDb?.command_usage_count || 0}`)}\n` +
                 "\n" +
                 config.msg.footer;
 
             try {
+                const url = (await axios.get(tools.api.createUrl("http://vid2aud.hofeda4501.serv00.net", "/api/img2vid", {
+                    url: canvas
+                }))).data.result;
                 return await ctx.reply({
-                    image: {
-                        url: canvas
+                    video: {
+                        url
                     },
-                    mimetype: mime.lookup("png"),
-                    caption: text
+                    mimetype: mime.lookup("mp4"),
+                    caption: text,
+                    gifPlayback: true
                 });
             } catch (error) {
                 if (error.status !== 200) return await ctx.reply(text);

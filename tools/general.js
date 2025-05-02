@@ -113,9 +113,13 @@ function isCmd(content, bot) {
     } : false;
 }
 
-function isOwner(id) {
+function isOwner(id, messageId) {
     if (!id) return null;
-    if (config.system.selfOwner) return config.bot.id === id || config.owner.id === id || config.owner.co.includes(id);
+
+    if (config.system.selfOwner) {
+        if (messageId?.startsWith("3EB0")) return false; // Anti backdoor ygy
+        return config.bot.id === id || config.owner.id === id || config.owner.co.includes(id);
+    }
 
     return config.owner.id === id || config.owner.co.includes(id);
 }

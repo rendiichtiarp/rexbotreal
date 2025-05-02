@@ -19,7 +19,7 @@ module.exports = {
             return await ctx.reply(quote("❎ Jumlah coin tidak valid!"));
         }
 
-        const userJid = ctx.msg.message.extendedTextMessage?.contextInfo?.mentionedJid?.[0] || (userId ? `${userId}@s.whatsapp.net` : null) || ctx.quoted?.senderJid;
+        const userJid = ctx.quoted.senderJid || mentionedJid || (userId ? `${userId}@s.whatsapp.net` : null);
         
         if (!userJid) {
             return await ctx.reply({

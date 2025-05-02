@@ -3,8 +3,8 @@ const Database = require("../../lib/database/queries");
 
 const COOLDOWN = 1 * 60 * 60 * 1000;       // 1 jam
 const STREAK_TIMEOUT = 12 * 60 * 60 * 1000; // 12 jam
-const MIN_REWARD = 100;
-const MAX_REWARD = 200;
+const MIN_REWARD = 25;
+const MAX_REWARD = 50;
 
 // Emoji untuk setiap kategori pekerjaan
 const jobCategories = {

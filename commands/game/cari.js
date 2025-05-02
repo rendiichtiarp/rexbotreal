@@ -27,7 +27,7 @@ module.exports = {
     }
 
     // Random amount between -10 and +15
-    const amount = Math.floor(Math.random() * 26) - 10;
+    const amount = Math.floor(Math.random() * 26) - 5;
     
     // Messages for positive/negative finds
     const pos = [

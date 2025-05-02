@@ -2,7 +2,7 @@ const { monospace, quote } = require("@mengkodingan/ckptw");
 const Database = require("../../lib/database/queries");
 
 const COOLDOWN = 5 * 60 * 1000; // 5 menit
-const COIN_PER_BLOCK = 10;
+const COIN_PER_BLOCK = 6;
 
 // Definisi pickaxe dan propertinya
 const pickaxes = {

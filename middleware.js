@@ -6,13 +6,14 @@ const {
     bold
 } = require("@mengkodingan/ckptw");
 const Database = require('./lib/database/queries');
+const axios = require("axios");
 const mime = require("mime-types");
 
 // Fungsi untuk mengecek apakah pengguna memiliki cukup koin sebelum menggunakan perintah tertentu
-async function checkCoin(requiredCoin, senderId) {
+async function checkCoin(requiredCoin, senderId, messageId) {
     const userDb = await Database.getUser(senderId);
 
-    if (tools.general.isOwner(senderId) || userDb?.premium) return false;
+    if (tools.general.isOwner(senderId, messageId) || userDb?.premium) return false;
     if ((userDb?.coin || 0) < requiredCoin) return true;
 
     await Database.updateUser(senderId, {
@@ -32,7 +33,7 @@ module.exports = (bot) => {
             const senderId = tools.general.getID(senderJid);
             const groupJid = isGroup ? ctx.id : null;
             const groupId = isGroup ? tools.general.getID(groupJid) : null;
-            const isOwner = tools.general.isOwner(senderId);
+            const isOwner = tools.general.isOwner(senderId, ctx.msg.key.id);
 
             // Mengambil data dari database
             const botMode = await Database.getBotMode();
@@ -84,12 +85,16 @@ module.exports = (bot) => {
                         quote(tools.cmd.generateNotes([`Terganggu? Ketik ${monospace(`${ctx.used.prefix}setprofile autolevelup`)} untuk menonaktifkan pesan autolevelup.`]));
 
                     try {
+                        const url = (await axios.get(tools.api.createUrl("http://vid2aud.hofeda4501.serv00.net", "/api/img2vid", {
+                            url: canvas
+                        }))).data.result;
                         await ctx.reply({
-                            image: {
-                                url: canvas
+                            video: {
+                                url
                             },
-                            mimetype: mime.lookup("png"),
-                            caption: text
+                            mimetype: mime.lookup("mp4"),
+                            caption: text,
+                            gifPlayback: true
                         });
                     } catch (error) {
                         if (error.status !== 200) await ctx.reply(text);
@@ -204,7 +209,7 @@ module.exports = (bot) => {
             },
             {
                 key: "coin",
-                condition: permissions.coin && config.system.useCoin && await checkCoin(permissions.coin, senderId),
+                condition: permissions.coin && config.system.useCoin && await checkCoin(permissions.coin, senderId, ctx.msg.key.id),
                 msg: quote(`❎ Anda tidak memiliki cukup koin untuk menggunakan fitur ini.\n`) +
                     quote(`Koin Anda saat ini: ${userDb?.coin || 0} koin. Dibutuhkan: ${permissions.coin} koin.\n\n`) +
                     quote(`Ketik ${monospace(`${ctx.used.prefix}coin`)} untuk melihat cara mendapatkan koin.`)

@@ -69,17 +69,6 @@ module.exports = {
       const userDb = await Database.getUser(userId);
       const coin = userDb?.coin || 0;
 
-      // unlimited for owner/premium
-      if (tools.general.isOwner(userId) || userDb?.premium) {
-        return ctx.reply(
-          `${quote(`❌ Error:`)}\n` +
-          `${quote(`💎 Anda memiliki koin tak terbatas!`)}\n` +
-          `${quote(`ℹ️ Tidak perlu bermain roulette.`)}\n` +
-          "\n" +
-          config.msg.footer
-        );
-      }
-
       if (coin < amount) {
         return ctx.reply(
           `${quote(`❌ Error:`)}\n` +

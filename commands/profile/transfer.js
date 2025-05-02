@@ -12,7 +12,8 @@ module.exports = {
         const userId = ctx.args[0];
         const coinAmount = parseInt(ctx.args[1], 10);
 
-        const userJid = ctx.msg.message.extendedTextMessage?.contextInfo?.mentionedJid?.[0] || (userId ? `${userId}@s.whatsapp.net` : null) || ctx.quoted.senderJid;
+        const mentionedJid = ctx.msg.message.extendedTextMessage?.contextInfo?.mentionedJid?.[0];
+        const userJid = ctx.quoted.senderJid || mentionedJid || (userId ? `${userId}@s.whatsapp.net` : null);
         const senderJid = ctx.sender.jid;
         const senderId = tools.general.getID(senderJid).replace(/[^\d]/g, '');
 
@@ -27,7 +28,6 @@ module.exports = {
             if (!isOnWhatsApp.exists) return await ctx.reply(quote("❎ Akun tidak ada di WhatsApp!"));
 
             const userDb = await Database.getUser(senderId);
-            if (userDb?.premium || tools.general.isOwner(senderId)) return await ctx.reply(quote("❎ Koin tak terbatas tidak dapat di transfer!"));
 
             if (senderId === userId) return await ctx.reply(quote(`❎ Anda tidak dapat mentransfer koin ke diri sendiri!`));
 
@@ -48,7 +48,14 @@ module.exports = {
                 coin: receiverCoin + coinAmount
             });
 
-            return await ctx.reply(quote(`✅ Berhasil mentransfer ${coinAmount} koin ke pengguna!`));
+            await ctx.core.sendMessage(userJid, {
+                text: quote(`💰 Anda telah menerima ${coinAmount} koin dari @${senderId}!`),
+                mentions: [senderJid]
+            });
+
+            return await ctx.reply(quote(`✅ Berhasil mentransfer ${coinAmount} koin ke @${receiverId}!`), {
+                mentions: [senderJid]
+            });
         } catch (error) {
             return await tools.cmd.handleError(ctx, error, false);
         }

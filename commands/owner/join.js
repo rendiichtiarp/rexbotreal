@@ -22,14 +22,13 @@ module.exports = {
 
         try {
             const urlCode = new URL(url).pathname.split("/").pop();
-            await ctx.groups.acceptInvite(urlCode);
-
-            // Kirim pesan perkenalan ke grup
-            await ctx.core.sendMessage(groupJid, {
-                text: quote(`👋 Halo! Saya adalah Bot WhatsApp bernama ${config.bot.name}, dimiliki oleh ${config.owner.name}. Saya bisa melakukan banyak perintah, seperti membuat stiker, menggunakan AI untuk pekerjaan tertentu, dan beberapa perintah berguna lainnya. Saya di sini untuk menghibur dan menyenangkan Anda!, untuk melihat perintah saya gunakan ".menu"`)
+            await ctx.groups.acceptInvite(urlCode).then(async result => {
+                await ctx.sendMessage(result, {
+                    text: quote(`👋 Halo! Saya adalah Bot WhatsApp bernama ${config.bot.name}, dimiliki oleh ${config.owner.name}. Saya bisa melakukan banyak perintah, seperti membuat stiker, menggunakan AI untuk pekerjaan tertentu, dan beberapa perintah berguna lainnya. Saya di sini untuk menghibur dan menyenangkan Anda!`)
+                });
             });
 
-            return await ctx.reply(quote(`✅ Berhasil bergabung dengan grup!`));
+            return await ctx.reply(quote("✅ Berhasil bergabung dengan grup!"));
         } catch (error) {
             return await tools.cmd.handleError(ctx, error, false);
         }

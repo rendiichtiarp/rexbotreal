@@ -20,11 +20,11 @@ const fishEmoji = {
 };
 
 const rewardTable = { 
-  common: 5, 
-  uncommon: 10, 
-  rare: 25, 
-  epic: 50, 
-  mythic: 100 
+  common: 2, 
+  uncommon: 5, 
+  rare: 10, 
+  epic: 30, 
+  mythic: 70 
 };
 
 const COOLDOWN = 1 * 60 * 1000; // 1 menit

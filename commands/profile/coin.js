@@ -13,8 +13,6 @@ module.exports = {
         const senderId = tools.general.getID(ctx.sender.jid);
         const userDb = await Database.getUser(senderId);
 
-        if (tools.general.isOwner(senderId) || userDb?.premium) return await ctx.reply(quote("🤑 Anda memiliki koin tak terbatas."));
-
         try {
             const userCoin = userDb?.coin || 0;
 

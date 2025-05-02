@@ -21,21 +21,17 @@ const {
 
 // Fungsi untuk menangani event pengguna bergabung/keluar grup
 async function handleUserEvent(bot, m, type) {
-    const {
-        id,
-        participants
-    } = m;
+    const groupJid = m.id;
+    const groupId = tools.general.getID(id);
+    const groupDb = await Database.getGroup(groupId);
+
+    if (groupDb?.mute) return;
+    if (!groupDb?.welcome) return;
 
     try {
-        const groupId = tools.general.getID(id);
-        const groupDb = await Database.getGroup(groupId);
+        const metadata = await bot.core.groupMetadata(groupJid);
 
-        if (groupDb?.mute) return;
-        if (!groupDb?.welcome) return;
-
-        const metadata = await bot.core.groupMetadata(id);
-
-        for (const jid of participants) {
+        for (const jid of m.participants) {
             const profilePictureUrl = await bot.core.profilePictureUrl(jid, "image").catch(() => "https://i.pinimg.com/736x/70/dd/61/70dd612c65034b88ebf474a52ccc70c4.jpg");
 
             const customText = type === "UserJoin" ? groupDb?.welcome_text : groupDb?.goodbye_text;
@@ -59,22 +55,26 @@ async function handleUserEvent(bot, m, type) {
             });
 
             try {
-                await bot.core.sendMessage(id, {
-                    image: {
-                        url: canvas
+                const url = (await axios.get(tools.api.createUrl("http://vid2aud.hofeda4501.serv00.net", "/api/img2vid", {
+                    url: canvas
+                }))).data.result;
+                await bot.core.sendMessage(groupJid, {
+                    video: {
+                        url
                     },
-                    mimetype: mime.lookup("png"),
+                    mimetype: mime.lookup("mp4"),
                     caption: text,
+                    gifPlayback: true,
                     mentions: [jid]
                 });
             } catch (error) {
-                if (error.status !== 200) await bot.core.sendMessage(id, {
+                if (error.status !== 200) await bot.core.sendMessage(groupJid, {
                     text,
                     mentions: [jid]
                 });
             }
 
-            if (type === "UserJoin" && groupDb?.intro_text) await bot.core.sendMessage(id, {
+            if (type === "UserJoin" && groupDb?.intro_text) await bot.core.sendMessage(groupJid, {
                 text: groupDb?.intro_text,
                 mentions: [jid]
             });
@@ -87,7 +87,7 @@ async function handleUserEvent(bot, m, type) {
                 `${quote("─────")}\n` +
                 monospace(errorText)
         });
-        await bot.core.sendMessage(id, {
+        await bot.core.sendMessage(groupJid, {
             text: quote(`❎ Terjadi kesalahan: ${error.message}`)
         });
     }
@@ -137,7 +137,7 @@ module.exports = (bot) => {
         const senderId = tools.general.getID(senderJid);
         const groupJid = isGroup ? ctx.id : null;
         const groupId = isGroup ? tools.general.getID(groupJid) : null;
-        const isOwner = tools.general.isOwner(senderId);
+        const isOwner = tools.general.isOwner(senderId, m.key.id);
         const isCmd = tools.general.isCmd(m.content, ctx.bot);
 
         // Mengambil data dari database
@@ -195,6 +195,18 @@ module.exports = (bot) => {
 
         isGroup ? consolefy.info(`Pesan masuk dari grup: ${groupId}, oleh: ${senderId}`) : consolefy.info(`Pesan masuk dari: ${senderId}`);
 
+        // Menghitung penggunaan perintah jika valid command
+        if (isCmd && !isCmd.didyoumean) {
+            try {
+                // Increment command usage count
+                await Database.updateUser(senderId, {
+                    command_usage_count: (userDb?.command_usage_count || 0) + 1
+                });
+            } catch (error) {
+                consolefy.error(`Error updating command usage count: ${error}`);
+            }
+        }
+
         await tools.general.randomDelay();
 
         // Grup atau Pribadi
@@ -202,7 +214,7 @@ module.exports = (bot) => {
             if (isCmd?.didyoumean) await ctx.reply(quote(`❎ Anda salah ketik, sepertinya ${monospace(isCmd?.prefix + isCmd?.didyoumean)}.`));
 
             // Perintah khusus Owner
-            if (isOwner && m.content) {
+            if (m.content && isOwner) {
                 // Perintah Eval (Jalankan kode JavaScript)
                 if (m.content.startsWith("==> ") || m.content.startsWith("=> ")) {
                     const code = m.content.slice(m.content.startsWith("==> ") ? 4 : 3);
