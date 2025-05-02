@@ -16,7 +16,8 @@ module.exports = {
 
         const userJid = ctx.msg.message.extendedTextMessage?.contextInfo?.mentionedJid?.[0] || (userId ? `${userId}@s.whatsapp.net` : null) || ctx.quoted.senderJid;
         const senderJid = ctx.sender.jid;
-        const senderId = tools.general.getID(senderJid);
+        const senderId = tools.general.getID(senderJid).replace(/[^\d]/g, '');
+        const cleanUserId = tools.general.getID(userJid).replace(/[^\d]/g, '');
         const userDb = await Database.getUser(tools.general.getID(userId));
 
         if (!userJid || !duration) return await ctx.reply({
@@ -42,7 +43,7 @@ module.exports = {
             // Hitung waktu expired jika tidak permanen
             const expiredTime = isPermanent ? null : Date.now() + (durationNumber * 24 * 60 * 60 * 1000);
 
-            await Database.updateUser(tools.general.getID(userJid), {
+            await Database.updateUser(cleanUserId, {
                 premium: true,
                 premium_expired: expiredTime
             });
@@ -57,7 +58,7 @@ module.exports = {
             });
             
             return await ctx.reply(quote(`✅ Berhasil ditambahkan sebagai pengguna Premium!\n`) +
-                quote(`User: @${tools.general.getID(userJid)}\n`) +
+                quote(`User: @${cleanUserId}\n`) +
                 quote(`Durasi: ${durationText}\n`) +
                 quote(`Berakhir pada: ${expiredText}`), {
                 mentions: [userJid]
