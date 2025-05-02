@@ -145,67 +145,11 @@ module.exports = (bot) => {
         const userDb = await Database.getUser(senderId);
         const groupDb = isGroup ? await Database.getGroup(groupId) : null;
 
-        // Cek premium expired
-        if (userDb?.premium) {
-            // Jika ada expired time, cek apakah sudah expired
-            if (userDb.premium_expired) {
-                const now = Date.now();
-                if (now > userDb.premium_expired) {
-                    await Database.updateUser(senderId, {
-                        premium: false,
-                        premium_expired: null
-                    });
-                    
-                    // Kirim notifikasi ke user bahwa premium telah berakhir
-                    await bot.core.sendMessage(senderJid, {
-                        text: quote(`💡 Status premium Anda telah berakhir!\n`) +
-                            quote(`Berakhir pada: ${new Date(userDb.premium_expired).toLocaleString('id-ID')}\n`) +
-                            quote(`Silakan hubungi Owner untuk memperpanjang premium.`)
-                    });
-                }
-            }
-            // Jika tidak ada expired time (null), berarti permanent
-        }
-
-        // Cek banned expired
-        if (userDb?.banned) {
-            // Jika ada expired time, cek apakah sudah expired
-            if (userDb.banned_expired) {
-                const now = Date.now();
-                if (now > userDb.banned_expired) {
-                    await Database.updateUser(senderId, {
-                        banned: false,
-                        banned_expired: null
-                    });
-                    
-                    // Kirim notifikasi ke user bahwa banned telah berakhir
-                    await bot.core.sendMessage(senderJid, {
-                        text: quote(`💡 Status banned Anda telah berakhir!\n`) +
-                            quote(`Berakhir pada: ${new Date(userDb.banned_expired).toLocaleString('id-ID')}\n`) +
-                            quote(`Mohon patuhi peraturan agar tidak dibanned kembali.`)
-                    });
-                }
-            }
-            // Jika tidak ada expired time (null), berarti permanent
-        }
-
         if ((botMode === "group" && !isGroup) || (botMode === "private" && isGroup) || (botMode === "self" && !isOwner)) return;
 
         if (groupDb?.mute && (!isOwner && !await ctx.group().isSenderAdmin())) return;
 
         isGroup ? consolefy.info(`Pesan masuk dari grup: ${groupId}, oleh: ${senderId}`) : consolefy.info(`Pesan masuk dari: ${senderId}`);
-
-        // Menghitung penggunaan perintah jika valid command
-        if (isCmd && !isCmd.didyoumean) {
-            try {
-                // Increment command usage count
-                await Database.updateUser(senderId, {
-                    command_usage_count: (userDb?.command_usage_count || 0) + 1
-                });
-            } catch (error) {
-                consolefy.error(`Error updating command usage count: ${error}`);
-            }
-        }
 
         await tools.general.randomDelay();
 
@@ -248,6 +192,62 @@ module.exports = (bot) => {
                         );
                     }
                 }
+            }
+
+            // Menghitung penggunaan perintah jika valid command
+            if (isCmd && !isCmd.didyoumean) {
+                try {
+                    // Increment command usage count
+                    await Database.updateUser(senderId, {
+                        command_usage_count: (userDb?.command_usage_count || 0) + 1
+                    });
+                } catch (error) {
+                    consolefy.error(`Error updating command usage count: ${error}`);
+                }
+            }
+
+            // Cek premium expired
+            if (userDb?.premium) {
+                // Jika ada expired time, cek apakah sudah expired
+                if (userDb.premium_expired) {
+                    const now = Date.now();
+                    if (now > userDb.premium_expired) {
+                        await Database.updateUser(senderId, {
+                            premium: false,
+                            premium_expired: null
+                        });
+
+                        // Kirim notifikasi ke user bahwa premium telah berakhir
+                        await bot.core.sendMessage(senderJid, {
+                            text: quote(`💡 Status premium Anda telah berakhir!\n`) +
+                                quote(`Berakhir pada: ${new Date(userDb.premium_expired).toLocaleString('id-ID')}\n`) +
+                                quote(`Silakan hubungi Owner untuk memperpanjang premium.`)
+                        });
+                    }
+                }
+                // Jika tidak ada expired time (null), berarti permanent
+            }
+
+            // Cek banned expired
+            if (userDb?.banned) {
+                // Jika ada expired time, cek apakah sudah expired
+                if (userDb.banned_expired) {
+                    const now = Date.now();
+                    if (now > userDb.banned_expired) {
+                        await Database.updateUser(senderId, {
+                            banned: false,
+                            banned_expired: null
+                        });
+
+                        // Kirim notifikasi ke user bahwa banned telah berakhir
+                        await bot.core.sendMessage(senderJid, {
+                            text: quote(`💡 Status banned Anda telah berakhir!\n`) +
+                                quote(`Berakhir pada: ${new Date(userDb.banned_expired).toLocaleString('id-ID')}\n`) +
+                                quote(`Mohon patuhi peraturan agar tidak dibanned kembali.`)
+                        });
+                    }
+                }
+                // Jika tidak ada expired time (null), berarti permanent
             }
 
             // Penanganan AFK

@@ -117,6 +117,7 @@ global.config = {
         timeZone: "Asia/Jakarta", // Zona waktu bot
         uploaderHost: "FastUrl", // Host uploader untuk menyimpan media (Tersedia: FastUrl, litterbox, Catbox, Uguu, Quax, Pomf, Quax, Ryzen, Shojib, Erhabot, TmpErhabot, Videy)
         useCoin: true, // Pakai koin
+        useRegister: false, // Pakai register
         usePairingCode: false, // Pakai kode pairing untuk koneksi
         useServer: false // Jalankan bot dengan server
     }

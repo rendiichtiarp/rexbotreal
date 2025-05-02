@@ -41,9 +41,8 @@ module.exports = (bot) => {
             const groupDb = isGroup ? await Database.getGroup(groupId) : null;
 
             // Pengecekan mode bot dan mute grup
-            if (botMode === "group" && !isGroup) return;
-            if (botMode === "private" && isGroup) return;
-            if (botMode === "self" && !isOwner) return;
+            if ((botMode === "group" && !isGroup) || (botMode === "private" && isGroup) || (botMode === "self" && !isOwner)) return;
+
             if (groupDb?.mute && (!isOwner && !await ctx.group().isSenderAdmin())) return;
 
             if (config.system.autoTypingOnCmd) await ctx.simulateTyping();
@@ -144,7 +143,7 @@ module.exports = (bot) => {
                 key: "has_sent_requireBotGroupMembership"
             },
             {
-                condition: !userDb?.registered && !["register", "daftar", "reg", "regist", "verif", "verify", "caradaftar"].includes(ctx.used.command),
+                condition: !userDb?.registered && config.system.useRegister && !["register", "daftar", "reg", "regist", "verif", "verify", "caradaftar"].includes(ctx.used.command),
                 msg: config.msg.register,
                 reaction: "📝",
                 alwaysNotify: true
