@@ -22,7 +22,7 @@ const {
 // Fungsi untuk menangani event pengguna bergabung/keluar grup
 async function handleUserEvent(bot, m, type) {
     const groupJid = m.id;
-    const groupId = tools.general.getID(id);
+    const groupId = tools.general.getID(m.id);
     const groupDb = await Database.getGroup(groupId);
 
     if (groupDb?.mute) return;
