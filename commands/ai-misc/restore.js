@@ -4,8 +4,8 @@ const {
 const mime = require("mime-types");
 
 module.exports = {
-    name: "colorize",
-    category: "tool",
+    name: "restore",
+    category: "ai-misc",
     permissions: {
         coin: 10
     },
@@ -21,15 +21,15 @@ module.exports = {
         try {
             const buffer = await ctx.msg.media.toBuffer() || await ctx.quoted.media.toBuffer();
             const uploadUrl = await tools.general.upload(buffer, "image");
-            const result = tools.api.createUrl("fast", "/aiimage/imgcolorize", {
-                url: uploadUrl
+            const apiUrl = tools.api.createUrl("fast", "/aiimage/imgrestore", {
+                result: uploadUrl
             });
 
             return await ctx.reply({
                 image: {
                     url: result
                 },
-                mimetype: mime.lookup("png")
+                mimetype: mime.lookup("jpeg")
             });
         } catch (error) {
             return await tools.cmd.handleError(ctx, error, false);

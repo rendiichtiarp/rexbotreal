@@ -2,12 +2,13 @@ const {
     quote
 } = require("@mengkodingan/ckptw");
 const axios = require("axios");
+const mime = require("mime-types");
 
 module.exports = {
-    name: "sfiledl",
+    name: "applemusicdl",
     category: "downloader",
     permissions: {
-        premium: true
+        coin: 10
     },
     code: async (ctx) => {
         const url = ctx.args[0] || null;
@@ -21,20 +22,19 @@ module.exports = {
         if (!isUrl) return await ctx.reply(config.msg.urlInvalid);
 
         try {
-            const apiUrl = tools.api.createUrl("archive", "/api/download/sfile", {
+            const apiUrl = tools.api.createUrl("fasturl", "/downup/applemusicdown", {
                 url
             });
-            const result = (await axios.get(apiUrl)).data.result;
+            const result = (await axios.get(apiUrl)).data.result.downloadUrl;
 
             return await ctx.reply({
-                document: {
-                    url: result.download.url
+                audio: {
+                    url: result
                 },
+                mimetype: mime.lookup("mp3"),
                 caption: `${quote(`URL: ${url}`)}\n` +
                     "\n" +
-                    config.msg.footer,
-                fileName: result.metadata.filename,
-                mimetype: result.metadata.mimetype || "application/octet-stream"
+                    config.msg.footer
             });
         } catch (error) {
             return await tools.cmd.handleError(ctx, error, true);

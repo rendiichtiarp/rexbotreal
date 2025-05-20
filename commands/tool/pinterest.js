@@ -13,7 +13,7 @@ module.exports = {
         coin: 10
     },
     code: async (ctx) => {
-        const input = ctx.quoted.conversation || Object.values(ctx.quoted).map(v => v?.text || v?.caption).find(Boolean) || ctx.args.join(" ") || null;
+        const input = ctx.args.join(" ") || ctx.quoted.conversation || Object.values(ctx.quoted).map(v => v?.text || v?.caption).find(Boolean) || null;;
 
         if (!input) return await ctx.reply(
             `${quote(tools.cmd.generateInstruction(["send"], ["text"]))}\n` +
@@ -35,7 +35,7 @@ module.exports = {
                 image: {
                     url: randomResult.image
                 },
-                mimetype: mime.lookup("png"),
+                mimetype: mime.lookup("jpg"),
                 caption: `${quote(`Query: ${input}`)}\n` +
                     `${quote(`Caption: ${randomResult.caption || 'Tidak ada caption'}`)}\n` +
                     `${quote(`Uploader: ${randomResult.fullname} (@${randomResult.upload_by})`)}\n` +

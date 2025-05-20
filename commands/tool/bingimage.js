@@ -31,7 +31,7 @@ module.exports = {
                 image: {
                     url: result
                 },
-                mimetype: mime.lookup("png"),
+                mimetype: mime.lookup("jpeg"),
                 caption: `${quote(`Kueri: ${input}`)}\n` +
                     "\n" +
                     config.msg.footer

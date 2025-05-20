@@ -32,7 +32,7 @@ module.exports = {
                 image: {
                     url: result.img
                 },
-                mimetype: mime.lookup("png"),
+                mimetype: mime.lookup("jpeg"),
                 caption:
                     `${quote(`Bonus: 20 Koin (Akan berkurang berdasarkan waktu)`)}\n` +
                     `${quote(`Batas waktu: ${tools.general.convertMsToDuration(game.timeout)}`)}\n` +
