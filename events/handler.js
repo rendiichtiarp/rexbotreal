@@ -47,7 +47,7 @@ async function handleUserEvent(bot, m, type) {
                     quote(`👋 Selamat datang ${userTag} di grup ${metadata.subject}!`) :
                     quote(`👋 ${userTag} keluar dari grup ${metadata.subject}.`));
 
-            const canvas = tools.api.createUrl("fast", "/canvas/welcome", {
+            const canvas = tools.api.createUrl("fasturl", "/canvas/welcome", {
                 avatar: profilePictureUrl,
                 background: config.bot.thumbnail,
                 title: type === "UserJoin" ? "WELCOME" : "GOODBYE",
@@ -307,7 +307,7 @@ module.exports = (bot) => {
                 if (checkMedia && !await ctx.group().isSenderAdmin()) {
                     const buffer = await ctx.msg.media.toBuffer();
                     const uploadUrl = await tools.general.upload(buffer, "image");
-                    const apiUrl = tools.api.createUrl("fast", "/tool/imagechecker", {
+                    const apiUrl = tools.api.createUrl("fasturl", "/tool/imagechecker", {
                         url: uploadUrl
                     });
                     const result = (await axios.get(apiUrl)).data.result.status.toLowerCase();
@@ -341,13 +341,15 @@ module.exports = (bot) => {
                 }
             }
 
-            // Penanganan antisticker
-            if (groupDb?.antisticker) {
-                const checkMedia = await tools.cmd.checkMedia(ctx.getMessageType(), "sticker");
-                if (checkMedia && !await ctx.group().isSenderAdmin()) {
-                    await ctx.reply(quote(`⛔ Jangan kirim stiker!`));
-                    await ctx.deleteMessage(m.key);
-                    if (!config.system.restrict && groupDb?.autokick) await ctx.group().kick([ctx.sender.jid]);
+            // Penanganan antisticker, antidocument, antiaudio, antigif, antivideo, antiimage
+            for (const type of ["audio", "document", "gif", "image", "sticker", "video"]) {
+                if (groupDb?.[`anti${type}`]) {
+                    const checkMedia = await tools.cmd.checkMedia(ctx.getMessageType(), type);
+                    if (checkMedia && !await ctx.group().isSenderAdmin()) {
+                        await ctx.reply(quote(`⛔ Jangan kirim ${type}!`));
+                        await ctx.deleteMessage(m.key);
+                        if (!config.system.restrict && groupDb?.autokick) await ctx.group().kick([ctx.sender.jid]);
+                    }
                 }
             }
 

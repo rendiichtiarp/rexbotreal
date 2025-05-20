@@ -99,6 +99,11 @@ async function get(type) {
             }
             case "setoption": {
                 const data = [
+                    "antiaudio (Anti audio)",
+                    "antidocument (Anti document)",
+                    "antigif (Anti gif)",
+                    "antivideo (Anti video)",
+                    "antiimage (Anti image)",
                     "antilink (Anti link)",
                     "antinsfw (Anti NSFW, seperti pornografi)",
                     "antispam (Anti spam)",

@@ -24,7 +24,7 @@ module.exports = {
         try {
             const senderJid = ctx.sender.jid;
             const profilePictureUrl = await ctx.core.profilePictureUrl(senderJid, "image").catch(() => "https://i.pinimg.com/736x/70/dd/61/70dd612c65034b88ebf474a52ccc70c4.jpg");
-            const apiUrl = tools.api.createUrl("fast", "/maker/quote", {
+            const apiUrl = tools.api.createUrl("fasturl", "/maker/quote", {
                 text: input,
                 username: `${ctx.sender.pushName}`,
                 ppUrl: profilePictureUrl,

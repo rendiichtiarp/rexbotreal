@@ -31,6 +31,11 @@ module.exports = {
             const group = await Database.getGroup(groupId);
 
             return await ctx.reply(
+                `${quote(`AntiAudio: ${group?.antiaudio ? "Aktif" : "Nonaktif"}`)}\n` +
+                `${quote(`AntiDocument: ${group?.antidocument ? "Aktif" : "Nonaktif"}`)}\n` +
+                `${quote(`AntiGif: ${group?.antigif ? "Aktif" : "Nonaktif"}`)}\n` +
+                `${quote(`AntiVideo: ${group?.antivideo ? "Aktif" : "Nonaktif"}`)}\n` +
+                `${quote(`AntiImage: ${group?.antiimage ? "Aktif" : "Nonaktif"}`)}\n` +
                 `${quote(`Antilink: ${group?.antilink ? "Aktif" : "Nonaktif"}`)}\n` +
                 `${quote(`Antinsfw: ${group?.antinsfw ? "Aktif" : "Nonaktif"}`)}\n` +
                 `${quote(`Antispam: ${group?.antispam ? "Aktif" : "Nonaktif"}`)}\n` +
@@ -49,6 +54,11 @@ module.exports = {
             const group = await Database.getGroup(groupId);
             
             switch (input.toLowerCase()) {
+                case "antiaudio":
+                case "antidocument":
+                case "antigif":
+                case "antivideo":
+                case "antiimage":
                 case "antilink":
                 case "antinsfw":
                 case "antispam":

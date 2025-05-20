@@ -69,7 +69,7 @@ module.exports = (bot) => {
                     // Kirim pesan level up jika autolevelup aktif
                     const profilePictureUrl = await ctx.core.profilePictureUrl(ctx.sender.jid, "image").catch(() => "https://i.pinimg.com/736x/70/dd/61/70dd612c65034b88ebf474a52ccc70c4.jpg");
 
-                    const canvas = tools.api.createUrl("fast", "/canvas/levelup", {
+                    const canvas = tools.api.createUrl("fasturl", "/canvas/levelup", {
                         avatar: profilePictureUrl,
                         background: config.bot.thumbnail,
                         username: userDb?.name,
