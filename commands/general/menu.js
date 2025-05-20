@@ -159,6 +159,12 @@ module.exports = {
                 text,
                 contextInfo: {
                     mentionedJid: [ctx.sender.jid],
+                    forwardingScore: 9999,
+                    isForwarded: true,
+                    forwardedNewsletterMessageInfo: {
+                        newsletterJid: config.bot.newsletterJid,
+                        newsletterName: config.bot.name
+                    },
                     externalAdReply: {
                         title: config.msg.watermark,
                         mediaType: "IMAGE",

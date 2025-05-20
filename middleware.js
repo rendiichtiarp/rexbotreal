@@ -93,7 +93,16 @@ module.exports = (bot) => {
                             },
                             mimetype: mime.lookup("mp4"),
                             caption: text,
-                            gifPlayback: true
+                            gifPlayback: true,
+                        contextInfo: {
+                            mentionedJid: [jid],
+                            forwardingScore: 9999,
+                            isForwarded: true,
+                            forwardedNewsletterMessageInfo: {
+                                newsletterJid: config.bot.newsletterJid,
+                                newsletterName: config.bot.name
+                            }
+                        }
                         });
                     } catch (error) {
                         if (error.status !== 200) await ctx.reply(text);
@@ -107,11 +116,20 @@ module.exports = (bot) => {
                 level: currentLevel
             });
 
-            const text = quote(`❎ Anda belum bergabung ke komunitas RexbotX\n> Bergabung ke komunitas RexbotX terlebih dahulu.\n\n`) +
+            const textrequiregroup = quote(`❎ Anda belum bergabung ke komunitas RexbotX\n> Bergabung ke komunitas RexbotX terlebih dahulu.\n\n`) +
                 (`*Syarat:*\n`) +
                 (`- *Follow:* https://whatsapp.com/channel/0029Vb1aqIYCMY0EmiUODK00\n`) +
                 (`- *Bergabung:* ${config.bot.groupLink}\n\n`) +
                 quote(`Jika belum bergabung akan diberikan reaksi "🚫"`)
+
+            const textrequireregister = quote("❎ Anda belum terdaftar! Silakan daftar terlebih dahulu.\n\n> Pendaftaran RexbotX melalui:\n" +
+                "https://rexbotx.biz.id\n\n" +
+                "Cara pendaftaran:\n" +
+                "1. Klik tautan diatas\n" +
+                "2. Dihalaman website klik garis tiga di kanan atas\n" +
+                "3. Pilih menu Daftar\n" +
+                "4. Isi data Anda\n" +
+                "5. Selamat, Anda sudah terdaftar di RexbotX")
 
             // Pengecekan kondisi pengguna
             const restrictions = [{
@@ -129,8 +147,15 @@ module.exports = (bot) => {
             },
             {
                 condition: config.system.requireBotGroupMembership && ctx.used.command !== "botgroup" && !isOwner && !userDb?.premium && !(await ctx.group(config.bot.groupJid).members()).some(member => tools.general.getID(member.id) === senderId),
-                msg: text,
+                msg: textrequiregroup,
                 contextInfo: {
+                    mentionedJid: [ctx.sender.jid],
+                    forwardingScore: 9999,
+                    isForwarded: true,
+                    forwardedNewsletterMessageInfo: {
+                        newsletterJid: config.bot.newsletterJid,
+                        newsletterName: config.bot.name
+                    },
                     externalAdReply: {
                         title: config.msg.watermark,
                         mediaType: "IMAGE",
@@ -144,7 +169,23 @@ module.exports = (bot) => {
             },
             {
                 condition: !userDb?.registered && config.system.useRegister && !["register", "daftar", "reg", "regist", "verif", "verify", "caradaftar"].includes(ctx.used.command),
-                msg: config.msg.register,
+                msg: textrequireregister,
+                contextInfo: {
+                    mentionedJid: [ctx.sender.jid],
+                    forwardingScore: 9999,
+                    isForwarded: true,
+                    forwardedNewsletterMessageInfo: {
+                        newsletterJid: config.bot.newsletterJid,
+                        newsletterName: config.bot.name
+                    },
+                    externalAdReply: {
+                        title: config.msg.watermark,
+                        mediaType: "IMAGE",
+                        thumbnailUrl: config.bot.thumbnail,
+                        sourceUrl: config.bot.website,
+                        renderLargerThumbnail: true
+                    }
+                },
                 reaction: "📝",
                 alwaysNotify: true
             }

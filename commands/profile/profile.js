@@ -70,7 +70,7 @@ module.exports = {
                 requiredXp: ((userDb?.level || 0) + 1) * 100
             });
 
-            const text = `${quote(`Nama: ${userDb?.name || "-"}`)}\n` +
+            const text = `${quote(`Nama: ${userDb?.name || ctx.sender.pushName}`)}\n` +
                 `${quote(`Status: ${isOwner ? "Owner" : userDb?.premium ? "Premium" : "Free"}`)}\n` +
                 `${quote(`Level: ${userDb?.level || "-"}`)}\n` +
                 `${quote(`XP: ${userDb?.xp} / ${((userDb?.level || 0) + 1) * 100}`)}\n` +

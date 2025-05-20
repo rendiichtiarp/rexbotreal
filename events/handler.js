@@ -65,7 +65,15 @@ async function handleUserEvent(bot, m, type) {
                     mimetype: mime.lookup("mp4"),
                     caption: text,
                     gifPlayback: true,
-                    mentions: [jid]
+                    contextInfo: {
+                        mentionedJid: [jid],
+                        forwardingScore: 9999,
+                        isForwarded: true,
+                        forwardedNewsletterMessageInfo: {
+                            newsletterJid: config.bot.newsletterJid,
+                            newsletterName: config.bot.name
+                        }
+                    }
                 });
             } catch (error) {
                 if (error.status !== 200) await bot.core.sendMessage(groupJid, {
@@ -325,7 +333,7 @@ module.exports = (bot) => {
                     lastMessageTime: now
                 });
 
-                if (newCount > 5) {
+                if (newCount > 5 && !await ctx.group().isSenderAdmin()) {
                     await ctx.reply(quote(`⛔ Jangan spam!`));
                     await ctx.deleteMessage(m.key);
                     if (!config.system.restrict && groupDb?.autokick) await ctx.group().kick([ctx.sender.jid]);

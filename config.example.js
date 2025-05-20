@@ -16,6 +16,7 @@ global.config = {
         thumbnail: "https://raw.githubusercontent.com/rendiichtiarp/RexbotX/refs/heads/main/thumbnail-rexbotx-ramadhan.png", // Gambar thumbnail bot
         website: "https://whatsapp.com/channel/0029Vb1aqIYCMY0EmiUODK00", // Website untuk WhatsApp bot
         groupJid: "", // JID untuk group bot (opsional jika tidak menggunakan requireBotGroupMembership)
+        newsletterJid: "120363416372653441@newsletter", // JID untuk saluran bot
 
         // Konfigurasi channel untuk broadcast
         groups: {
@@ -115,7 +116,7 @@ global.config = {
         selfOwner: false, // Bot jadi owner sendiri
         selfReply: true, // Bot balas pesan bot sendiri
         timeZone: "Asia/Jakarta", // Zona waktu bot
-        uploaderHost: "FastUrl", // Host uploader untuk menyimpan media (Tersedia: FastUrl, litterbox, Catbox, Uguu, Quax, Pomf, Quax, Ryzen, Shojib, Erhabot, TmpErhabot, Videy)
+        uploaderHost: "Nyxs", // Host uploader untuk menyimpan media (Tersedia: FastUrl, litterbox, Catbox, Uguu, Quax, Pomf, Quax, Ryzen, Shojib, Erhabot, TmpErhabot, Videy)
         useCoin: true, // Pakai koin
         useRegister: false, // Pakai register
         usePairingCode: false, // Pakai kode pairing untuk koneksi

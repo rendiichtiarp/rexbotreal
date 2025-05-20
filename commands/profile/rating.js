@@ -13,7 +13,7 @@ module.exports = {
 
         if (!input) return await ctx.reply(
             `${quote(tools.cmd.generateInstruction(["send"], ["text"]))}\n` +
-            quote(tools.cmd.generateCommandExample(ctx.used, "5 RexBotX sangat membantu!")) +
+            quote(tools.cmd.generateCommandExample(ctx.used, "5 Keren!")) +
             `\n\n${(tools.cmd.generateNotes([
                 "Rating harus berupa angka 1-5",
                 "Pesan setelah rating bersifat opsional"
