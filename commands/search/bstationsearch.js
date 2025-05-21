@@ -4,8 +4,8 @@ const {
 const axios = require("axios");
 
 module.exports = {
-    name: "bstationsearch",
-    aliases: ["bstation", "bstations"],
+    name: "lk21search",
+    aliases: ["lk21", "lk21s"],
     category: "search",
     permissions: {
         coin: 10
@@ -19,15 +19,15 @@ module.exports = {
         );
 
         try {
-            const apiUrl = tools.api.createUrl("archive", "/api/search/bstation", {
+            const apiUrl = tools.api.createUrl("fasturl", "/search/lk21", {
                 query: input
             });
-            const result = (await axios.get(apiUrl)).data.data;
+            const result = (await axios.get(apiUrl)).data.result;
 
             const resultText = result.map((r) =>
                 `${quote(`Judul: ${r.title}`)}\n` +
-                `${quote(`Genre: ${r.genre}`)}\n` +
-                `${quote(`URL: ${r.url}`)}`
+                `${quote(`Genre: ${r.genres}`)}\n` +
+                `${quote(`Negara: ${r.country}`)}\n`
             ).join(
                 "\n" +
                 `${quote("─────")}\n`

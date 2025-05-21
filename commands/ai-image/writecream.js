@@ -5,7 +5,7 @@ const mime = require("mime-types");
 const axios = require("axios");
 
 module.exports = {
-    name: "dbuzz",
+    name: "writecream",
     category: "ai-image",
     permissions: {
         premium: true
@@ -21,10 +21,10 @@ module.exports = {
         );
 
         try {
-            const apiUrl = tools.api.createUrl("zell", "/ai/text2image4", {
+            const apiUrl = tools.api.createUrl("archive", "/api/ai/writecream-image", {
                 prompt: input
             });
-            const result = (await axios.get(apiUrl)).data.result;
+            const result = (await axios.get(apiUrl)).data.result.imageUrl;
 
             return await ctx.reply({
                 image: {
