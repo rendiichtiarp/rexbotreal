@@ -147,15 +147,9 @@ module.exports = (bot) => {
             {
                 condition: !isOwner && !userDb?.premium && new Cooldown(ctx, config.system.cooldown).onCooldown,
                 msg: config.msg.cooldown,
-                contextInfo: {
-                    mentionedJid: [ctx.sender.jid],
-                    forwardingScore: 9999,
-                    isForwarded: true,
-                    forwardedNewsletterMessageInfo: {
-                        newsletterJid: config.bot.newsletterJid,
-                        newsletterName: config.bot.name
-                    }
-                }
+                reaction: "🔄",
+                afterCooldown: "✅",
+                key: "has_sent_cooldown"
             },
             {
                 condition: config.system.requireBotGroupMembership && ctx.used.command !== "botgroup" && !isOwner && !userDb?.premium && !(await ctx.group(config.bot.groupJid).members()).some(member => tools.general.getID(member.id) === senderId),
@@ -199,12 +193,36 @@ module.exports = (bot) => {
             }
             ];
 
-            for (const { condition, msg, contextInfo } of restrictions) {
-                if (condition) {
-                    await ctx.reply({
-                        text: msg,
-                        contextInfo: contextInfo
-                    });
+            for (const restriction of restrictions) {
+                if (restriction.condition) {
+                    // Khusus untuk cooldown, gunakan sistem react emoji
+                    if (restriction.reaction && restriction.key) {
+                        if (!userDb?.[restriction.key]) {
+                            await ctx.reply({
+                                text: restriction.msg,
+                                contextInfo: restriction.contextInfo
+                            });
+                            await Database.updateUser(senderId, {
+                                [restriction.key]: true
+                            });
+                        } else {
+                            await ctx.react(ctx.id, restriction.reaction);
+                            if (restriction.afterCooldown) {
+                                setTimeout(async () => {
+                                    await ctx.react(ctx.id, restriction.afterCooldown);
+                                    setTimeout(async () => {
+                                        await ctx.react(ctx.id, "");
+                                    }, 2000);
+                                }, config.system.cooldown);
+                            }
+                        }
+                    } else {
+                        // Untuk kondisi lain, selalu kirim pesan
+                        await ctx.reply({
+                            text: restriction.msg,
+                            contextInfo: restriction.contextInfo
+                        });
+                    }
                     return;
                 }
             }
