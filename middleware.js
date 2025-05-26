@@ -119,8 +119,7 @@ module.exports = (bot) => {
             const textrequiregroup = quote(`❎ Anda belum bergabung ke komunitas RexbotX\n> Bergabung ke komunitas RexbotX terlebih dahulu.\n\n`) +
                 (`*Syarat:*\n`) +
                 (`- *Follow:* https://whatsapp.com/channel/0029Vb1aqIYCMY0EmiUODK00\n`) +
-                (`- *Bergabung:* ${config.bot.groupLink}\n\n`) +
-                quote(`Jika belum bergabung akan diberikan reaksi "🚫"`)
+                (`- *Bergabung:* ${config.bot.groupLink}`)
 
             const textrequireregister = quote("❎ Anda belum terdaftar! Silakan daftar terlebih dahulu.\n\n> Pendaftaran RexbotX melalui:\n" +
                 "https://rexbotx.biz.id\n\n" +
@@ -135,15 +134,28 @@ module.exports = (bot) => {
             const restrictions = [{
                 condition: userDb?.banned,
                 msg: config.msg.banned,
-                reaction: "🚫",
-                key: "has_sent_banned"
+                contextInfo: {
+                    mentionedJid: [ctx.sender.jid],
+                    forwardingScore: 9999,
+                    isForwarded: true,
+                    forwardedNewsletterMessageInfo: {
+                        newsletterJid: config.bot.newsletterJid,
+                        newsletterName: config.bot.name
+                    }
+                }
             },
             {
                 condition: !isOwner && !userDb?.premium && new Cooldown(ctx, config.system.cooldown).onCooldown,
                 msg: config.msg.cooldown,
-                reaction: "🔄",
-                afterCooldown: "✅",
-                key: "has_sent_cooldown"
+                contextInfo: {
+                    mentionedJid: [ctx.sender.jid],
+                    forwardingScore: 9999,
+                    isForwarded: true,
+                    forwardedNewsletterMessageInfo: {
+                        newsletterJid: config.bot.newsletterJid,
+                        newsletterName: config.bot.name
+                    }
+                }
             },
             {
                 condition: config.system.requireBotGroupMembership && ctx.used.command !== "botgroup" && !isOwner && !userDb?.premium && !(await ctx.group(config.bot.groupJid).members()).some(member => tools.general.getID(member.id) === senderId),
@@ -163,9 +175,7 @@ module.exports = (bot) => {
                         sourceUrl: config.bot.website,
                         renderLargerThumbnail: true
                     }
-                },
-                reaction: "🚫",
-                key: "has_sent_requireBotGroupMembership"
+                }
             },
             {
                 condition: !userDb?.registered && config.system.useRegister && !["register", "daftar", "reg", "regist", "verif", "verify", "caradaftar"].includes(ctx.used.command),
@@ -185,40 +195,16 @@ module.exports = (bot) => {
                         sourceUrl: config.bot.website,
                         renderLargerThumbnail: true
                     }
-                },
-                reaction: "📝",
-                alwaysNotify: true
+                }
             }
             ];
 
-            for (const {
-                condition,
-                msg,
-                reaction,
-                afterCooldown,
-                key,
-                alwaysNotify
-            }
-                of restrictions) {
+            for (const { condition, msg, contextInfo } of restrictions) {
                 if (condition) {
-                    if (alwaysNotify || !userDb?.[key]) {
-                        await ctx.reply(msg);
-                        if (!alwaysNotify && key) {
-                            await Database.updateUser(senderId, {
-                                [key]: true
-                            });
-                        }
-                    } else {
-                        await ctx.react(ctx.id, reaction);
-                        if (afterCooldown) {
-                            setTimeout(async () => {
-                                await ctx.react(ctx.id, afterCooldown);
-                                setTimeout(async () => {
-                                    await ctx.react(ctx.id, "");
-                                }, 2000);
-                            }, config.system.cooldown);
-                        }
-                    }
+                    await ctx.reply({
+                        text: msg,
+                        contextInfo: contextInfo
+                    });
                     return;
                 }
             }
